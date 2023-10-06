@@ -1,9 +1,6 @@
 llthomas leviLThomas
-<<<<<<< HEAD
 huudinhk HuuDinhKyNguyen
 jmailman Mailman109
 vtalati vedanttalati
 jbisaac jordanisaac1
-=======
->>>>>>> a1b4d96 (Lubomyr added CCID and github username)
 lubomyr cantThinkOfAUserNam
