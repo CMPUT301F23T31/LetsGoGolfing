@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-</selector>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#388E3C"/> <!-- Darker Green -->
+    <corners android:radius="8dp"/>
+    <stroke android:width="2dp" android:color="#2E7D32"/> <!-- Even Darker Green for outline -->
+</shape>
