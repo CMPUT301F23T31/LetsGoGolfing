@@ -1,7 +1,12 @@
 package com.example.letsgogolfing;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import com.example.letsgogolfing.model.Item;
+import com.example.letsgogolfing.model.ItemAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,10 +18,16 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.letsgogolfing.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private FirebaseFirestore db;
+
+    private ArrayList<Item> dataList;
+    private ListView itemList;
+    private ArrayAdapter<Item> itemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +47,13 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        itemList = findViewById(R.id.item_list);
+
+        dataList = new ArrayList<>();
+
+        itemAdapter = new ItemAdapter(this, dataList);
+
     }
 
 }
