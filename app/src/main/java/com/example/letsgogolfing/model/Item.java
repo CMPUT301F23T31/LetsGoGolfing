@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.model;
 
 import com.google.firebase.firestore.Exclude;
 import java.util.Date;
