@@ -4,19 +4,27 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
+import com.example.letsgogolfing.R;
 
-public class ItemAdapter extends ArrayAdapter<Item>{
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.util.ArrayList;
+
+/**
+ *
+ */
+public class ItemAdapter extends ArrayAdapter<Item> {
     private ArrayList<Item> items;
     private Context context;
     private static final DecimalFormat df = new DecimalFormat("#,###,##");
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM");
+    private static final DateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
 
     public ItemAdapter(Context context, ArrayList<Item> items) {
         super(context, 0, items);
@@ -51,7 +59,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         itemSerialNumber.setText(item.getSerialNumber());
         itemEstimatedValue.setText("$"+df.format(item.getEstimatedValue()));
         itemComment.setText(item.getComment());
-        itemTags.setText(item.getTags());
+        itemTags.setText(String.join(",", item.getTags()));
 
         return view;
     }
