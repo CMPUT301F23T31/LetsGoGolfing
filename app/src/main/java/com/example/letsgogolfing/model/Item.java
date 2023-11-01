@@ -1,6 +1,6 @@
 package com.example.letsgogolfing.model;
 
-import com.google.firebase.firestore.Exclude;
+//import com.google.firebase.firestore.Exclude;
 import java.util.Date;
 import java.util.List;
 

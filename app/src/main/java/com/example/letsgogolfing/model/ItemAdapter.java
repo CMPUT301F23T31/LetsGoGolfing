@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class ItemAdapter extends ArrayAdapter<Item> {
     private ArrayList<Item> items;
     private Context context;
-    private static final DecimalFormat df = new DecimalFormat("#,###,##");
+    private static final DecimalFormat df = new DecimalFormat("#,###.##");
     private static final DateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
 
     public ItemAdapter(Context context, ArrayList<Item> items) {
@@ -53,7 +53,7 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 
         itemName.setText(item.getName());
         itemDescription.setText(item.getDescription());
-        itemDateOfPurchase.setText(item.getDateOfPurchase().format(dtf));
+        itemDateOfPurchase.setText(dtf.format(item.getDateOfPurchase()));
         itemMake.setText(item.getMake());
         itemModel.setText(item.getModel());
         itemSerialNumber.setText(item.getSerialNumber());
