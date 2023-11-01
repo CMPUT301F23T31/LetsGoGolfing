@@ -15,16 +15,30 @@ import com.example.letsgogolfing.model.ItemAdapter;
 
 import java.util.ArrayList;
 
+/**
+ * This displays the information managed by HomeViewModel
+ */
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
     private HomeViewModel viewModel;
     private ItemAdapter adapter;
 
+    /**
+     * When the Fragment is displayed it inflates the view and observes the data from HomeViewModel
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return The view updated with information managed by HomeViewModel
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel viewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
