@@ -57,7 +57,6 @@
         android:id="@+id/totalValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
         android:elevation="4dp"
         android:padding="8dp"
         android:background="@drawable/rounded_edittext"
