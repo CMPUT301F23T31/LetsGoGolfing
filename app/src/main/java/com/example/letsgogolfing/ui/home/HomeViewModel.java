@@ -10,10 +10,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Date;
 
+/**
+ * This class manages the data displayed by HomeFragment
+ */
 public class HomeViewModel extends ViewModel {
 
     private final MutableLiveData<List<Item>> items;
 
+    /**
+     * Initializes the displayed data with sample items
+     */
     public HomeViewModel() {
         items = new MutableLiveData<>();
 
@@ -25,6 +31,10 @@ public class HomeViewModel extends ViewModel {
         items.setValue(sampleItems);
     }
 
+    /**
+     * Returns the List of Items
+     * @return
+     */
     public LiveData<List<Item>> getItems() {
         return items;
     }
