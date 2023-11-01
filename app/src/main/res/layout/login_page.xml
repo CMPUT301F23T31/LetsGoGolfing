@@ -21,7 +21,7 @@
         android:layout_below="@id/appTitle"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
-        android:background="#88CEB4"
+        android:background="@drawable/rounded_edittext"
         android:padding="24dp">
 
         <TextView

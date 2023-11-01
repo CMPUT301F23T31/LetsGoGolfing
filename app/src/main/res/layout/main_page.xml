@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="#AED5B1">
 
+
     <!-- Search bar -->
 
     <EditText
@@ -17,6 +18,7 @@
         android:layout_marginEnd="8dp"
         android:background="#88CEB4"
         android:hint="Search"
+        android:background="@drawable/rounded_edittext"
         android:gravity="center"
         app:layout_constraintEnd_toStartOf="@id/sortButton"
         app:layout_constraintHorizontal_bias="0.0"
@@ -30,6 +32,7 @@
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:padding="8dp"
+        android:background="@drawable/rounded_edittext"
         android:src="@android:drawable/ic_menu_sort_by_size"
         app:layout_constraintBottom_toBottomOf="@id/searchEditText"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,6 +60,7 @@
         android:background="#FFFFFF"
         android:elevation="4dp"
         android:padding="8dp"
+        android:background="@drawable/rounded_edittext"
         android:text="Total value: $69.42"
         tools:layout_editor_absoluteX="2dp"
         tools:layout_editor_absoluteY="667dp" />
