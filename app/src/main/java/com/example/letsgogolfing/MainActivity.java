@@ -1,12 +1,6 @@
 package com.example.letsgogolfing;
 
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.example.letsgogolfing.model.Item;
-import com.example.letsgogolfing.model.ItemAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,14 +10,12 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.letsgogolfing.databinding.ActivityMainBinding;
-//import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-//    private FirebaseFirestore db;
+    private FirebaseFirestore db;
 
 
     @Override
@@ -33,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-//        db = FirebaseFirestore.getInstance(); // get our database from FireStore on app launch
+        db = FirebaseFirestore.getInstance(); // get our database from FireStore on app launch
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
