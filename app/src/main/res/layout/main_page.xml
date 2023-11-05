@@ -74,7 +74,7 @@
         app:layout_constraintEnd_toStartOf="@id/addItemButton"
         app:layout_constraintHorizontal_chainStyle="packed" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/addItemButton"
         android:layout_width="48dp"
         android:layout_height="48dp"

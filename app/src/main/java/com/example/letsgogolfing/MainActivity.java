@@ -1,14 +1,15 @@
 package com.example.letsgogolfing;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.widget.Button;
+import android.widget.ImageView;
+
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+
 
 import com.example.letsgogolfing.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,7 +26,18 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(R.layout.main_page);
 
-        db = FirebaseFirestore.getInstance(); // get our database from FireStore on app launch
+        db = FirebaseFirestore.getInstance();
+
+        // click listener for add item
+        Button addItemButton = findViewById(R.id.addItemButton);
+        addItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AddEditItemActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
-}
+}   // click handler for the "Add Item" button
