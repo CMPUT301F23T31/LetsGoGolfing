@@ -1,168 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     android:background="#4CAF50">
 
     <!-- Name Field -->
-    <EditText
+    <TextView
         android:id="@+id/nameField"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Name"
-        android:inputType="text"
+        android:text="Name"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Description Field -->
-
-    <!-- Date Field -->
-
-    <EditText
+    <TextView
         android:id="@+id/descriptionField"
         android:layout_width="0dp"
         android:layout_height="120dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Description"
-        android:inputType="text"
+        android:text="Description"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameField" />
+        app:layout_constraintTop_toBottomOf="@id/nameField" />
 
-    <!-- Model Field -->
-
-    <!-- Make Field -->
-    <EditText
+    <!-- Date and Model Fields -->
+    <TextView
         android:id="@+id/dateField"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Date"
-        android:inputType="date"
+        android:text="Date"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toStartOf="@+id/modelField"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionField" />
+        app:layout_constraintTop_toBottomOf="@id/descriptionField" />
 
-    <EditText
+    <TextView
         android:id="@+id/modelField"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Model"
-        android:inputType="text"
+        android:text="Model"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/dateField"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionField" />
+        app:layout_constraintStart_toEndOf="@id/dateField"
+        app:layout_constraintTop_toBottomOf="@id/descriptionField" />
 
-    <!-- Value Field -->
-    <EditText
+    <!-- Make and Value Fields -->
+    <TextView
         android:id="@+id/makeField"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Make"
-        android:inputType="text"
+        android:text="Make"
         android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/valueField"
+        android:padding="10dp"
+        app:layout_constraintEnd_toStartOf="@id/valueField"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateField" />
+        app:layout_constraintTop_toBottomOf="@id/dateField" />
 
-    <!-- Comment Field -->
-
-    <!-- Serial Field -->
-    <EditText
+    <TextView
         android:id="@+id/valueField"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Value"
-        android:inputType="number"
+        android:text="Value"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/makeField"
-        app:layout_constraintTop_toBottomOf="@+id/modelField" />
+        app:layout_constraintStart_toEndOf="@id/makeField"
+        app:layout_constraintTop_toBottomOf="@id/modelField" />
 
-    <EditText
+    <!-- Comment and Serial Fields -->
+    <TextView
         android:id="@+id/commentField"
         android:layout_width="0dp"
         android:layout_height="120dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Comment"
-        android:inputType="text"
+        android:text="Comment"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/makeField" />
+        app:layout_constraintTop_toBottomOf="@id/makeField" />
 
-    <!-- Tags Field -->
-    <EditText
+    <TextView
         android:id="@+id/serialField"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Serial"
-        android:inputType="number"
+        android:text="Serial"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentField" />
+        app:layout_constraintTop_toBottomOf="@id/commentField" />
 
-    <!-- Add Photo Button -->
-
-    <EditText
+    <!-- Tags Field -->
+    <TextView
         android:id="@+id/tagsField"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Tags"
-        android:inputType="text"
+        android:text="Tags"
         android:textSize="16sp"
+        android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/serialField" />
+        app:layout_constraintTop_toBottomOf="@id/serialField" />
 
-    <!-- Confirm Button -->
-
+    <!-- Buttons -->
     <Button
-        android:id="@+id/addPhotoBtn"
-        android:layout_width="wrap_content"
+        android:id="@+id/viewPhotoBtn"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
+        android:text="View Photo"
         android:layout_marginTop="20dp"
-        android:text="Add Photo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/confirmBtn"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/editDetailsBtn"
         app:layout_constraintTop_toBottomOf="@id/tagsField" />
 
     <Button
-        android:id="@+id/confirmBtn"
-        android:layout_width="wrap_content"
+        android:id="@+id/editDetailsBtn"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:text="Edit Details"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="50dp"
-        android:text="Confirm"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/viewPhotoBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tagsField" />
+        app:layout_constraintTop_toBottomOf="@id/tagsField" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
