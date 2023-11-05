@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -60,22 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 itemAdapter.notifyDataSetChanged(); // Notify the adapter about the data change
             } else {
                 // Handle the error
-            }
-        });
-
-        GridView gridView = findViewById(R.id.itemGrid);
-        gridView.setAdapter(new ItemAdapter(this, itemsList)); // Assuming you have a list of items
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Get the clicked item
-                Item clickedItem = (Item) parent.getItemAtPosition(position);
-
-                // Start the ItemDetailActivity and pass the item details
-                Intent intent = new Intent(MainActivity.this, ItemDetailActivity.class);
-                intent.putExtra("ITEM", clickedItem); // Make sure Item class implements Serializable or Parcelable
-                startActivity(intent);
             }
         });
 

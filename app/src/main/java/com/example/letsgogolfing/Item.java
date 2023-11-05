@@ -1,12 +1,10 @@
 package com.example.letsgogolfing;
 
 import com.google.firebase.firestore.Exclude;
-
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Item implements Serializable {
+public class Item {
 
     // ** private String id; ** we may or may not need this? depends if we want to deal with item id's separately
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
