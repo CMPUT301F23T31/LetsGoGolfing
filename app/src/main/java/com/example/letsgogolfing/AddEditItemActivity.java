@@ -48,6 +48,9 @@ public class AddEditItemActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 addItem();
+
+                // go back to mainpage
+                finish();
             }
         });
     }
@@ -98,5 +101,6 @@ public class AddEditItemActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Toast.makeText(AddEditItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show());
     }
-}
 
+
+}
