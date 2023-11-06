@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="nameField" type="id" />
+    <item name="descriptionField" type="id" />
+    <item name="dateField" type="id" />
+    <item name="modelField" type="id" />
+    <item name="makeField" type="id" />
+    <item name="valueField" type="id" />
+    <item name="commentField" type="id" />
+    <item name="serialField" type="id" />
+    <item name="tagsField" type="id" />
+    <item name="addPhotoBtn" type="id" />
+    <item name="confirmBtn" type="id" />
+</resources>
