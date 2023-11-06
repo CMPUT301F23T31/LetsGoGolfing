@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import com.example.letsgogolfing.model.Item;
 
 public class AddEditItemActivity extends AppCompatActivity {
 
