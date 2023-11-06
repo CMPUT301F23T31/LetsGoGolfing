@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.letsgogolfing.DataRepository;
 import com.example.letsgogolfing.model.Item;
 
 import java.util.Arrays;
@@ -14,13 +15,14 @@ import java.util.Date;
  * This class manages the data displayed by HomeFragment
  */
 public class HomeViewModel extends ViewModel {
-
     private final MutableLiveData<List<Item>> items;
+    private final DataRepository repository;
 
     /**
      * Initializes the displayed data with sample items
      */
     public HomeViewModel() {
+        repository = DataRepository.getInstance();
         items = new MutableLiveData<>();
 
         List<Item> sampleItems = Arrays.asList(
