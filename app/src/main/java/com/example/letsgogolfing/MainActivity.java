@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(R.layout.main_page);
+        // open to root view
+        setContentView(binding.getRoot());
 
         /*/ --- click listener for add item ---
         Button addItemButton = findViewById(R.id.addItemButton);
