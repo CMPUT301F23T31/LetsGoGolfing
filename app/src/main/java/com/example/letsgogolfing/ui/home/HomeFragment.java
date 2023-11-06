@@ -50,6 +50,8 @@ public class HomeFragment extends Fragment {
             adapter.addAll(items);
             adapter.notifyDataSetChanged();
         });
+        //binding.totalEstimatedValue.setText(String.format("Total Estimated Value: $%.02f", viewModel.getItems().getValue().get(0).getTotalValue()));
+        binding.totalEstimatedValue.setText(String.format("Total Estimated Value: $%.02f", viewModel.getTotalEstimatedValue()));
         return root;
     }
 

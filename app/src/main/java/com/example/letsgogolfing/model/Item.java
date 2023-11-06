@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Item {
 
+    //private static float totalValue;
     // ** private String id; ** we may or may not need this? depends if we want to deal with item id's separately
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
     private String name;
@@ -37,12 +38,17 @@ public class Item {
         this.estimatedValue = estimatedValue;
         this.comment = comment;
         this.tags = tags;
+        //totalValue += estimatedValue;
     }
 
     // Below are getters and setters for all fields - VT
     public String getName() {
         return name;
     }
+
+//    public static float getTotalValue() {
+//        return totalValue;
+//    }
 
     public void setName(String name) {
         this.name = name;

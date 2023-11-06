@@ -15,6 +15,7 @@ import java.util.Date;
  */
 public class HomeViewModel extends ViewModel {
 
+    //private float totalEstimatedValue;
     private final MutableLiveData<List<Item>> items;
 
     /**
@@ -38,4 +39,17 @@ public class HomeViewModel extends ViewModel {
     public LiveData<List<Item>> getItems() {
         return items;
     }
+
+    /**
+     * Sets total estimated value of all the items
+     */
+    public float getTotalEstimatedValue() {
+        int value = 0;
+        for (Item i : items.getValue()) {
+            //totalEstimatedValue += i.getEstimatedValue();
+            value += i.getEstimatedValue();
+        }
+        return value;
+    }
+
 }
