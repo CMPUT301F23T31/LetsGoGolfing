@@ -4,7 +4,7 @@ package com.example.letsgogolfing.model;
 import java.util.Date;
 import java.util.List;
 
-public class Item {
+public class Item implements Comparable<Item> {
 
     // ** private String id; ** we may or may not need this? depends if we want to deal with item id's separately
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
@@ -126,6 +126,11 @@ public class Item {
                 ", comment='" + comment + '\'' +
                 ", tags=" + tags +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Item item) {
+        return this.getName().compareTo(item.getName());
     }
 
 }
