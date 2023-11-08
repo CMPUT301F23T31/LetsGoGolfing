@@ -11,7 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.letsgogolfing.R;
 import com.example.letsgogolfing.databinding.FragmentHomeBinding;
 import com.example.letsgogolfing.model.Item;
 import com.example.letsgogolfing.model.ItemAdapter;
@@ -67,7 +69,21 @@ public class HomeFragment extends Fragment {
             adapter.notifyDataSetChanged();
         });
 
+        itemList.setOnItemClickListener((parent, view, position, id) -> {
+            Item selectedItem = adapter.getItem(position);
+            if (selectedItem != null) {
+                viewModel.selectItem(selectedItem);
+                navigateToItemDetailFragment(selectedItem);
+            }
+        });
 
+    }
+
+    private void navigateToItemDetailFragment(Item selectedItem) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("item", selectedItem);
+
+        NavHostFragment.findNavController(HomeFragment.this).navigate(R.id.action_homeFragment_to_itemDetailFragment, bundle);
     }
 
     @Override

@@ -30,21 +30,26 @@ public class ItemDetailFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(ItemDetailViewModel.class);
 
-        viewModel.setSelectedItem(item);
+        if(getArguments() != null && getArguments().containsKey("item")) {
+            Item item = (Item) getArguments().getSerializable("item");
+            viewModel.setSelectedItem(item);
+        }
 
         viewModel.getSelectedItem().observe(getViewLifecycleOwner(), this::displayItemDetails);
     }
 
     private void displayItemDetails(Item item) {
-        binding.nameText.setText(item.getName());
-        binding.descriptionText.setText((item.getDescription()));
-        binding.dateText.setText(item.getDateOfPurchase());
-        binding.modelText.setText(item.getModel());
-        binding.makeText.setText(item.getMake());
-        binding.valueText.setText(item.getEstimatedValue());
-        binding.serialText.setText(item.getSerialNumber());
-        binding.commentText.setText(item.getComment());
-        binding.tagsText.setText(item.getTags());
+        if (item != null) {
+            binding.nameText.setText(item.getName());
+            binding.descriptionText.setText((item.getDescription()));
+            binding.dateText.setText(item.getDateOfPurchase());
+            binding.modelText.setText(item.getModel());
+            binding.makeText.setText(item.getMake());
+            binding.valueText.setText(item.getEstimatedValue());
+            binding.serialText.setText(item.getSerialNumber());
+            binding.commentText.setText(item.getComment());
+            binding.tagsText.setText(item.getTags());
+        }
     }
 
     @Override

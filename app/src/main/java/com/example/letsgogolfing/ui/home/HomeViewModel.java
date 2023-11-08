@@ -16,6 +16,7 @@ import java.util.Date;
 public class HomeViewModel extends ViewModel {
 
     private final MutableLiveData<List<Item>> items;
+    private final MutableLiveData<Item> selectedItem = new MutableLiveData<>();
 
     /**
      * Initializes the displayed data with sample items
@@ -40,5 +41,10 @@ public class HomeViewModel extends ViewModel {
     }
 
     public void selectItem(Item item) {
+        selectedItem.setValue(item);
+    }
+
+    public LiveData<Item> getSelectedItem() {
+        return selectedItem;
     }
 }
