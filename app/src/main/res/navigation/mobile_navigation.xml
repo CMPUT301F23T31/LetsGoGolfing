@@ -9,7 +9,12 @@
         android:id="@+id/navigation_home"
         android:name="com.example.letsgogolfing.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -22,4 +27,10 @@
         android:name="com.example.letsgogolfing.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/itemDetailFragment"
+        android:name="com.example.letsgogolfing.ui.item_details.ItemDetailFragment"
+        android:label="ItemDetail"
+        tools:layout="@layout/fragment_item_detail" />
 </navigation>

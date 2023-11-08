@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.letsgogolfing.databinding.FragmentHomeBinding;
+import com.example.letsgogolfing.model.Item;
 import com.example.letsgogolfing.model.ItemAdapter;
 
 import java.util.ArrayList;
@@ -44,13 +47,27 @@ public class HomeFragment extends Fragment {
         View root = binding.getRoot();
 
         adapter = new ItemAdapter(getContext(), new ArrayList<>());
-        binding.listHome.setAdapter(adapter);
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupItemList();
+
+        ListView itemList = binding.itemList;
+    }
+
+    private void setupItemList() {
+        ListView itemList = binding.itemList;
+        itemList.setAdapter(adapter);
         viewModel.getItems().observe(getViewLifecycleOwner(), items -> {
             adapter.clear();
             adapter.addAll(items);
             adapter.notifyDataSetChanged();
         });
-        return root;
+
+
     }
 
     @Override
