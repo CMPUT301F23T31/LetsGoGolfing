@@ -1,12 +1,16 @@
 package com.example.letsgogolfing;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ItemAdapter extends BaseAdapter {
 
@@ -14,11 +18,42 @@ public class ItemAdapter extends BaseAdapter {
     private List<Item> items;
     private LayoutInflater inflater;
 
+    private boolean isSelectModeEnabled = false;
+    private Set<Integer> selectedItems = new HashSet<>();
+
+    public Set<Integer> getSelectedPositions() {
+        return new HashSet<>(selectedItems);
+    }
+
+    public void clearSelection() {
+        selectedItems.clear();
+        notifyDataSetChanged();
+    }
+
     public ItemAdapter(Context context, List<Item> items) {
         this.context = context;
         this.items = items;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
+
+
+    public void setSelectModeEnabled(boolean enabled) {
+        isSelectModeEnabled = enabled;
+        selectedItems.clear(); // Clear selections when toggling mode
+        notifyDataSetChanged();
+    }
+
+    public void toggleSelection(int position) {
+        if (selectedItems.contains(position)) {
+            selectedItems.remove(position);
+        } else {
+            selectedItems.add(position);
+        }
+        notifyDataSetChanged();
+    }
+
+
+
 
     // get all items
     public List<Item> getItems() {
@@ -54,6 +89,8 @@ public class ItemAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
+        convertView.setBackgroundColor(selectedItems.contains(position) ? Color.LTGRAY : Color.TRANSPARENT);
 
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
