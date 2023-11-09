@@ -1,14 +1,17 @@
 package com.example.letsgogolfing;
 
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,16 +19,29 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
+
+/**
+ * The main activity class that serves as the entry point for the application.
+ * It handles the display and interaction with a grid of items, allowing the user to
+ * select and delete items, as well as adding new ones and viewing their details.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
+
+    private boolean isSelectMode = false;
+    private Button selectButton;
+    private Button deleteButton;
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -36,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+
+    /**
+     * Updates the total value text view with the sum of estimated values of all items.
+     *
+     * @param items The list of items whose values are to be summed.
+     */
     private void updateTotalValue(List<Item> items) {
         double totalValue = 0;
         for (Item item : items) {
@@ -48,7 +70,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Inside MainActivity
+    /**
+     * Fetches items from the Firestore database and updates the grid adapter.
+     * It also updates the total value of all items displayed.
+     */
     private void fetchItemsAndRefreshAdapter() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
@@ -67,8 +92,54 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Deletes the selected items from the Firestore database and updates the UI accordingly.
+     * It clears the selection mode after deletion is completed.
+     */
+    private void deleteSelectedItems() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        WriteBatch batch = db.batch();
+
+        // Use the getSelectedPositions method to get the set of selected item positions
+        Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
+        for (int position : selectedPositions) {
+            Item item = itemAdapter.getItem(position);
+            batch.delete(db.collection("items").document(item.getId()));
+        }
+
+        batch.commit().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Remove items from the adapter and refresh
+                List<Integer> positions = new ArrayList<>(selectedPositions); // Create a list from the set
+                // Sort the positions in reverse order before removing items
+                Collections.sort(positions, Collections.reverseOrder());
+                for (int position : positions) {
+                    itemAdapter.removeItem(position);
+                }
+                itemAdapter.clearSelection();
+                itemAdapter.notifyDataSetChanged();
+                updateTotalValue(itemAdapter.getItems());
+                Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
+            }
+            // Reset select mode
+            isSelectMode = false;
+            itemAdapter.setSelectModeEnabled(false);
+            selectButton.setText("Select");
+            deleteButton.setVisibility(View.GONE);
+        });
+    }
 
 
+    /**
+     * Initializes the activity with the required layout and sets up the item grid adapter.
+     * It also configures click listeners for the item grid and other UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     *                           being shut down, this Bundle contains the most recent data,
+     *                           or null if it is the first time.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,19 +191,36 @@ public class MainActivity extends AppCompatActivity {
         });
 
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
-            Item item = itemAdapter.getItem(position);
-            Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-            intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
-            startActivity(intent);
+            if (isSelectMode) {
+                itemAdapter.toggleSelection(position); // Toggle item selection
+            } else {
+                // Existing code to show item details...
+                Item item = itemAdapter.getItem(position);
+                Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+                intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
+                startActivity(intent);
+            }
         });
 
 
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+            Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
 
+        selectButton = findViewById(R.id.select_button);
+        deleteButton = findViewById(R.id.delete_button);
+        deleteButton.setVisibility(View.GONE); // Hide delete button initially
+
+        selectButton.setOnClickListener(v -> {
+            isSelectMode = !isSelectMode; // Toggle select mode
+            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
+            selectButton.setText(isSelectMode ? "Cancel" : "Select");
+            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show delete button if in select mode
+        });
+
+        deleteButton.setOnClickListener(v -> deleteSelectedItems());
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
         profileButton.setOnClickListener(view -> {
