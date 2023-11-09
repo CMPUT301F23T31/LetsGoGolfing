@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class AddItemActivity extends AppCompatActivity {
+public class EditItemActivity extends AppCompatActivity {
 
     private Item item;
     private static final String TAG = "EditItemActivity";
@@ -30,13 +31,10 @@ public class AddItemActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_item_page);
+        setContentView(R.layout.edit_item_page);
 
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> saveItem());
-
-        Button cancel_button = findViewById(R.id.cancel_button_add_item);
-        cancel_button.setOnClickListener(v -> finish());
     }
 
     private void saveItem() {
@@ -71,8 +69,8 @@ public class AddItemActivity extends AppCompatActivity {
             double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
             newItem.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
-            Toast.makeText(AddItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
-            double estimatedValue = 0;
+            Toast.makeText(this, "Invalid number format for estimated value", Toast.LENGTH_LONG).show();
+            return;
         }
 
         // Parse and set the tags
@@ -91,14 +89,14 @@ public class AddItemActivity extends AppCompatActivity {
                     // Optionally, save the document ID in the Item object
                     newItem.setId(documentReference.getId());
 
-                    Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
                     Intent data = new Intent();
                     data.putExtra("item_added", true);
                     setResult(RESULT_OK, data);
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
                 });
     }
 

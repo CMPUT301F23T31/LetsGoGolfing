@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LetsGoGolfing"
         tools:targetApi="31">
-        <activity android:name=".AddItemActivity"
+        <activity android:name=".EditItemActivity"
             android:exported="true">
             <!-- Optionally, add an intent-filter here if this activity is an entry point -->
         </activity>
