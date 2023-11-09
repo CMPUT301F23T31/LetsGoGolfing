@@ -1,7 +1,9 @@
 package com.example.letsgogolfing;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,7 +41,22 @@ public class ViewDetailsActivity extends AppCompatActivity {
         // If you want the fields to be non-editable, make them TextViews or disable the EditTexts
         ((EditText) findViewById(R.id.nameField)).setEnabled(false);
         ((EditText) findViewById(R.id.descriptionField)).setEnabled(false);
-        
+        ((EditText) findViewById(R.id.modelField)).setEnabled(false);
+        ((EditText) findViewById(R.id.makeField)).setEnabled(false);
+        ((EditText) findViewById(R.id.serialField)).setEnabled(false);
+        ((EditText) findViewById(R.id.commentField)).setEnabled(false);
+        ((EditText) findViewById(R.id.dateField)).setEnabled(false);
+        ((EditText) findViewById(R.id.valueField)).setEnabled(false);
+
+
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            // takes back to home page main_activity
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        });
+
+
 
 
     }
