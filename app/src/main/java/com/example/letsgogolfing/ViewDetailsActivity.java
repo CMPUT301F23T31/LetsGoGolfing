@@ -1,5 +1,9 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
+import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ViewDetailsActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +48,12 @@ public class ViewDetailsActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.commentField)).setText(item.getComment());
 
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String dateString = dateFormat.format(item.getDateOfPurchase());
         ((EditText) findViewById(R.id.dateField)).setText(dateString);
 
 // For the double value, you can use String.format to control the formatting
 // For example, "%.2f" will format the double to two decimal places
-        String valueString = String.format(Locale.getDefault(), "%.2f", item.getEstimatedValue());
+        String valueString = decimalFormat.format(item.getEstimatedValue());
         ((EditText) findViewById(R.id.valueField)).setText(valueString);
 
         // list of tags
@@ -166,10 +171,5 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         Toast.makeText(ViewDetailsActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                     });
         });
-
-
-
-
-
     }
 }

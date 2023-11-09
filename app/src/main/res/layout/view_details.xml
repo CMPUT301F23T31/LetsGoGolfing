@@ -133,7 +133,7 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Value (Optional)"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:textSize="16sp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
