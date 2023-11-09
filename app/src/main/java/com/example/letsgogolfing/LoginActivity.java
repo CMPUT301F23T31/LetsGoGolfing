@@ -13,6 +13,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * LoginActivity is responsible for handling the user login process.
+ * It provides a user interface for username input and communicates with Firebase Firestore
+ * to check for username uniqueness and add new users to the database.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameInput;
@@ -20,6 +25,15 @@ public class LoginActivity extends AppCompatActivity {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    /**
+     * Called when the activity is starting. This is where most initialization should go:
+     * calling setContentView(int) to inflate the activity's UI, using findViewById(int)
+     * to programmatically interact with widgets in the UI, setting up listeners, etc.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +60,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks whether the given username is unique within the "users" collection in Firestore.
+     * If unique, it proceeds to add the user to the database, otherwise it prompts the user
+     * to choose a different username.
+     *
+     * @param username A String representing the username to be checked for uniqueness.
+     */
     private void checkUnique(String username) {
         db.collection("users") // Assuming you have a 'users' collection
             .whereEqualTo("username", username)
@@ -65,6 +86,12 @@ public class LoginActivity extends AppCompatActivity {
             });
     }
 
+    /**
+     * Adds a new user with the provided username to the "users" collection in Firestore.
+     * Upon successful addition, it navigates to the MainActivity and finishes the current activity.
+     *
+     * @param username A String representing the username to be added to the database.
+     */
     private void addUserToDatabase(String username) {
         // Create a new user with a username
         Map<String, Object> user = new HashMap<>();

@@ -1,8 +1,10 @@
 package com.example.letsgogolfing;
 
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,6 +27,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+
+/**
+ * The main activity class that serves as the entry point for the application.
+ * It handles the display and interaction with a grid of items, allowing the user to
+ * select and delete items, as well as adding new ones and viewing their details.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -44,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+
+    /**
+     * Updates the total value text view with the sum of estimated values of all items.
+     *
+     * @param items The list of items whose values are to be summed.
+     */
     private void updateTotalValue(List<Item> items) {
         double totalValue = 0;
         for (Item item : items) {
@@ -56,7 +70,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // Inside MainActivity
+    /**
+     * Fetches items from the Firestore database and updates the grid adapter.
+     * It also updates the total value of all items displayed.
+     */
     private void fetchItemsAndRefreshAdapter() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
@@ -75,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Deletes the selected items from the Firestore database and updates the UI accordingly.
+     * It clears the selection mode after deletion is completed.
+     */
     private void deleteSelectedItems() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         WriteBatch batch = db.batch();
@@ -111,11 +132,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
-
+    /**
+     * Initializes the activity with the required layout and sets up the item grid adapter.
+     * It also configures click listeners for the item grid and other UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     *                           being shut down, this Bundle contains the most recent data,
+     *                           or null if it is the first time.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
