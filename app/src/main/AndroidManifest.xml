@@ -22,9 +22,7 @@
             </intent-filter>
         </activity>
         <!-- add all our other activities below - VT -->
-        <activity android:name=".ViewDetailsActivity" />
-        <activity android:name=".ViewProfileActivity" />
-        <activity android:name=".AddItemActivity"
+        <activity android:name=".EditItemActivity"
             android:exported="true" />
         <activity android:name=".ViewDetailsActivity" />
         <activity android:name=".MainActivity"
