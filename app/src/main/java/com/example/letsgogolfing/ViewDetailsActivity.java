@@ -111,7 +111,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
                 updatedEstimatedValue = Double.parseDouble(updatedValueString);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                Toast.makeText(ViewDetailsActivity.this, "Invalid number format for estimated value", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ViewDetailsActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
+                updatedEstimatedValue = 0;
+
                 return;
             }
 
