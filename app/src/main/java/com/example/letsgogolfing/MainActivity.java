@@ -2,7 +2,6 @@ package com.example.letsgogolfing;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+            Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
     }
