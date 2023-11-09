@@ -8,6 +8,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,18 +17,23 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
-    private final DecimalFormat df = new DecimalFormat("#,###.##");
+
+    private boolean isSelectMode = false;
+    private Button selectButton;
+    private Button deleteButton;
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -44,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         TextView totalValueTextView = findViewById(R.id.totalValue);
-        totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , df.format(totalValue)));
+        String totalValueText = String.format(Locale.getDefault(), "Total value: $%.2f", totalValue);
+        totalValueTextView.setText(totalValueText);
     }
 
 
@@ -66,6 +74,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void deleteSelectedItems() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        WriteBatch batch = db.batch();
+
+        // Use the getSelectedPositions method to get the set of selected item positions
+        Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
+        for (int position : selectedPositions) {
+            Item item = itemAdapter.getItem(position);
+            batch.delete(db.collection("items").document(item.getId()));
+        }
+
+        batch.commit().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Remove items from the adapter and refresh
+                List<Integer> positions = new ArrayList<>(selectedPositions); // Create a list from the set
+                // Sort the positions in reverse order before removing items
+                Collections.sort(positions, Collections.reverseOrder());
+                for (int position : positions) {
+                    itemAdapter.removeItem(position);
+                }
+                itemAdapter.clearSelection();
+                itemAdapter.notifyDataSetChanged();
+                updateTotalValue(itemAdapter.getItems());
+                Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
+            }
+            // Reset select mode
+            isSelectMode = false;
+            itemAdapter.setSelectModeEnabled(false);
+            selectButton.setText("Select");
+            deleteButton.setVisibility(View.GONE);
+        });
+    }
+
+
+
+
 
 
 
@@ -120,22 +167,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
-            Item item = itemAdapter.getItem(position);
-            if( item != null && item.getId() != null) {
-                db.collection("items").document(item.getId()).get()
-                    .addOnSuccessListener(aVoid -> {
-                        Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-                        intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
-                        startActivity(intent);
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(MainActivity.this, "Error fetching item from database", Toast.LENGTH_SHORT).show();
-                    });
-
+            if (isSelectMode) {
+                itemAdapter.toggleSelection(position); // Toggle item selection
+            } else {
+                // Existing code to show item details...
+                Item item = itemAdapter.getItem(position);
+                Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+                intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
+                startActivity(intent);
             }
-            Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-            intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
-            startActivity(intent);
         });
 
 
@@ -144,6 +184,19 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
+
+        selectButton = findViewById(R.id.select_button);
+        deleteButton = findViewById(R.id.delete_button);
+        deleteButton.setVisibility(View.GONE); // Hide delete button initially
+
+        selectButton.setOnClickListener(v -> {
+            isSelectMode = !isSelectMode; // Toggle select mode
+            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
+            selectButton.setText(isSelectMode ? "Cancel" : "Select");
+            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show delete button if in select mode
+        });
+
+        deleteButton.setOnClickListener(v -> deleteSelectedItems());
     }
 
 
