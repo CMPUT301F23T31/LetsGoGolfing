@@ -34,6 +34,9 @@ public class AddItemActivity extends AppCompatActivity {
 
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> saveItem());
+
+        Button cancel_button = findViewById(R.id.cancel_button_add_item);
+        cancel_button.setOnClickListener(v -> finish());
     }
 
     private void saveItem() {

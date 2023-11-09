@@ -166,12 +166,13 @@
         android:id="@+id/addPhotoBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Photo"
-
-
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tagsField"
-        app:layout_constraintStart_toStartOf="parent" />
+
+
+        android:text="Add Photo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tagsField" />
 
 
     <!-- Confirm Button -->
@@ -183,7 +184,20 @@
         android:layout_marginTop="16dp"
         android:text="Confirm"
         android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/addPhotoBtn"
+        app:layout_constraintTop_toBottomOf="@+id/tagsField" />
+
+    <Button
+        android:id="@+id/cancel_button_add_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:text="Cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/confirmBtn"
         app:layout_constraintTop_toBottomOf="@+id/tagsField" />
 
 
