@@ -11,6 +11,8 @@ public class Item implements Comparable<Item> {
 
     // ** private String id; ** we may or may not need this? depends if we want to deal with item id's separately
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
+    private String id;
+
     private String name;
     private String description;
     private Date dateOfPurchase; // im assuming its "of purchase"?
@@ -44,6 +46,13 @@ public class Item implements Comparable<Item> {
         this.tags = tags;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     // Below are getters and setters for all fields - VT
     public String getName() {

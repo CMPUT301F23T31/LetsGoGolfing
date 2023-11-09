@@ -73,7 +73,7 @@ public class EditItemActivity extends AppCompatActivity {
         List<String> tagsList = new ArrayList<>(Arrays.asList(tagsString.split("\\s*,\\s*")));
         item.put("tags", tagsList);
 
-        // Add the item to Firestore
+        // Add the item to Firestore and save item id to that item
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").add(item)
                 .addOnSuccessListener(documentReference -> {
