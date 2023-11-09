@@ -197,12 +197,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         deleteButton.setOnClickListener(v -> deleteSelectedItems());
-        // Clicking the profile button
-        ImageView profileButton = findViewById(R.id.profileButton);
-        profileButton.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
-            startActivity(intent);
-        });
     }
 
 
