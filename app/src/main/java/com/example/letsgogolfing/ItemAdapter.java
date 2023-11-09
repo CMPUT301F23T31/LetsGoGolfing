@@ -45,7 +45,6 @@ public class ItemAdapter extends BaseAdapter {
             holder.nameTextView = convertView.findViewById(R.id.itemName); // Adjust this ID based on your grid_item.xml
             holder.descriptionTextView = convertView.findViewById(R.id.itemDescription); // Adjust this ID based on your grid_item.xml
             holder.valueTextView = convertView.findViewById(R.id.itemValue); // Adjust this ID based on your grid_item.xml
-            // Add more views if necessary
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
