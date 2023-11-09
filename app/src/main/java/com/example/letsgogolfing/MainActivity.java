@@ -132,6 +132,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
+
+        // Clicking the profile button
+        ImageView profileButton = findViewById(R.id.profileButton);
+        profileButton.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
+            startActivity(intent);
+        });
     }
 
 
