@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "538614998540",
+    "project_id": "letsgogolfing-96001",
+    "storage_bucket": "letsgogolfing-96001.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538614998540:android:de510967aabe021a92b029",
+        "android_client_info": {
+          "package_name": "com.example.letsgogolfing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY_46tibdE8iuU-YlMnxqe0k_oPncsO7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
