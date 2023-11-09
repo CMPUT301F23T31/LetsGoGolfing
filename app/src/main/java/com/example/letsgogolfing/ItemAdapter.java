@@ -8,7 +8,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+
+import java.text.DecimalFormat;
+
 import java.util.HashSet;
+
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +21,9 @@ public class ItemAdapter extends BaseAdapter {
     private Context context;
     private List<Item> items;
     private LayoutInflater inflater;
+
+
+    private final DecimalFormat df = new DecimalFormat("#,###.##");
 
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
@@ -29,6 +36,7 @@ public class ItemAdapter extends BaseAdapter {
         selectedItems.clear();
         notifyDataSetChanged();
     }
+
 
     public ItemAdapter(Context context, List<Item> items) {
         this.context = context;
@@ -92,7 +100,9 @@ public class ItemAdapter extends BaseAdapter {
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-        holder.valueTextView.setText(context.getString(R.string.item_value, item.getEstimatedValue()));
+
+        holder.valueTextView.setText(context.getString(R.string.item_value, df.format(item.getEstimatedValue())));
+        // Set other properties to the holder's views as needed
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
@@ -100,6 +110,7 @@ public class ItemAdapter extends BaseAdapter {
         } else {
             convertView.setBackgroundColor(Color.parseColor("#88CEB4")); // Original background color
         }
+
 
         return convertView;
     }

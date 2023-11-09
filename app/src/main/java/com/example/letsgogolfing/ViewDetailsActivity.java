@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,7 +49,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
 // For the double value, you can use String.format to control the formatting
 // For example, "%.2f" will format the double to two decimal places
-        String valueString = String.format(Locale.getDefault(), "%.2f", item.getEstimatedValue());
+        DecimalFormat df = new DecimalFormat("#,###.##");
+        String valueString = df.format(item.getEstimatedValue());
         ((EditText) findViewById(R.id.valueField)).setText(valueString);
 
         // list of tags
