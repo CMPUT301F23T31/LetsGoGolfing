@@ -6,38 +6,34 @@
     android:layout_height="match_parent"
     android:background="#AED5B1">
 
-
-
-
     <!-- Search bar -->
-
-
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="322dp"
         android:layout_height="41dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
         android:hint="Search"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <ImageView
         android:id="@+id/sortButton"
         android:layout_width="43dp"
         android:layout_height="41dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="4dp"
         android:background="@drawable/rounded_edittext"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_sort_by_size"
+        app:layout_constraintBottom_toBottomOf="@id/searchEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.136"
-        app:layout_constraintStart_toEndOf="@+id/searchEditText"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/searchEditText"
+        app:layout_constraintVertical_bias="1.0" />
+
+
 
     <GridView
         android:id="@+id/itemGrid"
@@ -59,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="22dp"
         android:background="@drawable/rounded_edittext"
         android:elevation="4dp"
         android:padding="8dp"
@@ -72,7 +68,6 @@
         android:id="@+id/scanItemButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_button_selector"
         android:padding="8dp"
@@ -80,6 +75,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/addItemButton"
         app:layout_constraintHorizontal_chainStyle="packed" />
+
 
     <ImageView
         android:id="@+id/addItemButton"
@@ -93,28 +89,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/select_button"
-        android:layout_width="60dp"
-        android:layout_height="36dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="6dp"
-        android:text="Select"
-        app:layout_constraintBottom_toTopOf="@+id/itemGrid"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sortButton"
-        app:layout_constraintVertical_bias="0.0" />
+    <ImageView
+        android:id="@+id/profileButton"
+        android:layout_width="43dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/rounded_edittext"
+        android:padding="8dp"
+        android:src="@drawable/drawable_profile_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/searchEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchEditText" />
 
-    <Button
-        android:id="@+id/delete_button"
-        android:layout_width="63dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="168dp"
-        android:layout_marginBottom="28dp"
-        android:text="Delete"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/totalValue" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
