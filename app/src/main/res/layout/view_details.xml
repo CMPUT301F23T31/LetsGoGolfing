@@ -217,5 +217,16 @@
         app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn"
         app:layout_constraintTop_toBottomOf="@+id/tagsField" />
 
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="112dp"
+        android:layout_marginTop="16dp"
+        android:text="Save"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@+id/editInfoBtn"
+        app:layout_constraintTop_toBottomOf="@+id/tagsField" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
