@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
     private boolean isSelectMode = false;
-    private Button selectButton;
-    private Button deleteButton;
+    private ImageButton selectButton;
+    private ImageButton deleteButton;
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -105,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
             // Reset select mode
             isSelectMode = false;
             itemAdapter.setSelectModeEnabled(false);
-            selectButton.setText("Select");
             deleteButton.setVisibility(View.GONE);
         });
     }
@@ -192,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
         selectButton.setOnClickListener(v -> {
             isSelectMode = !isSelectMode; // Toggle select mode
             itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            selectButton.setText(isSelectMode ? "Cancel" : "Select");
             deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show delete button if in select mode
         });
 
