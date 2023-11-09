@@ -100,6 +100,14 @@ public class MainActivity extends AppCompatActivity {
             return true; // True to indicate the long click was consumed
         });
 
+        itemGrid.setOnItemClickListener((parent, view, position, id) -> {
+            Item item = itemAdapter.getItem(position);
+            Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+            intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
+            startActivity(intent);
+        });
+
+
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, EditItemActivity.class);

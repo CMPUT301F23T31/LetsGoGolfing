@@ -17,6 +17,7 @@
             android:exported="true">
             <!-- Optionally, add an intent-filter here if this activity is an entry point -->
         </activity>
+        <activity android:name=".ViewDetailsActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
