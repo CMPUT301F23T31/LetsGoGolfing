@@ -6,24 +6,16 @@
     android:layout_height="match_parent"
     android:background="#AED5B1">
 
-
-
-
     <!-- Search bar -->
-
-
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="322dp"
         android:layout_height="41dp"
-        android:layout_marginStart="28dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:hint="Search"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
-        app:layout_constraintEnd_toStartOf="@id/sortButton"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:hint="Search"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,14 +24,15 @@
         android:id="@+id/sortButton"
         android:layout_width="43dp"
         android:layout_height="41dp"
-        android:layout_marginEnd="16dp"
-        android:padding="8dp"
+        android:layout_marginEnd="4dp"
         android:background="@drawable/rounded_edittext"
+        android:padding="8dp"
         android:src="@android:drawable/ic_menu_sort_by_size"
         app:layout_constraintBottom_toBottomOf="@id/searchEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/searchEditText"
         app:layout_constraintVertical_bias="1.0" />
+
 
 
     <GridView
@@ -61,12 +54,14 @@
         android:id="@+id/totalValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/rounded_edittext"
         android:elevation="4dp"
         android:padding="8dp"
-        android:background="@drawable/rounded_edittext"
         android:text="Total value: $69.42"
-        tools:layout_editor_absoluteX="2dp"
-        tools:layout_editor_absoluteY="667dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <ImageView
@@ -93,6 +88,19 @@
         android:src="@android:drawable/ic_menu_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/profileButton"
+        android:layout_width="43dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/rounded_edittext"
+        android:padding="8dp"
+        android:src="@drawable/drawable_profile_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/searchEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchEditText" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
