@@ -81,7 +81,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Date"
+        android:hint="Date (yyyy-mm-dd)"
         android:inputType="date"
         android:textSize="16sp"
         android:paddingStart="16dp"

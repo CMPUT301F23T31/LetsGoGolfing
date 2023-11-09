@@ -81,25 +81,29 @@ public class ItemAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.grid_item, parent, false);
             holder = new ViewHolder();
-            holder.nameTextView = convertView.findViewById(R.id.itemName); // Adjust this ID based on your grid_item.xml
-            holder.descriptionTextView = convertView.findViewById(R.id.itemDescription); // Adjust this ID based on your grid_item.xml
-            holder.valueTextView = convertView.findViewById(R.id.itemValue); // Adjust this ID based on your grid_item.xml
-            // Add more views if necessary
+            holder.nameTextView = convertView.findViewById(R.id.itemName);
+            holder.descriptionTextView = convertView.findViewById(R.id.itemDescription);
+            holder.valueTextView = convertView.findViewById(R.id.itemValue);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        convertView.setBackgroundColor(selectedItems.contains(position) ? Color.LTGRAY : Color.TRANSPARENT);
-
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
         holder.valueTextView.setText(context.getString(R.string.item_value, item.getEstimatedValue()));
-        // Set other properties to the holder's views as needed
+
+        // Change background color if selected
+        if (selectedItems.contains(position)) {
+            convertView.setBackgroundColor(Color.parseColor("#FFCDD2")); // Pink color for selected items
+        } else {
+            convertView.setBackgroundColor(Color.parseColor("#88CEB4")); // Original background color
+        }
 
         return convertView;
     }
+
 
     public void updateItems(List<Item> newItems) {
         items.clear();
