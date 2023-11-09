@@ -17,13 +17,13 @@ public class LoginActivity extends AppCompatActivity {
     private EditText usernameInput;
     private Button loginButton;
     private Button signUpButton;
-
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page); // Set the layout for the activity
+        db = FirebaseFirestore.getInstance();
 
         // Initialize Firestore and UI elements
         usernameInput = findViewById(R.id.usernameInput);
@@ -35,6 +35,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void attemptLogin() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
             db.collection("users") // Assuming you have a 'users' collection
