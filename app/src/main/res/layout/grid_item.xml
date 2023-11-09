@@ -10,6 +10,7 @@
     android:radius="8dp">
 
 
+
     <ImageView
         android:id="@+id/itemImage"
         android:layout_width="143dp"
@@ -40,14 +41,25 @@
         android:id="@+id/itemDescription"
         android:layout_width="236dp"
         android:layout_height="82dp"
+        android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif"
         android:paddingTop="2dp"
         android:text=" Description (200 Word Max)"
-        android:background="@drawable/rounded_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.24"
         app:layout_constraintStart_toEndOf="@+id/itemImage"
         tools:layout_editor_absoluteY="3dp" />
+
+    <TextView
+        android:id="@+id/itemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.435"
+        app:layout_constraintStart_toEndOf="@+id/itemValue" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

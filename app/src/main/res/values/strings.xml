@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">LetsGoGolfing</string>
+    <string name="item_value">Value: $%.2f</string>
+
 </resources>
