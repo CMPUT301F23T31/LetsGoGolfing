@@ -7,26 +7,55 @@
     android:padding="24dp"
     android:background="#AED5B1">
 
+    <!-- Header with "Item Detail" and Back Button -->
+
     <!-- Name Field -->
+
+    <!-- Description Field -->
+
+
+    <TextView
+        android:id="@+id/headerTitle"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:layout_marginBottom="636dp"
+        android:background="@drawable/rounded_edittext"
+        android:gravity="center"
+        android:text="Item Detail"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="1dp" />
+
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="41dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/ic_home_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/headerTitle"
+        app:layout_constraintStart_toStartOf="@+id/headerTitle"
+        app:layout_constraintTop_toTopOf="@+id/headerTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
     <EditText
         android:id="@+id/nameField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="68dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
         android:inputType="text"
-        android:textSize="16sp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Description Field -->
     <EditText
         android:id="@+id/descriptionField"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Description"
@@ -42,7 +71,7 @@
     <EditText
         android:id="@+id/dateField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Date"
@@ -57,7 +86,7 @@
     <EditText
         android:id="@+id/modelField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
@@ -74,7 +103,7 @@
     <EditText
         android:id="@+id/makeField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Make"
@@ -89,7 +118,7 @@
     <EditText
         android:id="@+id/valueField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
@@ -106,7 +135,7 @@
     <EditText
         android:id="@+id/commentField"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Comment"
@@ -123,7 +152,7 @@
     <EditText
         android:id="@+id/serialField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Serial"
@@ -139,7 +168,7 @@
     <EditText
         android:id="@+id/tagsField"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Tags"
@@ -166,10 +195,10 @@
         android:id="@+id/editInfoBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:text="Edit Info"
         android:textColor="#FFFFFF"
         app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn"
-        tools:layout_editor_absoluteY="630dp" />
+        tools:layout_editor_absoluteY="628dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
