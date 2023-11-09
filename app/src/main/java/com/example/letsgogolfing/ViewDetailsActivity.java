@@ -1,5 +1,9 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
+import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,6 +30,7 @@ import java.util.Map;
 
 public class ViewDetailsActivity extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,14 +48,12 @@ public class ViewDetailsActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.commentField)).setText(item.getComment());
 
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String dateString = dateFormat.format(item.getDateOfPurchase());
         ((EditText) findViewById(R.id.dateField)).setText(dateString);
 
 // For the double value, you can use String.format to control the formatting
 // For example, "%.2f" will format the double to two decimal places
-        DecimalFormat df = new DecimalFormat("#,###.##");
-        String valueString = df.format(item.getEstimatedValue());
+        String valueString = decimalFormat.format(item.getEstimatedValue());
         ((EditText) findViewById(R.id.valueField)).setText(valueString);
 
         // list of tags
@@ -168,10 +171,5 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         Toast.makeText(ViewDetailsActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                     });
         });
-
-
-
-
-
     }
 }
