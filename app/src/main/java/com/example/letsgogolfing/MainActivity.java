@@ -1,8 +1,11 @@
 package com.example.letsgogolfing;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +24,35 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
+
+    ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // The item was added or updated, so refresh your list
+                    fetchItemsAndRefreshAdapter();
+                }
+            });
+
+    // Inside MainActivity
+    private void fetchItemsAndRefreshAdapter() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("items").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Item> newItems = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Item item = document.toObject(Item.class);
+                    item.setId(document.getId()); // Make sure to set the document ID
+                    newItems.add(item);
+                }
+                itemAdapter.updateItems(newItems); // Assuming your adapter has this method
+            } else {
+                Log.w(TAG, "Error getting documents: ", task.getException());
+            }
+        });
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-            startActivity(intent);
+            editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
     }
 }
