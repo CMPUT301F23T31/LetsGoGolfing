@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
+    private final DecimalFormat df = new DecimalFormat("#,###.##");
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -42,8 +44,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         TextView totalValueTextView = findViewById(R.id.totalValue);
-        String totalValueText = String.format(Locale.getDefault(), "Total value: $%.2f", totalValue);
-        totalValueTextView.setText(totalValueText);
+        totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , df.format(totalValue)));
     }
 
 
@@ -120,6 +121,18 @@ public class MainActivity extends AppCompatActivity {
 
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
+            if( item != null && item.getId() != null) {
+                db.collection("items").document(item.getId()).get()
+                    .addOnSuccessListener(aVoid -> {
+                        Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+                        intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
+                        startActivity(intent);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(MainActivity.this, "Error fetching item from database", Toast.LENGTH_SHORT).show();
+                    });
+
+            }
             Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
             intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
             startActivity(intent);
