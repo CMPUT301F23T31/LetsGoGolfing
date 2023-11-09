@@ -1,13 +1,12 @@
 package com.example.letsgogolfing;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -17,6 +16,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameInput;
     private Button loginButton;
+    private Button signUpButton;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -25,61 +25,78 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page); // Set the layout for the activity
 
-        db = FirebaseFirestore.getInstance();
-
+        // Initialize Firestore and UI elements
         usernameInput = findViewById(R.id.usernameInput);
         loginButton = findViewById(R.id.loginButton);
+        signUpButton = findViewById(R.id.signUpButton);
 
-        loginButton.setOnClickListener(v -> {
-            String username = usernameInput.getText().toString().trim();
-            if (!username.isEmpty()) {
-                checkUnique(username);
-                // the following lines store the username so that it can be accessed at any point of the session
-                // this is a common practice in android app design - vt
-                getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                        .edit()
-                        .putString("username", username)
-                        .apply();
-            } else {
-                Toast.makeText(LoginActivity.this, "Please enter a username", Toast.LENGTH_SHORT).show();
-            }
-        });
+        loginButton.setOnClickListener(v -> attemptLogin());
+        signUpButton.setOnClickListener(v -> attemptSignUp());
     }
 
-    private void checkUnique(String username) {
-        db.collection("users") // Assuming you have a 'users' collection
-            .whereEqualTo("username", username)
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    if (task.getResult().isEmpty()) {
-                        // Username does not exist, can create new user
-                        addUserToDatabase(username);
-                    } else {
-                        // Username already exists
-                        Toast.makeText(LoginActivity.this, "Username already exists, choose another", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(LoginActivity.this, "Error checking for username", Toast.LENGTH_SHORT).show();
-                }
-            });
+    private void attemptLogin() {
+        String username = usernameInput.getText().toString().trim();
+        if (!username.isEmpty()) {
+            db.collection("users") // Assuming you have a 'users' collection
+                    .whereEqualTo("username", username)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            if (!task.getResult().isEmpty()) {
+                                // User exists, proceed to login
+                                proceedToMain(username);
+                            } else {
+                                // User does not exist, prompt to sign up
+                                Toast.makeText(LoginActivity.this, "User does not exist, please sign up", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Error checking user", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            Toast.makeText(LoginActivity.this, "Please enter a username", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void attemptSignUp() {
+        String username = usernameInput.getText().toString().trim();
+        if (!username.isEmpty()) {
+            db.collection("users") // Assuming you have a 'users' collection
+                    .whereEqualTo("username", username)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            if (task.getResult().isEmpty()) {
+                                // Username does not exist, can create new user
+                                addUserToDatabase(username);
+                            } else {
+                                // Username already exists, prompt to log in
+                                Toast.makeText(LoginActivity.this, "Username already exists, please login", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Error checking for username", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            Toast.makeText(LoginActivity.this, "Please enter a username", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void proceedToMain(String username) {
+        getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().putString("username", username).apply();
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void addUserToDatabase(String username) {
         // Create a new user with a username
         Map<String, Object> user = new HashMap<>();
         user.put("username", username);
-
         // Add a new document with a generated ID
         db.collection("users")
-            .add(user)
-            .addOnSuccessListener(documentReference -> {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(LoginActivity.this, "Error adding user", Toast.LENGTH_SHORT).show();
-            });
+                .add(user)
+                .addOnSuccessListener(documentReference -> proceedToMain(username))
+                .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error adding user", Toast.LENGTH_SHORT).show());
     }
 }
