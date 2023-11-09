@@ -1,5 +1,7 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +18,6 @@ public class ItemAdapter extends BaseAdapter {
     private List<Item> items;
     private LayoutInflater inflater;
 
-    private final DecimalFormat df = new DecimalFormat("#,###.##");
 
     public ItemAdapter(Context context, List<Item> items) {
         this.context = context;
@@ -62,7 +63,7 @@ public class ItemAdapter extends BaseAdapter {
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-        holder.valueTextView.setText(context.getString(R.string.item_value, df.format(item.getEstimatedValue())));
+        holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
         // Set other properties to the holder's views as needed
 
         return convertView;
