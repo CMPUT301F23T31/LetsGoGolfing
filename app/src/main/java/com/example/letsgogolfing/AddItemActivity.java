@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class EditItemActivity extends AppCompatActivity {
+public class AddItemActivity extends AppCompatActivity {
 
     private Item item;
     private static final String TAG = "EditItemActivity";
@@ -92,14 +91,14 @@ public class EditItemActivity extends AppCompatActivity {
                     // Optionally, save the document ID in the Item object
                     newItem.setId(documentReference.getId());
 
-                    Toast.makeText(EditItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
                     Intent data = new Intent();
                     data.putExtra("item_added", true);
                     setResult(RESULT_OK, data);
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(EditItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
                 });
     }
 

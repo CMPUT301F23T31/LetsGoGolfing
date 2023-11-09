@@ -2,10 +2,12 @@ package com.example.letsgogolfing;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,6 +52,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.valueField)).setText(valueString);
 
         // list of tags
+        List<String> tags = item.getTags();
+        String tagsString = TextUtils.join(", ", tags);
+        ((TextView) findViewById(R.id.tagsField)).setText(tagsString);
 
 
 
@@ -61,6 +67,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.commentField)).setEnabled(false);
         ((EditText) findViewById(R.id.dateField)).setEnabled(false);
         ((EditText) findViewById(R.id.valueField)).setEnabled(false);
+        ((EditText) findViewById(R.id.tagsField)).setEnabled(false);
 
 
         ImageButton backButton = findViewById(R.id.backButton);
@@ -82,6 +89,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
             ((EditText) findViewById(R.id.commentField)).setEnabled(true);
             ((EditText) findViewById(R.id.dateField)).setEnabled(true);
             ((EditText) findViewById(R.id.valueField)).setEnabled(true);
+            ((EditText) findViewById(R.id.tagsField)).setEnabled(true);
 
             saveButton.setVisibility(v.VISIBLE);
 
@@ -148,6 +156,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         ((EditText) findViewById(R.id.commentField)).setEnabled(false);
                         ((EditText) findViewById(R.id.dateField)).setEnabled(false);
                         ((EditText) findViewById(R.id.valueField)).setEnabled(false);
+                        ((EditText) findViewById(R.id.tagsField)).setEnabled(false);
                         saveButton.setVisibility(View.INVISIBLE);
                     })
                     .addOnFailureListener(e -> {
