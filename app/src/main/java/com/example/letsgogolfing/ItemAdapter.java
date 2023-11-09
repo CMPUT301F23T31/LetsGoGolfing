@@ -66,6 +66,12 @@ public class ItemAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void removeItem(int position) {
+        if (position >= 0 && position < items.size()) {
+            items.remove(position);
+        }
+    }
+
     // ViewHolder pattern to optimize performance
     private static class ViewHolder {
         TextView nameTextView;
