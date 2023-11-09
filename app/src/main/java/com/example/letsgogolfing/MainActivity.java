@@ -36,6 +36,7 @@ import java.util.Set;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
@@ -209,14 +210,17 @@ public class MainActivity extends AppCompatActivity {
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
 
+        selectTextCancel = findViewById(R.id.select_text_cancel);
         selectButton = findViewById(R.id.select_button);
         deleteButton = findViewById(R.id.delete_button);
+
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
         selectButton.setOnClickListener(v -> {
             isSelectMode = !isSelectMode; // Toggle select mode
             itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show delete button if in select mode
+            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
+            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
         });
 
         deleteButton.setOnClickListener(v -> deleteSelectedItems());
