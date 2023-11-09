@@ -2,6 +2,7 @@ package com.example.letsgogolfing;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -23,7 +24,10 @@ import java.util.Map;
 
 public class EditItemActivity extends AppCompatActivity {
 
+    private Item item;
     private static final String TAG = "EditItemActivity";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,55 +38,82 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     private void saveItem() {
-        Map<String, Object> item = new HashMap<>();
+        // Create a new Item object
+        Item newItem = new Item();
 
-        // Parse the date string to a Date object and then to a Timestamp
+        // Set name, description, make, model, and comment directly on the Item object
+        newItem.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
+        newItem.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
+        newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
+        newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
+        newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
+
+        // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
             Date date = sdf.parse(dateString);
             if (date != null) {
-                item.put("dateOfPurchase", new Timestamp(date));
+                newItem.setDateOfPurchase(date);
             } else {
                 Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-                return; // Exit the method if the date format is invalid
+                return;
             }
         } catch (ParseException e) {
             Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
-            return; // Exit the method if there's an error parsing the date
+            return;
         }
 
-        // Parse the estimated value as a double
+        // Parse and set the estimated value
         try {
             double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
-            item.put("estimatedValue", estimatedValue);
+            newItem.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Invalid number format for estimated value", Toast.LENGTH_LONG).show();
-            return; // Exit the method if the number format is invalid
+            return;
         }
 
-        // Collect other fields
-        item.put("name", ((EditText) findViewById(R.id.nameField)).getText().toString());
-        item.put("description", ((EditText) findViewById(R.id.descriptionField)).getText().toString());
-        item.put("make", ((EditText) findViewById(R.id.makeField)).getText().toString());
-        item.put("model", ((EditText) findViewById(R.id.modelField)).getText().toString());
-        item.put("comment", ((EditText) findViewById(R.id.commentField)).getText().toString());
-
-        // Convert the tags string to a List<String>
+        // Parse and set the tags
         String tagsString = ((EditText) findViewById(R.id.tagsField)).getText().toString();
         List<String> tagsList = new ArrayList<>(Arrays.asList(tagsString.split("\\s*,\\s*")));
-        item.put("tags", tagsList);
+        newItem.setTags(tagsList);
 
-        // Add the item to Firestore and save item id to that item
+        // Now, use the Firestore API to add the Item object
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").add(item)
+
+        // Convert Item object to Map for Firestore
+        Map<String, Object> itemMap = convertItemToMap(newItem);
+
+        db.collection("items").add(itemMap)
                 .addOnSuccessListener(documentReference -> {
+                    // Optionally, save the document ID in the Item object
+                    newItem.setId(documentReference.getId());
+
                     Toast.makeText(EditItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                    finish(); // Close the activity
+                    Intent data = new Intent();
+                    data.putExtra("item_added", true);
+                    setResult(RESULT_OK, data);
+                    finish();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(EditItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    // Helper method to convert an Item object into a Map for Firestore
+    private Map<String, Object> convertItemToMap(Item item) {
+        Map<String, Object> itemMap = new HashMap<>();
+        itemMap.put("name", item.getName());
+        itemMap.put("description", item.getDescription());
+        itemMap.put("dateOfPurchase", new Timestamp(item.getDateOfPurchase()));
+        itemMap.put("make", item.getMake());
+        itemMap.put("model", item.getModel());
+        itemMap.put("serialNumber", item.getSerialNumber());
+        itemMap.put("estimatedValue", item.getEstimatedValue());
+        itemMap.put("comment", item.getComment());
+        itemMap.put("tags", item.getTags());
+        return itemMap;
+    }
+
 
 }
