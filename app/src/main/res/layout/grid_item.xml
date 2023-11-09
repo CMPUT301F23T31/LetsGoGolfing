@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
-    android:background="@drawable/rounded_edittext"
+    android:background="@drawable/item_background_selector"
     android:elevation="4dp"
     android:radius="8dp">
 

@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">LetsGoGolfing</string>
+
     <string name="item_value">Value: $%s</string>
+
+    <string name="cost_formatting">$%s</string>
+
 
 </resources>

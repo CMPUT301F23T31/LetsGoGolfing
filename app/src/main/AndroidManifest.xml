@@ -13,20 +13,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LetsGoGolfing"
         tools:targetApi="31">
-        <activity android:name=".AddItemActivity"
-            android:exported="true">
-            <!-- Optionally, add an intent-filter here if this activity is an entry point -->
-        </activity>
-        <activity android:name=".ViewDetailsActivity" />
-        <activity
-            android:name=".MainActivity"
+        <!-- this is now the new launcher activity, login page will appear first - VT -->
+        <activity android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- add all our other activities below - VT -->
+        <activity android:name=".ViewDetailsActivity" />
+        <activity android:name=".ViewProfileActivity" />
+        <activity android:name=".AddItemActivity"
+            android:exported="true" />
+        <activity android:name=".MainActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>
