@@ -17,18 +17,16 @@
     <!-- Description Field -->
 
 
-
-
     <TextView
         android:id="@+id/headerTitle"
         android:layout_width="match_parent"
         android:layout_height="43dp"
-        android:layout_marginBottom="636dp"
+        android:layout_marginBottom="21dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
         android:text="Item Detail"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/nameField"
         tools:layout_editor_absoluteX="1dp" />
 
 
@@ -188,9 +186,9 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Tags"
         android:inputType="text"
-        android:textSize="16sp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/serialField" />
@@ -212,11 +210,12 @@
         android:id="@+id/editInfoBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
         android:text="Edit Info"
         android:textColor="#FFFFFF"
         app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn"
-        tools:layout_editor_absoluteY="628dp" />
+        app:layout_constraintTop_toBottomOf="@+id/tagsField" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

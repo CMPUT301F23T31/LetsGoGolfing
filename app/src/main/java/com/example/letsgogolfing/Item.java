@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class Item implements Comparable<Item> {
+public class Item implements Comparable<Item>, java.io.Serializable {
 
 
     // ** private String id; ** we may or may not need this? depends if we want to deal with item id's separately
