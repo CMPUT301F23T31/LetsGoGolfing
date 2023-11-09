@@ -20,6 +20,10 @@ public class ItemAdapter extends BaseAdapter {
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
+    // get all items
+    public List<Item> getItems() {
+        return items;
+    }
     @Override
     public int getCount() {
         return items.size();

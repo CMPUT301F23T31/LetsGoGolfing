@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +36,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+    private void updateTotalValue(List<Item> items) {
+        double totalValue = 0;
+        for (Item item : items) {
+            totalValue += item.getEstimatedValue(); // Assuming getEstimatedValue() returns a double
+        }
+
+        TextView totalValueTextView = findViewById(R.id.totalValue);
+        String totalValueText = String.format(Locale.getDefault(), "Total value: $%.2f", totalValue);
+        totalValueTextView.setText(totalValueText);
+    }
+
+
     // Inside MainActivity
     private void fetchItemsAndRefreshAdapter() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -46,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     newItems.add(item);
                 }
                 itemAdapter.updateItems(newItems); // Assuming your adapter has this method
+                updateTotalValue(newItems);
             } else {
                 Log.w(TAG, "Error getting documents: ", task.getException());
             }
@@ -62,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
         itemGrid.setAdapter(itemAdapter);
+
+        fetchItemsAndRefreshAdapter();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
@@ -87,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                             // Deletion successful, update UI
                             itemAdapter.removeItem(position); // You need to implement this method in your adapter
                             itemAdapter.notifyDataSetChanged();
+                            updateTotalValue(itemAdapter.getItems());
                             Toast.makeText(MainActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
@@ -97,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 // Document ID is null, handle this case
                 Toast.makeText(MainActivity.this, "Cannot delete item without an ID", Toast.LENGTH_SHORT).show();
             }
+
             return true; // True to indicate the long click was consumed
         });
 
@@ -114,4 +133,6 @@ public class MainActivity extends AppCompatActivity {
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
     }
+
+
 }
