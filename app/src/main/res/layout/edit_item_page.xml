@@ -148,8 +148,6 @@
         android:layout_marginTop="20dp"
         android:text="Add Photo"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/confirmBtn"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tagsField" />
 
