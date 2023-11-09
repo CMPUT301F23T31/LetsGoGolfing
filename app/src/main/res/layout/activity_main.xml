@@ -49,10 +49,10 @@
         android:verticalSpacing="10dp"
         app:layout_constraintBottom_toTopOf="@id/totalValue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchEditText"
-        app:layout_constraintVertical_bias="0.741"
+        app:layout_constraintVertical_bias="0.327"
         tools:listitem="@layout/grid_item" />
 
     <TextView
@@ -73,6 +73,7 @@
         android:id="@+id/scanItemButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_marginEnd="12dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_button_selector"
         android:padding="8dp"
@@ -80,7 +81,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/addItemButton"
         app:layout_constraintHorizontal_chainStyle="packed" />
-
 
     <ImageView
         android:id="@+id/addItemButton"
@@ -112,12 +112,16 @@
         android:id="@+id/delete_button"
         android:layout_width="48dp"
         android:layout_height="44dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/garbage_icon"
         android:text="Delete"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/totalValue" />
+        app:layout_constraintEnd_toStartOf="@+id/scanItemButton"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/totalValue" />
+
     <ImageView
         android:id="@+id/profileButton"
         android:layout_width="43dp"
@@ -136,7 +140,7 @@
         app:layout_constraintTop_toBottomOf="@+id/itemGrid" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/select_text_cancel"
         android:layout_width="66dp"
         android:layout_height="22dp"
         android:fontFamily="sans-serif"

@@ -96,7 +96,7 @@ public class ItemAdapter extends BaseAdapter {
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
-            convertView.setBackgroundColor(Color.parseColor("#FFCDD2")); // Pink color for selected items
+            convertView.setBackgroundColor(Color.parseColor("#5E716A")); // color for selected items
         } else {
             convertView.setBackgroundColor(Color.parseColor("#88CEB4")); // Original background color
         }
