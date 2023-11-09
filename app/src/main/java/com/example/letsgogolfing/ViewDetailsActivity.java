@@ -38,6 +38,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.serialField)).setText(item.getSerialNumber());
         ((EditText) findViewById(R.id.commentField)).setText(item.getComment());
 
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String dateString = dateFormat.format(item.getDateOfPurchase());
         ((EditText) findViewById(R.id.dateField)).setText(dateString);
@@ -46,6 +47,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
 // For example, "%.2f" will format the double to two decimal places
         String valueString = String.format(Locale.getDefault(), "%.2f", item.getEstimatedValue());
         ((EditText) findViewById(R.id.valueField)).setText(valueString);
+
+        // list of tags
+
 
 
         // If you want the fields to be non-editable, make them TextViews or disable the EditTexts
