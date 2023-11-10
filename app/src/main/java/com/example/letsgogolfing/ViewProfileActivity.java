@@ -11,12 +11,19 @@ import android.widget.TextView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+/**
+ * Activity for viewing the user's profile.
+ */
 public class ViewProfileActivity extends AppCompatActivity {
 
     private TextView totalItems;
     private TextView totalCost;
     private TextView userName;
 
+    /**
+     * onCreate method for the ViewProfileActivity.
+     * @param savedInstanceState The saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +40,9 @@ public class ViewProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches the user's profile data from Firestore.
+     */
     private void fetchProfileData() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {

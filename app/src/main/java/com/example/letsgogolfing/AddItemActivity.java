@@ -56,15 +56,19 @@ public class AddItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item_page);
 
+        // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> saveItem());
 
+        // cancel button listener
         Button cancel_button = findViewById(R.id.cancel_button_add_item);
         cancel_button.setOnClickListener(v -> finish());
 
+        // add tags button listener
         Button tagButton = findViewById(R.id.add_tags_button);
         tagButton.setOnClickListener(v -> showTagSelectionDialog());
 
+        // Fetch the tags from Firestore
         fetchTagsFromFirestore();
     }
 
@@ -78,6 +82,8 @@ public class AddItemActivity extends AppCompatActivity {
      */
     private void fetchTagsFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Fetch the tags from Firestore
         db.collection("tags").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 tagList.clear();
@@ -107,10 +113,7 @@ public class AddItemActivity extends AppCompatActivity {
         boolean[] checkedTags = new boolean[tagList.size()];
 
 
-
-
         try {
-            // ... existing dialog code ...
             // Pre-check the tags that have been previously selected
             for(int i = 0; i < tagList.size(); i++) {
                 if(selectedTags.contains(tagList.get(i))) {
@@ -118,6 +121,7 @@ public class AddItemActivity extends AppCompatActivity {
                 }
             }
 
+            // Show the dialog (little pop-up screen) checkbox list of tags
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMultiChoiceItems(tagsArray, checkedTags, (dialog, which, isChecked) -> {
                 // Add or remove the tag from the selected tags list based on whether the checkbox is checked
@@ -128,6 +132,8 @@ public class AddItemActivity extends AppCompatActivity {
                     selectedTags.remove(selectedTag);
                 }
             });
+
+            // Add OK and Cancel buttons
             builder.setPositiveButton("OK", (dialog, which) -> {
                 LinearLayout tagsContainer = findViewById(R.id.tagsContainer);
                 if (tagsContainer != null) {
@@ -144,6 +150,7 @@ public class AddItemActivity extends AppCompatActivity {
                     Log.e(TAG, "tagsContainer is null");
                 }
             });
+
             builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
             AlertDialog dialog = builder.create();
             dialog.show();
@@ -152,6 +159,7 @@ public class AddItemActivity extends AppCompatActivity {
             Toast.makeText(this, "Error showing dialog: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 
 
     /**
@@ -169,6 +177,7 @@ public class AddItemActivity extends AppCompatActivity {
      * {@link Item} object into a {@link Map} for Firestore storage.
      * </p>
      */
+
     private void saveItem() {
         // Create a new Item object
         Item newItem = new Item();
