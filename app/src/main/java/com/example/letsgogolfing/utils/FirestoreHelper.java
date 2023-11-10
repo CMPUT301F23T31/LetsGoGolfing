@@ -24,35 +24,59 @@ public class FirestoreHelper {
 
     public static FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    public static void handleUserCollections(String[] names, boolean isTest) {
+        if (isTest) {
+            handleTestCollections(new String[]{testCollectionName[0]}, names);
+        } else {
+            handleCollections(new String[]{collectionName[0]}, names);
+        }
+    }
 
-    public static void handleUserTestCollections() {
+//    public static void handleItemCollections() {
+//        handleTestCollections(new String[]{testCollectionName[1]});
+//        handleCollections(new String[]{collectionName[1]});
+//    }
+//
+//    public static void handleTagCollections() {
+//        handleTestCollections(new String[]{testCollectionName[2]});
+//        handleCollections(new String[]{collectionName[2]});
+//    }
 
+    public static void handleAllCollections(String[] names, boolean isTest) {
+        if (isTest) {
+            handleTestCollections(testCollectionName, names);
+        } else {
+            handleCollections(collectionName, names);
+        }
+    }
+
+
+    private static void handleTestCollections(String[] testCollectionName, String[] names) {
         for (String testCollection : testCollectionName) {
             CollectionReference userTestCollection = db.collection(testCollection);
 
-            userTestCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            // Collection exists, delete its contents
-                            deleteCollectionContents(userTestCollection);
-                        } else {
-                            // Collection does not exist, create a new one
-                            createNewUserTestCollection(userTestCollection);
-                        }
+            userTestCollection.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        // Collection exists, delete its contents
+                        deleteCollectionContents(userTestCollection);
+                        createNewUserTestCollection(userTestCollection, names);
                     } else {
-                        // Handle the error
+                        // Collection does not exist, create a new one with an array of usernames
+
+                        createNewUserTestCollection(userTestCollection, names);
                     }
+                } else {
+                    // Handle the error
                 }
             });
         }
     }
 
-    public static void handleUserCollections() {
+    private static void handleCollections(String[] collectionName, String[] names) {
 
-        for (String testCollection : testCollectionName) {
+        for (String testCollection : collectionName) {
             CollectionReference userTestCollection = db.collection(testCollection);
 
             userTestCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -65,7 +89,7 @@ public class FirestoreHelper {
                             Log.d("DatabaseSetup", "Collection " + testCollection + " already exists.");
                         } else {
                             // Collection does not exist, create a new one
-                            createNewUserTestCollection(userTestCollection);
+                            createNewUserTestCollection(userTestCollection, names);
                         }
                     } else {
                         // Handle the error
@@ -99,10 +123,8 @@ public class FirestoreHelper {
         });
     }
 
-    private static void createNewUserTestCollection(CollectionReference collectionReference) {
-        // Add dummy users
-        String[] namesTest = {"testLogin", "nonUniqueUser"};
-        for (String name : namesTest) {
+    private static void createNewUserTestCollection(CollectionReference collectionReference, String[] usernames) {
+        for (String name : usernames) {
             // Create a new user with a username
             Map<String, Object> user = new HashMap<>();
             user.put("username", name);

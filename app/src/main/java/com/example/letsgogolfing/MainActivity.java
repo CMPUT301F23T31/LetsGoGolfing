@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
      * It clears the selection mode after deletion is completed.
      */
     private void deleteSelectedItems() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         WriteBatch batch = db.batch();
 
         // Use the getSelectedPositions method to get the set of selected item positions
@@ -158,8 +157,6 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> items = new ArrayList<>();
