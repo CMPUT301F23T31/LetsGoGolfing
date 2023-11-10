@@ -1,20 +1,27 @@
 package com.example.letsgogolfing;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +32,9 @@ public class AddItemActivity extends AppCompatActivity {
 
     private Item item;
     private static final String TAG = "EditItemActivity";
+
+    private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
+    private List<String> selectedTags = new ArrayList<>();
 
 
     @Override
@@ -37,7 +47,82 @@ public class AddItemActivity extends AppCompatActivity {
 
         Button cancel_button = findViewById(R.id.cancel_button_add_item);
         cancel_button.setOnClickListener(v -> finish());
+
+        Button tagButton = findViewById(R.id.add_tags_button);
+        tagButton.setOnClickListener(v -> showTagSelectionDialog());
+
+        fetchTagsFromFirestore();
     }
+
+    private void fetchTagsFromFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tags").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                tagList.clear();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    tagList.add(document.getString("name"));
+                }
+                // Now that the tags are fetched, you can enable the 'Add Tags' button
+            } else {
+                Log.w(TAG, "Error getting documents: ", task.getException());
+            }
+        });
+    }
+
+    // You might need to pass the tags from MainActivity to here or retrieve them from persistent storage.
+    private void showTagSelectionDialog() {
+        // Convert List to array for AlertDialog
+        tagList.removeAll(Collections.singleton(null));
+        String[] tagsArray = tagList.toArray(new String[0]);
+        boolean[] checkedTags = new boolean[tagList.size()];
+
+
+
+
+        try {
+            // ... existing dialog code ...
+            // Pre-check the tags that have been previously selected
+            for(int i = 0; i < tagList.size(); i++) {
+                if(selectedTags.contains(tagList.get(i))) {
+                    checkedTags[i] = true;
+                }
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMultiChoiceItems(tagsArray, checkedTags, (dialog, which, isChecked) -> {
+                // Add or remove the tag from the selected tags list based on whether the checkbox is checked
+                String selectedTag = tagList.get(which);
+                if (isChecked) {
+                    selectedTags.add(selectedTag);
+                } else {
+                    selectedTags.remove(selectedTag);
+                }
+            });
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                LinearLayout tagsContainer = findViewById(R.id.tagsContainer);
+                if (tagsContainer != null) {
+                    tagsContainer.removeAllViews(); // Clear all views/tags before adding new ones
+
+                    for (String tag : selectedTags) {
+                        TextView tagView = new TextView(this);
+                        tagView.setText(tag);
+                        tagView.setBackgroundResource(R.drawable.tag_background); // Make sure this drawable exists
+                        // Add LayoutParams, margins, etc., here
+                        tagsContainer.addView(tagView); // Add the TextView to your container
+                    }
+                } else {
+                    Log.e(TAG, "tagsContainer is null");
+                }
+            });
+            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error showing dialog: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private void saveItem() {
         // Create a new Item object
@@ -76,9 +161,7 @@ public class AddItemActivity extends AppCompatActivity {
         }
 
         // Parse and set the tags
-        String tagsString = ((EditText) findViewById(R.id.tagsField)).getText().toString();
-        List<String> tagsList = new ArrayList<>(Arrays.asList(tagsString.split("\\s*,\\s*")));
-        newItem.setTags(tagsList);
+        newItem.setTags(selectedTags);
 
         // Now, use the Firestore API to add the Item object
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -100,6 +183,12 @@ public class AddItemActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    public void updateTagList(List<String> newTags) {
+        tagList.clear();
+        tagList.addAll(newTags);
+        // If needed, update the UI or other elements that depend on the tagList
     }
 
     // Helper method to convert an Item object into a Map for Firestore
