@@ -28,15 +28,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Activity for adding a new item to the inventory.
+ */
 public class AddItemActivity extends AppCompatActivity {
 
     private Item item;
     private static final String TAG = "EditItemActivity";
 
-    private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
+    // This should be populated from the ManageTagsActivity
+    private List<String> tagList = new ArrayList<>();
     private List<String> selectedTags = new ArrayList<>();
 
-
+    /**
+     * Called when the activity is starting. Responsible for initializing the activity.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                            shut down, this Bundle contains the data it most recently supplied
+     *                            in onSaveInstanceState(Bundle). Note: Otherwise, it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +64,9 @@ public class AddItemActivity extends AppCompatActivity {
         fetchTagsFromFirestore();
     }
 
+    /**
+     * Fetches tags from Firestore to populate the tagList.
+     */
     private void fetchTagsFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("tags").get().addOnCompleteListener(task -> {
@@ -69,16 +82,18 @@ public class AddItemActivity extends AppCompatActivity {
         });
     }
 
-    // You might need to pass the tags from MainActivity to here or retrieve them from persistent storage.
+    /**
+     * Displays a dialog for selecting tags from the available tagList. The method converts the tagList
+     * to an array, initializes the checked tags array, and pre-checks the tags that have been previously selected.
+     * The selected tags are displayed in a LinearLayout within the dialog.
+     *
+     * @throws Exception If an error occurs while creating or showing the dialog.
+     */
     private void showTagSelectionDialog() {
         // Convert List to array for AlertDialog
         tagList.removeAll(Collections.singleton(null));
         String[] tagsArray = tagList.toArray(new String[0]);
         boolean[] checkedTags = new boolean[tagList.size()];
-
-
-
-
         try {
             // ... existing dialog code ...
             // Pre-check the tags that have been previously selected
@@ -123,7 +138,24 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Saves the entered information as a new item in the inventory. Retrieves user input from various
+     * EditText fields, validates and parses the data, creates a new Item object, and stores it in the
+     * Firestore database using the Firestore API. Displays Toast messages for validation errors or
+     * successful item addition.
+     * <p>
+     * This method performs the following steps:
+     * <ol>
+     *   <li>Creates a new {@link Item} object.</li>
+     *   <li>Sets the name, description, make, model, and comment on the Item object.</li>
+     *   <li>Parses and sets the date of purchase.</li>
+     *   <li>Parses and sets the estimated value.</li>
+     *   <li>Sets the tags from the selectedTags list.</li>
+     *   <li>Uses the Firestore API to add the Item object to the "items" collection.</li>
+     *   <li>Handles success and failure cases, displaying appropriate Toast messages.</li>
+     * </ol>
+     * </p>
+     */
     private void saveItem() {
         // Create a new Item object
         Item newItem = new Item();
@@ -185,12 +217,26 @@ public class AddItemActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Updates the tagList with a new list of tags. Clears the existing tags in the tagList and adds
+     * all tags from the newTags list. If needed, this method can be used to update the UI or other
+     * elements that depend on the tagList.
+     *
+     * @param newTags The new list of tags to update the tagList with.
+     */
     public void updateTagList(List<String> newTags) {
         tagList.clear();
         tagList.addAll(newTags);
         // If needed, update the UI or other elements that depend on the tagList
     }
 
+    /**
+     * Converts an {@link Item} object into a {@link Map} for Firestore. Each field of the Item object
+     * is mapped to a corresponding key-value pair in the resulting Map.
+     *
+     * @param item The Item object to be converted.
+     * @return A Map representation of the Item for Firestore.
+     */
     // Helper method to convert an Item object into a Map for Firestore
     private Map<String, Object> convertItemToMap(Item item) {
         Map<String, Object> itemMap = new HashMap<>();
