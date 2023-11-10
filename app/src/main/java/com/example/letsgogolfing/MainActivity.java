@@ -74,8 +74,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Fetches items from the Firestore database and updates the grid adapter.
-     * It also updates the total value of all items displayed.
+     * Fetches items from the Firestore 'items' collection and refreshes the associated adapter with
+     * the retrieved data. Additionally, updates the total value based on the new items.
+     * <p>
+     * The method initiates an asynchronous query to the Firestore database to retrieve all documents
+     * from the 'items' collection. Upon successful retrieval, it converts each document to an {@link Item}
+     * object and populates a new list of items. The document ID is set for each item, and the updated
+     * list is passed to the associated adapter for refreshing the UI. The total value is also updated
+     * by invoking the {@link #updateTotalValue(List)} method.
+     * <p>
+     * In case of an error during the document retrieval process, a warning message is logged.
      */
     private void fetchItemsAndRefreshAdapter() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -96,8 +104,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Deletes the selected items from the Firestore database and updates the UI accordingly.
-     * It clears the selection mode after deletion is completed.
+     * Deletes the selected items from the Firestore 'items' collection and updates the UI accordingly.
+     * <p>
+     * The method initiates a batch write operation to delete selected items from the Firestore database.
+     * It retrieves the set of selected item positions using the {@link ItemAdapter#getSelectedPositions()}
+     * method and constructs a batch operation to delete the corresponding documents from the 'items'
+     * collection. Upon successful execution of the batch operation, it removes the items from the adapter,
+     * clears the selection, updates the total value, and displays a success Toast message. In case of an
+     * error during the deletion process, an error Toast message is displayed.
+     * <p>
+     * The method also resets the select mode, disables select mode in the adapter, and hides the delete button
+     * after the completion of the operation.
      */
     private void deleteSelectedItems() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -135,12 +152,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Initializes the activity with the required layout and sets up the item grid adapter.
-     * It also configures click listeners for the item grid and other UI components.
+     * Lifecycle method called when the MainActivity is first created.
+     * Initializes the user interface, sets up the item grid, and populates it with items from Firestore.
+     * Handles item long clicks for deletion, normal clicks for item details, and provides options
+     * for selecting and deleting multiple items.
+     * <p>
+     * Also includes buttons to add new items, manage tags, toggle selection mode, and access the user profile.
+     * <p>
+     * Note: Ensure your Item class implements Serializable or Parcelable for passing it to other activities.
      *
-     * @param savedInstanceState If the activity is being re-initialized after previously
-     *                           being shut down, this Bundle contains the most recent data,
-     *                           or null if it is the first time.
+     * @param savedInstanceState A Bundle containing the data most recently supplied in onSaveInstanceState(Bundle).
+     *                           May be null if saved state is not available.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {

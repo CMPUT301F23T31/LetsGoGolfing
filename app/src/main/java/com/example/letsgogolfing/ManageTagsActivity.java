@@ -16,10 +16,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activity for managing tags, allowing users to view, add, and save tags to Firestore.
+ * <p>
+ * This activity displays a list of tags from Firestore. Users can add new tags,
+ * and the added tags are both updated in the UI and saved to Firestore. The final tags list can be
+ * saved to persistent storage or passed back to the calling activity.
+ */
 public class ManageTagsActivity extends AppCompatActivity {
     private ArrayAdapter<String> tagsAdapter;
     private List<String> tagsList = new ArrayList<>();
 
+    /**
+     * Called when the activity is first created. Initializes the user interface, sets up the tags list,
+     * and handles button clicks for adding tags and finishing the activity.
+     *
+     * @param savedInstanceState A Bundle containing the data most recently supplied in onSaveInstanceState(Bundle).
+     *                           May be null if saved state is not available.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

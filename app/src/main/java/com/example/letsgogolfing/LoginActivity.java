@@ -49,6 +49,21 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Attempts to log in a user by checking the existence of the provided username in the Firestore
+     * 'users' collection. Retrieves the username from the input field, performs a query to check if
+     * the user exists, and takes appropriate actions based on the result:
+     * <ul>
+     *   <li>If the username is not empty and a user with the provided username is found, the method
+     *   proceeds to the main activity by calling {@link #proceedToMain(String)}.</li>
+     *   <li>If the username is empty, displays a Toast message instructing the user to enter a
+     *   username.</li>
+     *   <li>If the username is not empty but no user with the provided username is found, displays a
+     *   Toast message indicating that the user does not exist and prompts the user to sign up.</li>
+     *   <li>If an error occurs during the user-checking process, displays a Toast message indicating
+     *   that an error occurred while checking for the user.</li>
+     * </ul>
+     */
     private void attemptLogin() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -75,6 +90,22 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Attempts to sign up a new user by checking the existence of the provided username in the Firestore
+     * 'users' collection. Retrieves the username from the input field, performs a query to check if
+     * the username already exists, and takes appropriate actions based on the result:
+     * <ul>
+     *   <li>If the username is not empty and no user with the provided username is found, the method
+     *   proceeds to add the new user to the database by calling {@link #addUserToDatabase(String)}.</li>
+     *   <li>If the username is empty, displays a Toast message instructing the user to enter a
+     *   username.</li>
+     *   <li>If the username is not empty but a user with the provided username already exists, displays
+     *   a Toast message indicating that the username is taken and prompts the user to log in.</li>
+     *   <li>If an error occurs during the username-checking process, displays a Toast message indicating
+     *   that an error occurred while checking for the username.</li>
+     * </ul>
+     */
     private void attemptSignUp() {
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
@@ -99,6 +130,14 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Proceeds to the main activity after a successful login. Stores the provided username in the
+     * SharedPreferences under the key "username" in the "AppPrefs" file. Creates an intent to start
+     * the {@link MainActivity}, starts the activity, and finishes the current login activity.
+     *
+     * @param username The username of the logged-in user to be stored in SharedPreferences.
+     */
     private void proceedToMain(String username) {
         getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().putString("username", username).apply();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
