@@ -30,7 +30,30 @@ import java.util.Map;
 
 public class ViewDetailsActivity extends AppCompatActivity {
 
-
+    private String originalName;
+    private String originalDescription;
+    private String originalMake;
+    private String originalModel;
+    private String originalSerial;
+    private String originalComment;
+    private String originalDate;
+    private String originalValue;
+    private String originalTags;
+    EditText name;
+    EditText description;
+    EditText value;
+    EditText make;
+    EditText model;
+    EditText serial;
+    EditText comment;
+    EditText date;
+    EditText tagsText;
+    Button editButton;
+    Button viewPhotoButton;
+    Button saveButton;
+    Button cancelButton;
+    Button addPhotoButton;
+    ImageButton backButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,83 +62,38 @@ public class ViewDetailsActivity extends AppCompatActivity {
         // Retrieve the item from the intent
         Item item = (Item) getIntent().getSerializableExtra("ITEM");
 
-        // Now populate the fields with item details
-        ((EditText) findViewById(R.id.nameField)).setText(item.getName());
-        ((EditText) findViewById(R.id.descriptionField)).setText(item.getDescription());
-        ((EditText) findViewById(R.id.makeField)).setText(item.getMake());
-        ((EditText) findViewById(R.id.modelField)).setText(item.getModel());
-        ((EditText) findViewById(R.id.serialField)).setText(item.getSerialNumber());
-        ((EditText) findViewById(R.id.commentField)).setText(item.getComment());
+        InitializeEditTextAndButtons(item);
 
-
-        String dateString = dateFormat.format(item.getDateOfPurchase());
-        ((EditText) findViewById(R.id.dateField)).setText(dateString);
-
-// For the double value, you can use String.format to control the formatting
-// For example, "%.2f" will format the double to two decimal places
-        String valueString = decimalFormat.format(item.getEstimatedValue());
-        ((EditText) findViewById(R.id.valueField)).setText(valueString);
-
-        // list of tags
-        List<String> tags = item.getTags();
-        String tagsString = TextUtils.join(", ", tags);
-        ((TextView) findViewById(R.id.tagsField)).setText(tagsString);
-
-
-
-        // If you want the fields to be non-editable, make them TextViews or disable the EditTexts
-        ((EditText) findViewById(R.id.nameField)).setEnabled(false);
-        ((EditText) findViewById(R.id.descriptionField)).setEnabled(false);
-        ((EditText) findViewById(R.id.modelField)).setEnabled(false);
-        ((EditText) findViewById(R.id.makeField)).setEnabled(false);
-        ((EditText) findViewById(R.id.serialField)).setEnabled(false);
-        ((EditText) findViewById(R.id.commentField)).setEnabled(false);
-        ((EditText) findViewById(R.id.dateField)).setEnabled(false);
-        ((EditText) findViewById(R.id.valueField)).setEnabled(false);
-        ((EditText) findViewById(R.id.tagsField)).setEnabled(false);
-
-
-        ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
             // takes back to home page main_activity
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         });
 
-        Button saveButton = findViewById(R.id.saveBtn);
-        Button editButton = findViewById(R.id.editInfoBtn);
         editButton.setOnClickListener(v -> {
-            // sets all of the fields to enabled
-            ((EditText) findViewById(R.id.nameField)).setEnabled(true);
-            ((EditText) findViewById(R.id.descriptionField)).setEnabled(true);
-            ((EditText) findViewById(R.id.modelField)).setEnabled(true);
-            ((EditText) findViewById(R.id.makeField)).setEnabled(true);
-            ((EditText) findViewById(R.id.serialField)).setEnabled(true);
-            ((EditText) findViewById(R.id.commentField)).setEnabled(true);
-            ((EditText) findViewById(R.id.dateField)).setEnabled(true);
-            ((EditText) findViewById(R.id.valueField)).setEnabled(true);
-            ((EditText) findViewById(R.id.tagsField)).setEnabled(true);
+            TransitionToEdit(v);
+        });
 
-            saveButton.setVisibility(v.VISIBLE);
-
+        cancelButton.setOnClickListener(v -> {
+            SetFieldsToOriginalValues(v);
+            TransitionToViewItem(v);
         });
 
         saveButton.setOnClickListener(v -> {
             // Extract the updated information from EditText fields
-            String updatedName = ((EditText) findViewById(R.id.nameField)).getText().toString();
-            String updatedDescription = ((EditText) findViewById(R.id.descriptionField)).getText().toString();
-            String updatedMake = ((EditText) findViewById(R.id.makeField)).getText().toString();
-            String updatedModel = ((EditText) findViewById(R.id.modelField)).getText().toString();
-            String updatedSerialNumber = ((EditText) findViewById(R.id.serialField)).getText().toString();
-            String updatedComment = ((EditText) findViewById(R.id.commentField)).getText().toString();
-            String updatedDate = ((EditText) findViewById(R.id.dateField)).getText().toString();
-            String updatedValueString = ((EditText) findViewById(R.id.valueField)).getText().toString();
+            String updatedName = name.getText().toString();
+            String updatedDescription = description.getText().toString();
+            String updatedMake = make.getText().toString();
+            String updatedModel = model.getText().toString();
+            String updatedSerialNumber = serial.getText().toString();
+            String updatedComment = comment.getText().toString();
+            String updatedDate = date.getText().toString();
+            String updatedValueString = value.getText().toString();
 
-            // Convert the date string back to a Date object
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             Date updatedDateOfPurchase = null;
             try {
-                updatedDateOfPurchase = sdf.parse(updatedDate);
+                // Convert the date string back to a Date object
+                updatedDateOfPurchase = dateFormat.parse(updatedDate);
             } catch (ParseException e) {
                 e.printStackTrace();
                 Toast.makeText(ViewDetailsActivity.this, "Invalid date format", Toast.LENGTH_SHORT).show();
@@ -154,22 +132,111 @@ public class ViewDetailsActivity extends AppCompatActivity {
                     .update(updatedValues)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(ViewDetailsActivity.this, "Changes saved", Toast.LENGTH_SHORT).show();
-                        // Disable EditTexts and hide the save button again
-                        ((EditText) findViewById(R.id.nameField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.descriptionField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.modelField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.makeField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.serialField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.commentField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.dateField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.valueField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.tagsField)).setEnabled(false);
-                        saveButton.setVisibility(View.INVISIBLE);
+                        TransitionToViewItem(v);
                     })
                     .addOnFailureListener(e -> {
                         e.printStackTrace();
                         Toast.makeText(ViewDetailsActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                     });
         });
+    }
+
+    private void TransitionToEdit(View v) {
+        saveButton.setVisibility(v.VISIBLE);
+        cancelButton.setVisibility(v.VISIBLE);
+        addPhotoButton.setVisibility(v.VISIBLE);
+        viewPhotoButton.setVisibility(v.INVISIBLE);
+        editButton.setVisibility(v.INVISIBLE);
+        name.setEnabled(true);
+        description.setEnabled(true);
+        model.setEnabled(true);
+        make.setEnabled(true);
+        serial.setEnabled(true);
+        comment.setEnabled(true);
+        date.setEnabled(true);
+        value.setEnabled(true);
+        tagsText.setEnabled(true);
+    }
+    private void TransitionToViewItem(View v) {
+        saveButton.setVisibility(v.INVISIBLE);
+        cancelButton.setVisibility(v.INVISIBLE);
+        addPhotoButton.setVisibility(v.INVISIBLE);
+        viewPhotoButton.setVisibility(v.VISIBLE);
+        editButton.setVisibility(v.VISIBLE);
+        name.setEnabled(false);
+        description.setEnabled(false);
+        model.setEnabled(false);
+        make.setEnabled(false);
+        serial.setEnabled(false);
+        comment.setEnabled(false);
+        date.setEnabled(false);
+        value.setEnabled(false);
+        tagsText.setEnabled(false);
+    }
+
+    private void SetFieldsToOriginalValues(View v) {
+        name.setText(originalName);
+        description.setText(originalDescription);
+        make.setText(originalMake);
+        model.setText(originalModel);
+        serial.setText(originalSerial);
+        comment.setText(originalComment);
+        date.setText(originalDate);
+        value.setText(originalValue);
+        tagsText.setText(originalTags);
+    }
+
+    private void InitializeEditTextAndButtons(Item item) {
+
+        // Initialize EditTexts
+        name = findViewById(R.id.nameField);
+        description = findViewById(R.id.descriptionField);
+        make = findViewById(R.id.makeField);
+        model = findViewById(R.id.modelField);
+        serial = findViewById(R.id.serialField);
+        comment = findViewById(R.id.commentField);
+        date = findViewById(R.id.dateField);
+        value = findViewById(R.id.valueField);
+        tagsText = findViewById(R.id.tagsField);
+        // Initialize Buttons
+        saveButton = findViewById(R.id.saveBtn);
+        editButton = findViewById(R.id.editInfoBtn);
+        cancelButton = findViewById(R.id.cancel_edit_button);
+        addPhotoButton = findViewById(R.id.add_photo_button);
+        backButton = findViewById(R.id.backButton);
+        viewPhotoButton = findViewById(R.id.viewPhotoBtn);
+
+        // Set original values for when cancel is pressed
+        originalName = item.getName();
+        originalDescription = item.getDescription();
+        originalMake = item.getMake();
+        originalModel = item.getModel();
+        originalSerial = item.getSerialNumber();
+        originalComment = item.getComment();
+        originalDate = dateFormat.format(item.getDateOfPurchase());
+        originalValue = decimalFormat.format(item.getEstimatedValue());
+        originalTags = TextUtils.join(", ", item.getTags());
+
+        // Set the EditTexts with the original values
+        name.setText(originalName);
+        description.setText(originalDescription);
+        make.setText(originalMake);
+        model.setText(originalModel);
+        serial.setText(originalSerial);
+        comment.setText(originalComment);
+        date.setText(originalDate);
+        value.setText(originalValue);
+        tagsText.setText(originalTags);
+
+        // Set fields to not be editable at first
+        name.setEnabled(false);
+        description.setEnabled(false);
+        model.setEnabled(false);
+        make.setEnabled(false);
+        serial.setEnabled(false);
+        comment.setEnabled(false);
+        date.setEnabled(false);
+        value.setEnabled(false);
+        tagsText.setEnabled(false);
     }
 }
