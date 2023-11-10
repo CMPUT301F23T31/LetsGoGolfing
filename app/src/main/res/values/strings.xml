@@ -4,6 +4,7 @@
     <string name="item_value">Value: $%s</string>
 
     <string name="cost_formatting">$%s</string>
+    <string name="select_text">Select</string>
 
 
 </resources>

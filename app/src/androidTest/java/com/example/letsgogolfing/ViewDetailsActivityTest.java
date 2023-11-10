@@ -72,9 +72,6 @@ public class ViewDetailsActivityTest {
             // Check if the name is displayed
             onView(withId(R.id.nameField)).check(matches(withText(TEST_ITEM.getName())));
 
-            // Check if the name is displayed
-            onView(withId(R.id.nameField)).check(matches(withText(TEST_ITEM.getName())));
-
             // Check if the description is displayed
             onView(withId(R.id.descriptionField)).check(matches(withText(TEST_ITEM.getDescription())));
 

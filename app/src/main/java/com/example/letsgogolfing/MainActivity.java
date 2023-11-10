@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.example.letsgogolfing.utils.FirestoreHelper;
+import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -78,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
      * It also updates the total value of all items displayed.
      */
     private void fetchItemsAndRefreshAdapter() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> newItems = new ArrayList<>();
@@ -100,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
      * It clears the selection mode after deletion is completed.
      */
     private void deleteSelectedItems() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         WriteBatch batch = db.batch();
 
         // Use the getSelectedPositions method to get the set of selected item positions
@@ -123,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
                 itemAdapter.notifyDataSetChanged();
                 updateTotalValue(itemAdapter.getItems());
                 Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
+                // Reset select mode and update UI accordingly
+                isSelectMode = false;
+                itemAdapter.setSelectModeEnabled(false);
+                deleteButton.setVisibility(View.GONE);
+                selectTextCancel.setText(R.string.select_text); // Set the select button text back to "Select"
             } else {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
@@ -152,8 +157,6 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> items = new ArrayList<>();
@@ -224,6 +227,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
+
+        Button manageTagsButton = findViewById(R.id.manage_tags_button);
+        manageTagsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
+            startActivity(intent);
+        });
+
 
         selectTextCancel = findViewById(R.id.select_text_cancel);
         selectButton = findViewById(R.id.select_button);
