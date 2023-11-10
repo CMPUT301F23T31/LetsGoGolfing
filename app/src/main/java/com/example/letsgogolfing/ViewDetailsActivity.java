@@ -43,8 +43,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private String originalModel;
     private String originalSerial;
     private String originalComment;
-    private String originalDate;
-    private String originalValue;
+    private Date originalDate;
+
+    private double originalValue;
     private String originalTags;
     EditText name;
     EditText description;
@@ -241,8 +242,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
         model.setText(originalModel);
         serial.setText(originalSerial);
         comment.setText(originalComment);
-        date.setText(originalDate);
-        value.setText(originalValue);
+        date.setText(dateFormat.format(originalDate));
+        value.setText(Double.toString(originalValue));
     }
 
     private void InitializeEditTextAndButtons(Item item) {
@@ -271,8 +272,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
         originalModel = item.getModel();
         originalSerial = item.getSerialNumber();
         originalComment = item.getComment();
-        originalDate = dateFormat.format(item.getDateOfPurchase());
-        originalValue = decimalFormat.format(item.getEstimatedValue());
+        originalDate = item.getDateOfPurchase();
+        originalValue = item.getEstimatedValue();
         originalTagsList = new ArrayList<>(item.getTags());
 
 
@@ -283,8 +284,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
         model.setText(originalModel);
         serial.setText(originalSerial);
         comment.setText(originalComment);
-        date.setText(originalDate);
-        value.setText(originalValue);
+        date.setText(dateFormat.format(originalDate));
+        value.setText(Double.toString(originalValue));
 
         // Set fields to not be editable at first
         name.setEnabled(false);
