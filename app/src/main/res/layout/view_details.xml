@@ -180,10 +180,10 @@
     <!-- Tags Field -->
 
 
-    <!-- Add Photo Button -->
+
+    <!-- View Photo Button -->
 
 
-    <!-- Confirm Button -->
     <Button
         android:id="@+id/viewPhotoBtn"
         android:layout_width="wrap_content"
@@ -192,6 +192,21 @@
         android:text="View Photo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+
+    <!-- Add Photo Button -->
+    <Button
+        android:id="@+id/add_photo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Photo"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cancel_edit_button"
+        android:visibility="invisible" />
+
+    <!-- Confirm Button -->
 
     <Button
         android:id="@+id/editInfoBtn"
@@ -215,6 +230,21 @@
         <!-- Tags TextViews will be added here programmatically -->
     </LinearLayout>
 
+    <!-- Cancel Button -->
+    <Button
+        android:id="@+id/cancel_edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:text="Cancel"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@id/add_photo_button"
+        app:layout_constraintEnd_toStartOf="@id/saveBtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="invisible" />
+
+    <!-- Save Button -->
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"
