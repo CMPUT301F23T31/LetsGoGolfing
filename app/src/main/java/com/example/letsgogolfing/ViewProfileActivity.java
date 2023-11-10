@@ -5,9 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
-import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -15,6 +16,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.DecimalFormat;
 
 public class ViewProfileActivity extends AppCompatActivity {
+
+    private static final String TAG = "ViewProfileActivity";
 
     private TextView totalItems;
     private TextView totalCost;
@@ -55,7 +58,8 @@ public class ViewProfileActivity extends AppCompatActivity {
                 String username = prefs.getString("username", "No name"); // "No name" is a default value.
                 userName.setText(username);
             } else {
-                // Handle the error
+                Log.e(TAG, "Error getting documents: ", task.getException());
+                Toast.makeText(ViewProfileActivity.this, "Failed to fetch data.", Toast.LENGTH_SHORT).show();
             }
         });
     }
