@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 public class AddItemActivity extends AppCompatActivity {
 
@@ -139,9 +140,8 @@ public class AddItemActivity extends AppCompatActivity {
 
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
-            Date date = sdf.parse(dateString);
+            Date date = dateFormat.parse(dateString);
             if (date != null) {
                 newItem.setDateOfPurchase(date);
             } else {
