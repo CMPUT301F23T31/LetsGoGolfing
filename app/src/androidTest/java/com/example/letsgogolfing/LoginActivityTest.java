@@ -3,7 +3,6 @@ package com.example.letsgogolfing;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
@@ -11,23 +10,13 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 
-import org.junit.After;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import androidx.test.core.app.ApplicationProvider;
-
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.letsgogolfing.utils.FirestoreHelper;
-import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 import static org.junit.Assert.assertTrue;
 
 import static java.lang.Thread.sleep;
-
-import org.junit.Before;
 
 @LargeTest
 public class LoginActivityTest {

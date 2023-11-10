@@ -1,6 +1,6 @@
 package com.example.letsgogolfing;
 
-import com.example.letsgogolfing.utils.FirestoreHelper;
+import com.example.letsgogolfing.utils.DataRepository;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -17,7 +17,7 @@ public class SetUpRule implements TestRule {
             public void evaluate() throws Throwable {
                 if (!isFirestoreSetupExecuted) {
                     // One-time setup code for Firestore
-                    FirestoreHelper.handleUserCollections(new String[]{"testLogin", "nonUniqueUser"}, true);
+                    DataRepository.handleUserCollections(new String[]{"testLogin", "nonUniqueUser"}, true);
                     isFirestoreSetupExecuted = true;
                 }
                 base.evaluate();

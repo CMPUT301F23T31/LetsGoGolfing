@@ -1,7 +1,6 @@
 package com.example.letsgogolfing;
 
-import com.example.letsgogolfing.utils.FirestoreHelper;
-import static com.example.letsgogolfing.utils.FirestoreHelper.db;
+import static com.example.letsgogolfing.utils.DataRepository.db;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 

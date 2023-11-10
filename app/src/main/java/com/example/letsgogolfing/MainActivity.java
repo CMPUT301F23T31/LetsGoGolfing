@@ -11,24 +11,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.letsgogolfing.utils.DataRepository;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
-import com.example.letsgogolfing.utils.FirestoreHelper;
-import static com.example.letsgogolfing.utils.FirestoreHelper.db;
+
+import static com.example.letsgogolfing.utils.DataRepository.db;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 
@@ -39,6 +37,7 @@ import java.util.Set;
  */
 public class MainActivity extends AppCompatActivity {
 
+    DataRepository repository = new DataRepository();
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
@@ -80,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
      * It also updates the total value of all items displayed.
      */
     private void fetchItemsAndRefreshAdapter() {
-        db.collection("items").get().addOnCompleteListener(task -> {
+        repository.getAllItems().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> newItems = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
-        db.collection("items").get().addOnCompleteListener(task -> {
+        repository.getAllItems().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> items = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -248,6 +247,23 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void deleteSelectedItems() {
+        Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
+        List<String> itemIdsToDelete = new ArrayList<>();
+        for (int position: selectedPositions) {
+            Item item = itemAdapter.getItem(position);
+            itemIdsToDelete.add(item.getId());
+        }
+
+        repository.deleteItemBatch(itemIdsToDelete).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+
+            } else {
+
+            }
+        })
     }
 
 

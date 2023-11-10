@@ -7,9 +7,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.letsgogolfing.utils.FirestoreHelper;
-import static com.example.letsgogolfing.utils.FirestoreHelper.db;
+
+import static com.example.letsgogolfing.utils.DataRepository.db;
 
 import java.util.HashMap;
 import java.util.Map;

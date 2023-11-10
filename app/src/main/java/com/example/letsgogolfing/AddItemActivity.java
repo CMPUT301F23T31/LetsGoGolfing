@@ -9,9 +9,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.letsgogolfing.utils.FirestoreHelper;
-import static com.example.letsgogolfing.utils.FirestoreHelper.db;
+
+import static com.example.letsgogolfing.utils.DataRepository.db;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -3,7 +3,6 @@ package com.example.letsgogolfing;
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,11 +16,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.letsgogolfing.utils.FirestoreHelper;
-import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 
-import java.text.DecimalFormat;
+import static com.example.letsgogolfing.utils.DataRepository.db;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
