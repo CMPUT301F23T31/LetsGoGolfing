@@ -22,12 +22,17 @@
             </intent-filter>
         </activity>
         <!-- add all our other activities below - VT -->
-        <activity android:name=".ViewDetailsActivity" />
+        <activity android:name=".ViewDetailsActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ViewProfileActivity" />
         <activity android:name=".AddItemActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".MainActivity"
             android:exported="true" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
     </application>
 

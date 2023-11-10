@@ -49,6 +49,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Attempts to log in the user with the entered username.
+     * This method checks if the username entered in the usernameInput field exists in the Firestore 'users' collection.
+     * If the user exists, it calls proceedToMain to navigate to the MainActivity.
+     * If the user does not exist, it displays a message prompting the user to sign up.
+     */
     private void attemptLogin() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -75,6 +81,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Attempts to sign up a new user with the entered username.
+     * This method checks if the username entered in the usernameInput field is unique within the Firestore 'users' collection.
+     * If the username does not exist, it calls addUserToDatabase to create a new user.
+     * If the username already exists, it displays a message indicating the username is taken and prompting to log in.
+     */
     private void attemptSignUp() {
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
@@ -99,18 +111,24 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Proceeds to the main activity of the application.
+     * This method saves the provided username in SharedPreferences under the key "username" and starts MainActivity.
+     * It also finishes the current LoginActivity, removing it from the back stack.
+     *
+     * @param username A String representing the username of the user who has logged in or signed up.
+     */
     private void proceedToMain(String username) {
         getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().putString("username", username).apply();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
-
-
     }
 
     /**
      * Adds a new user with the provided username to the "users" collection in Firestore.
      * Upon successful addition, it navigates to the MainActivity and finishes the current activity.
+     * If the operation fails, it displays an error message to the user.
      *
      * @param username A String representing the username to be added to the database.
      */
