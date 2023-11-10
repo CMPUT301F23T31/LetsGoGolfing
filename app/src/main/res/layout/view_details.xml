@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#AED5B1"
+    android:padding="24dp">
+
+
+    <!-- Header with "Item Detail" and Back Button -->
+
+
+    <!-- Name Field -->
+
+
+    <!-- Description Field -->
+
+
+    <TextView
+        android:id="@+id/headerTitle"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:layout_marginBottom="21dp"
+        android:background="@drawable/rounded_edittext"
+        android:gravity="center"
+        android:text="Item Detail"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/nameField"
+        tools:layout_editor_absoluteX="1dp" />
+
+
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="41dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/ic_home_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/headerTitle"
+        app:layout_constraintStart_toStartOf="@+id/headerTitle"
+        app:layout_constraintTop_toTopOf="@+id/headerTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+    <EditText
+        android:id="@+id/nameField"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="68dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Name"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/descriptionField"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Description"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameField" />
+
+
+    <!-- Date and Model Fields in a row -->
+    <EditText
+        android:id="@+id/dateField"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Date (yyyy-mm-dd)"
+        android:inputType="date"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/modelField"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionField" />
+
+
+    <EditText
+        android:id="@+id/modelField"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Model"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/dateField"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionField" />
+
+
+    <!-- Make and Value Fields in a row -->
+    <EditText
+        android:id="@+id/makeField"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Make"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/valueField"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateField" />
+
+
+    <EditText
+        android:id="@+id/valueField"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Value (Optional)"
+        android:inputType="numberDecimal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/makeField"
+        app:layout_constraintTop_toBottomOf="@+id/modelField" />
+
+
+    <!-- Comment Field -->
+    <EditText
+        android:id="@+id/commentField"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:gravity=""
+        android:hint="Comment (Optional)"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/makeField" />
+
+
+    <!-- Serial Field -->
+    <EditText
+        android:id="@+id/serialField"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Serial (Optional)"
+        android:inputType="number"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/commentField" />
+
+
+    <!-- Tags Field -->
+
+
+    <!-- View Photo Button -->
+
+
+    <Button
+        android:id="@+id/viewPhotoBtn"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:text="View Photo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <!-- Add Photo Button -->
+    <Button
+        android:id="@+id/add_photo_button"
+        android:layout_width="125dp"
+        android:layout_height="wrap_content"
+        android:text="Add Photo"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Confirm Button -->
+
+    <Button
+
+        android:id="@+id/cancel_edit_button"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="Cancel"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/saveBtn"
+        app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn" />
+
+    <Button
+        android:id="@+id/editInfoBtn"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="Edit Info"
+        android:textColor="#FFFFFF"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/saveBtn"
+        app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn" />
+
+    <LinearLayout
+        android:id="@+id/tagsContainerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/serialField">
+        <!-- Tags TextViews will be added here programmatically -->
+    </LinearLayout>
+
+    <!-- Cancel Button -->
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/add_tags_button_view"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="16dp"
+        android:text="Add Tags"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/viewPhotoBtn"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
