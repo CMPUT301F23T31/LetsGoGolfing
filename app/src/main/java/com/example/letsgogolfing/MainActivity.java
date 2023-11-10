@@ -25,7 +25,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
+import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import java.util.Set;
 
 
@@ -67,8 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         TextView totalValueTextView = findViewById(R.id.totalValue);
-        String totalValueText = String.format(Locale.getDefault(), "Total value: $%.2f", totalValue);
-        totalValueTextView.setText(totalValueText);
+        totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
     }
 
 
@@ -197,9 +196,18 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // Existing code to show item details...
                 Item item = itemAdapter.getItem(position);
-                Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-                intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
-                startActivity(intent);
+                if( item != null && item.getId() != null) {
+                    db.collection("items").document(item.getId()).get()
+                        .addOnSuccessListener(aVoid -> {
+                            Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+                            intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
+                            startActivity(intent);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(MainActivity.this, "Error fetching item from database", Toast.LENGTH_SHORT).show();
+                        });
+
+                }
             }
         });
 

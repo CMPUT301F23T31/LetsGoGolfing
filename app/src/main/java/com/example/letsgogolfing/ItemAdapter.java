@@ -1,5 +1,7 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -92,7 +94,10 @@ public class ItemAdapter extends BaseAdapter {
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-        holder.valueTextView.setText(context.getString(R.string.item_value, item.getEstimatedValue()));
+
+        holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
+
+        // Set other properties to the holder's views as needed
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
