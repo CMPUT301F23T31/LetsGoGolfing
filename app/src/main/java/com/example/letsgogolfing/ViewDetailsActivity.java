@@ -39,7 +39,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
-
     private static final String TAG = "ViewDetailsActivity";
 
     @Override
@@ -48,7 +47,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.view_details);
 
         // Retrieve the item from the intent
-        Item item = (Item) getIntent().getSerializableExtra("ITEM");
+        item = (Item) getIntent().getSerializableExtra("ITEM");
 
         // Now populate the fields with item details
         ((EditText) findViewById(R.id.nameField)).setText(item.getName());
@@ -216,7 +215,13 @@ public class ViewDetailsActivity extends AppCompatActivity {
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
 
         for (String tag : selectedTags) {
-            // ... Existing code to create and add TextViews for each tag ...
+
+            TextView tagView = new TextView(this);
+            tagView.setText(tag);
+            tagView.setBackgroundResource(R.drawable.tag_background); // Make sure this drawable exists
+            // Add LayoutParams, margins, etc., here
+            tagsContainerView.addView(tagView); // Add the TextView to your container
+
         }
     }
 
