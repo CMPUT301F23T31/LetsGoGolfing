@@ -34,6 +34,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+
+/**
+ * Activity for viewing and editing details of a specific item.
+ * <p>
+ * This activity allows the user to view and edit various details of a selected item. It displays
+ * information such as item name, description, make, model, serial number, comment, date of purchase,
+ * estimated value, and associated tags. Users can edit these details and save the changes to Firestore.
+ * </p>
+ */
 public class ViewDetailsActivity extends AppCompatActivity {
 
 
@@ -70,6 +79,13 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private static final String TAG = "ViewDetailsActivity";
 
 
+    /**
+     * Called when the activity is first created. Initializes the user interface, retrieves item details,
+     * and sets up UI components for viewing and editing.
+     *
+     * @param savedInstanceState A Bundle containing the data most recently supplied in onSaveInstanceState(Bundle).
+     *                           May be null if saved state is not available.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +97,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         InitializeEditTextAndButtons(item);
 
-        // MAYBE DON"T NEED
         // list of tags
         List<String> tags = item.getTags();
         //String tagsString = TextUtils.join(", ", tags);
@@ -197,7 +212,16 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Transition the activity to edit mode, enabling the user to modify item details.
+     * <p>
+     * This method adjusts the visibility and state of UI components to facilitate the transition
+     * from view mode to edit mode. It makes the save button, cancel button, add photo button, and
+     * relevant text fields visible, while hiding the view photo button and edit button. Additionally,
+     * it enables the text fields for editing and makes the add/edit tags button visible.
+     *
+     * @param v The {@link View} triggering the transition, typically a button click.
+     */
     private void TransitionToEdit(View v) {
         saveButton.setVisibility(v.VISIBLE);
         cancelButton.setVisibility(v.VISIBLE);
@@ -216,6 +240,17 @@ public class ViewDetailsActivity extends AppCompatActivity {
         Button addTagsButton = findViewById(R.id.add_tags_button_view);
         addTagsButton.setVisibility(View.VISIBLE);
     }
+
+    /**
+     * Transition the activity to view mode, disabling the ability to modify item details.
+     * <p>
+     * This method adjusts the visibility and state of UI components to facilitate the transition
+     * from edit mode to view mode. It hides the save button, cancel button, add photo button, and
+     * relevant text fields, while making the view photo button and edit button visible. Additionally,
+     * it disables the text fields for viewing and hides the add/edit tags button.
+     *
+     * @param v The {@link View} triggering the transition, typically a button click.
+     */
     private void TransitionToViewItem(View v) {
         saveButton.setVisibility(v.INVISIBLE);
         cancelButton.setVisibility(v.INVISIBLE);
@@ -235,6 +270,14 @@ public class ViewDetailsActivity extends AppCompatActivity {
         addTagsButton.setVisibility(View.INVISIBLE);
     }
 
+    /**
+     * Set the text fields to their original values.
+     * <p>
+     * This method sets the text fields to their original values, which are stored in instance variables
+     * when the activity is first created. This method is called when the user cancels the editing process.
+     *
+     * @param v The {@link View} triggering the transition, typically a button click.
+     */
     private void SetFieldsToOriginalValues(View v) {
         name.setText(originalName);
         description.setText(originalDescription);
@@ -246,6 +289,15 @@ public class ViewDetailsActivity extends AppCompatActivity {
         value.setText(Double.toString(originalValue));
     }
 
+    /**
+     * Initialize the EditText and Button fields.
+     * <p>
+     * This method initializes the EditText and Button fields, setting their values to the original
+     * values of the item. It also sets the EditText fields to be disabled, preventing the user from
+     * editing them until the user clicks the edit button.
+     *
+     * @param item The {@link Item} whose details are being viewed.
+     */
     private void InitializeEditTextAndButtons(Item item) {
 
         // Initialize EditTexts
@@ -298,6 +350,12 @@ public class ViewDetailsActivity extends AppCompatActivity {
         value.setEnabled(false);
     }
 
+    /**
+     * Display the selected tags in the UI.
+     * <p>
+     * This method displays the selected tags in the UI, adding a TextView for each tag to the
+     * tagsContainerView LinearLayout.
+     */
     private void displayTags() {
         LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
@@ -314,6 +372,12 @@ public class ViewDetailsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Load the tags from Firestore.
+     * <p>
+     * This method loads the tags from Firestore and populates the tagList instance variable.
+     * It is called when the activity is first created.
+     */
     private void loadTags() {
         // Assuming you have a method to fetch tags from Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -331,6 +395,17 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Display a dialog for selecting tags.
+     * <p>
+     * This method creates a dialog with a multi-choice list of tags retrieved from the {@code tagList}.
+     * The checked tags are determined based on the {@code selectedTags} list. Users can select or
+     * deselect tags using checkboxes. Upon confirmation, the selected tags are updated, and the display
+     * is refreshed by invoking the {@code displayTags} method.
+     * <p>
+     * Note: The method assumes the existence of UI elements like tagList, selectedTags, and displayTags.
+     * Ensure these elements are properly initialized before calling this method.
+     */
     private void showTagSelectionDialog() {
         // Convert List to array for AlertDialog
         String[] tagsArray = tagList.toArray(new String[0]);

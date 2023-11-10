@@ -11,12 +11,27 @@ import android.widget.TextView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+/**
+ * Activity for displaying user profile information, including total item count, total item value, and username.
+ * <p>
+ * This activity fetches data from the Firestore database, calculates the total item count and value, and displays
+ * the information on the user interface. The user's username is retrieved from shared preferences and displayed as well.
+ * <p>
+ * Note: Make sure to replace placeholder values, such as "R.layout.profile_page" and "R.string.cost_formatting",
+ * with the actual resource identifiers from your project.
+ */
 public class ViewProfileActivity extends AppCompatActivity {
 
     private TextView totalItems;
     private TextView totalCost;
     private TextView userName;
 
+    /**
+     * Called when the activity is first created. Initializes the user interface and fetches profile data from Firestore.
+     *
+     * @param savedInstanceState A Bundle containing the data most recently supplied in onSaveInstanceState(Bundle).
+     *                           May be null if saved state is not available.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +48,12 @@ public class ViewProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches user profile data from Firestore and updates the UI with the total item count, total item value, and username.
+     * <p>
+     * This method queries the Firestore database for items, calculates the total item count and value, retrieves the username
+     * from shared preferences, and updates the corresponding TextViews in the UI with the calculated values.
+     */
     private void fetchProfileData() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
