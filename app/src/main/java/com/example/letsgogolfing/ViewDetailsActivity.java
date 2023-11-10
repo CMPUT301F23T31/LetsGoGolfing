@@ -65,6 +65,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
+    private List<String> originalTagsList = new ArrayList<>();
     private static final String TAG = "ViewDetailsActivity";
 
 
@@ -79,18 +80,12 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         InitializeEditTextAndButtons(item);
 
-        
-
-
-
         // MAYBE DON"T NEED
         // list of tags
         List<String> tags = item.getTags();
         //String tagsString = TextUtils.join(", ", tags);
 
 
-
-        
         LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
 
@@ -110,8 +105,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
             tagsContainerView.addView(tagView); // Add the TextView to your container
         }
 
-
-
         backButton.setOnClickListener(v -> {
             // takes back to home page main_activity
             Intent intent = new Intent(this, MainActivity.class);
@@ -123,20 +116,16 @@ public class ViewDetailsActivity extends AppCompatActivity {
             TransitionToEdit(v);
         });
 
-
         cancelButton.setOnClickListener(v -> {
+            selectedTags = new ArrayList<>(originalTagsList);
+            displayTags();
             SetFieldsToOriginalValues(v);
             TransitionToViewItem(v);
         });
 
         Button addTagsButton = findViewById(R.id.add_tags_button_view);
         addTagsButton.setOnClickListener(v -> {
-            // Only allow tag editing when in edit mode
-            if (saveButton.getVisibility() == View.VISIBLE) {
-                showTagSelectionDialog();
-            } else {
-                Toast.makeText(this, "You must be in edit mode to modify tags.", Toast.LENGTH_SHORT).show();
-            }
+            showTagSelectionDialog();
         });
 
         loadTags();
@@ -184,6 +173,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
             updatedValues.put("comment", updatedComment);
             updatedValues.put("dateOfPurchase", updatedDateOfPurchase != null ? new Timestamp(updatedDateOfPurchase) : null);
             updatedValues.put("estimatedValue", updatedEstimatedValue);
+            updatedValues.put("tags", selectedTags);
 
             // Get the document ID from the item
             String documentId = item.getId(); // Assuming 'item' is an instance variable representing the current item
@@ -220,6 +210,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setEnabled(true);
         date.setEnabled(true);
         value.setEnabled(true);
+        // make the add/edit tags button visible
+        Button addTagsButton = findViewById(R.id.add_tags_button_view);
+        addTagsButton.setVisibility(View.VISIBLE);
     }
     private void TransitionToViewItem(View v) {
         saveButton.setVisibility(v.INVISIBLE);
@@ -235,6 +228,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setEnabled(false);
         date.setEnabled(false);
         value.setEnabled(false);
+        // Hide the add/edit tags button
+        Button addTagsButton = findViewById(R.id.add_tags_button_view);
+        addTagsButton.setVisibility(View.INVISIBLE);
     }
 
     private void SetFieldsToOriginalValues(View v) {
@@ -276,7 +272,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
         originalComment = item.getComment();
         originalDate = dateFormat.format(item.getDateOfPurchase());
         originalValue = decimalFormat.format(item.getEstimatedValue());
-        originalTags = TextUtils.join(", ", item.getTags());
+        originalTagsList = new ArrayList<>(item.getTags());
+
 
         // Set the EditTexts with the original values
         name.setText(originalName);
