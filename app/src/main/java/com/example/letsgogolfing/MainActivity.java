@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.example.letsgogolfing.utils.FirestoreHelper;
+import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -78,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
      * It also updates the total value of all items displayed.
      */
     private void fetchItemsAndRefreshAdapter() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> newItems = new ArrayList<>();

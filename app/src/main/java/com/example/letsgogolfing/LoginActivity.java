@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.letsgogolfing.utils.FirestoreHelper;
+import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText usernameInput;
     private Button loginButton;
     private Button signUpButton;
-    private FirebaseFirestore db;
 
     /**
      * Called when the activity is starting. This is where most initialization should go:
@@ -37,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page); // Set the layout for the activity
-        db = FirebaseFirestore.getInstance();
+        FirestoreHelper.handleUserCollections();
 
         // Initialize Firestore and UI elements
         usernameInput = findViewById(R.id.usernameInput);

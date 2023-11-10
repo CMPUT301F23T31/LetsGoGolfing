@@ -1,5 +1,8 @@
 package com.example.letsgogolfing;
 
+import com.example.letsgogolfing.utils.FirestoreHelper;
+import static com.example.letsgogolfing.utils.FirestoreHelper.db;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 import java.text.DecimalFormat;
 
@@ -41,7 +45,6 @@ public class ViewProfileActivity extends AppCompatActivity {
     }
 
     private void fetchProfileData() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 int totalItemCount = 0;

@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.letsgogolfing.utils.FirestoreHelper;
+import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -149,7 +151,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
             String documentId = item.getId(); // Assuming 'item' is an instance variable representing the current item
 
             // Update Firestore document
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("items").document(documentId)
                     .update(updatedValues)
                     .addOnSuccessListener(aVoid -> {
