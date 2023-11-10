@@ -185,7 +185,7 @@
 
     <Button
         android:id="@+id/viewPhotoBtn"
-        android:layout_width="121dp"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:text="View Photo"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -195,7 +195,7 @@
     <!-- Add Photo Button -->
     <Button
         android:id="@+id/add_photo_button"
-        android:layout_width="121dp"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:text="Add Photo"
         android:visibility="invisible"
