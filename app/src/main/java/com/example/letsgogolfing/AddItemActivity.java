@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.example.letsgogolfing.utils.FirestoreHelper;
+import static com.example.letsgogolfing.utils.FirestoreHelper.db;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -162,9 +164,6 @@ public class AddItemActivity extends AppCompatActivity {
 
         // Parse and set the tags
         newItem.setTags(selectedTags);
-
-        // Now, use the Firestore API to add the Item object
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Convert Item object to Map for Firestore
         Map<String, Object> itemMap = convertItemToMap(newItem);
