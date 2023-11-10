@@ -4,24 +4,30 @@ import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +36,11 @@ import java.util.Map;
 
 public class ViewDetailsActivity extends AppCompatActivity {
 
+    private List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
+    private List<String> selectedTags = new ArrayList<>();
+    private Item item;
+
+    private static final String TAG = "ViewDetailsActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +69,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         // list of tags
         List<String> tags = item.getTags();
-        String tagsString = TextUtils.join(", ", tags);
-        ((TextView) findViewById(R.id.tagsField)).setText(tagsString);
+        //String tagsString = TextUtils.join(", ", tags);
 
 
 
@@ -72,7 +82,25 @@ public class ViewDetailsActivity extends AppCompatActivity {
         ((EditText) findViewById(R.id.commentField)).setEnabled(false);
         ((EditText) findViewById(R.id.dateField)).setEnabled(false);
         ((EditText) findViewById(R.id.valueField)).setEnabled(false);
-        ((EditText) findViewById(R.id.tagsField)).setEnabled(false);
+
+        LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
+        tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
+
+        for (String tag : tags) {
+            TextView tagView = new TextView(this);
+            tagView.setText(tag);
+            tagView.setBackgroundResource(R.drawable.tag_background); // Make sure this drawable exists
+            // Set other TextView properties like padding, textAppearance, etc.
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0, 0, 16, 0); // Adding some right margin between tags
+
+            tagView.setLayoutParams(params);
+            tagsContainerView.addView(tagView); // Add the TextView to your container
+        }
 
 
         ImageButton backButton = findViewById(R.id.backButton);
@@ -94,11 +122,22 @@ public class ViewDetailsActivity extends AppCompatActivity {
             ((EditText) findViewById(R.id.commentField)).setEnabled(true);
             ((EditText) findViewById(R.id.dateField)).setEnabled(true);
             ((EditText) findViewById(R.id.valueField)).setEnabled(true);
-            ((EditText) findViewById(R.id.tagsField)).setEnabled(true);
 
             saveButton.setVisibility(v.VISIBLE);
 
         });
+
+        Button addTagsButton = findViewById(R.id.add_tags_button_view);
+        addTagsButton.setOnClickListener(v -> {
+            // Only allow tag editing when in edit mode
+            if (saveButton.getVisibility() == View.VISIBLE) {
+                showTagSelectionDialog();
+            } else {
+                Toast.makeText(this, "You must be in edit mode to modify tags.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        loadTags();
 
         saveButton.setOnClickListener(v -> {
             // Extract the updated information from EditText fields
@@ -163,7 +202,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         ((EditText) findViewById(R.id.commentField)).setEnabled(false);
                         ((EditText) findViewById(R.id.dateField)).setEnabled(false);
                         ((EditText) findViewById(R.id.valueField)).setEnabled(false);
-                        ((EditText) findViewById(R.id.tagsField)).setEnabled(false);
                         saveButton.setVisibility(View.INVISIBLE);
                     })
                     .addOnFailureListener(e -> {
@@ -171,5 +209,61 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         Toast.makeText(ViewDetailsActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                     });
         });
+    }
+
+    private void displayTags() {
+        LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
+        tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
+
+        for (String tag : selectedTags) {
+            // ... Existing code to create and add TextViews for each tag ...
+        }
+    }
+
+    private void loadTags() {
+        // Assuming you have a method to fetch tags from Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tags").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                tagList.clear();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    tagList.add(document.getString("name"));
+                }
+                selectedTags = new ArrayList<>(item.getTags()); // Use the tags from the item
+                displayTags();
+            } else {
+                Log.w(TAG, "Error getting documents: ", task.getException());
+            }
+        });
+    }
+
+    private void showTagSelectionDialog() {
+        // Convert List to array for AlertDialog
+        String[] tagsArray = tagList.toArray(new String[0]);
+        boolean[] checkedTags = new boolean[tagList.size()];
+        for (int i = 0; i < tagList.size(); i++) {
+            checkedTags[i] = selectedTags.contains(tagList.get(i));
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMultiChoiceItems(tagsArray, checkedTags, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                // Add or remove the tag from the selected tags list based on whether the checkbox is checked
+                String selectedTag = tagList.get(which);
+                if (isChecked) {
+                    selectedTags.add(selectedTag);
+                } else {
+                    selectedTags.remove(selectedTag);
+                }
+            }
+        });
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            displayTags(); // Update the display with the selected tags
+        });
+        builder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
