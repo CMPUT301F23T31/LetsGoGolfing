@@ -7,15 +7,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.text.DecimalFormat;
 
 public class ViewProfileActivity extends AppCompatActivity {
 
     private TextView totalItems;
     private TextView totalCost;
     private TextView userName;
+    private final DecimalFormat df = new DecimalFormat("#,###.##");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,8 @@ public class ViewProfileActivity extends AppCompatActivity {
                     totalItemValue += item.getEstimatedValue(); // Replace with your method to get item value
                 }
                 totalItems.setText(String.valueOf(totalItemCount));
-                totalCost.setText(String.format(getString(R.string.cost_formatting), totalItemValue));
+                totalCost = findViewById(R.id.totalItemValue);
+                totalCost.setText(this.getApplicationContext().getString(R.string.item_value , df.format(totalItemValue)));
                 SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE); // fetch username from session
                 String username = prefs.getString("username", "No name"); // "No name" is a default value.
                 userName.setText(username);

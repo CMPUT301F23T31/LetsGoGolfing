@@ -123,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
                 itemAdapter.notifyDataSetChanged();
                 updateTotalValue(itemAdapter.getItems());
                 Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
+                // Reset select mode and update UI accordingly
+                isSelectMode = false;
+                itemAdapter.setSelectModeEnabled(false);
+                deleteButton.setVisibility(View.GONE);
+                selectTextCancel.setText(R.string.select_text); // Set the select button text back to "Select"
             } else {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
