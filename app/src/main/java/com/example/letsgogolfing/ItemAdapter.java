@@ -32,6 +32,14 @@ public class ItemAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    // generate javadocs
+
+    /**
+     * Constructor for the ItemAdapter class.
+     *
+     * @param context The context of the activity that is using the adapter.
+     * @param items   The list of items to be displayed.
+     */
     public ItemAdapter(Context context, List<Item> items) {
         this.context = context;
         this.items = items;
@@ -39,11 +47,26 @@ public class ItemAdapter extends BaseAdapter {
     }
 
 
+    // generate javadocs for setSelectModeEnabled
+
+    /**
+     * Sets whether or not the adapter should be in select mode.
+     *
+     * @param enabled True if the adapter should be in select mode, false otherwise.
+     */
     public void setSelectModeEnabled(boolean enabled) {
         isSelectModeEnabled = enabled;
         selectedItems.clear(); // Clear selections when toggling mode
         notifyDataSetChanged();
     }
+
+
+    // generate javadocs for toggleSelection
+    /**
+     * Toggles the selection of the item at the given position.
+     *
+     * @param position The position of the item to toggle.
+     */
 
     public void toggleSelection(int position) {
         if (selectedItems.contains(position)) {
@@ -58,24 +81,51 @@ public class ItemAdapter extends BaseAdapter {
 
 
     // get all items
+    /**
+     * Retrieves the list of items.
+     *
+     * @return The list of items.
+     */
     public List<Item> getItems() {
         return items;
     }
+
+    /**
+     * Get count of items.
+     *
+     */
     @Override
     public int getCount() {
         return items.size();
     }
 
+    /**
+     * Get item at position.
+     *
+     * @param position The position of the item to retrieve.
+     */
     @Override
     public Item getItem(int position) {
         return items.get(position);
     }
 
+    /**
+     * Get item id at position.
+     *
+     * @param position The position of the item to retrieve the id of.
+     */
     @Override
     public long getItemId(int position) {
         return position; // Assuming items don't have unique IDs
     }
 
+    /**
+     * Get view at position.
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
@@ -110,12 +160,22 @@ public class ItemAdapter extends BaseAdapter {
     }
 
 
+    /**
+     * Update items.
+     *
+     * @param newItems The new list of items to update the adapter with.
+     */
     public void updateItems(List<Item> newItems) {
         items.clear();
         items.addAll(newItems);
         notifyDataSetChanged();
     }
 
+    /**
+     * Remove item at position.
+     *
+     * @param position The position of the item to remove.
+     */
     public void removeItem(int position) {
         if (position >= 0 && position < items.size()) {
             items.remove(position);
