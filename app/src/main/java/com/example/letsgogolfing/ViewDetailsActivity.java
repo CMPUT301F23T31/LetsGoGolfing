@@ -220,7 +220,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setEnabled(true);
         date.setEnabled(true);
         value.setEnabled(true);
-        tagsText.setEnabled(true);
     }
     private void TransitionToViewItem(View v) {
         saveButton.setVisibility(v.INVISIBLE);
@@ -236,7 +235,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setEnabled(false);
         date.setEnabled(false);
         value.setEnabled(false);
-        tagsText.setEnabled(false);
     }
 
     private void SetFieldsToOriginalValues(View v) {
@@ -248,7 +246,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setText(originalComment);
         date.setText(originalDate);
         value.setText(originalValue);
-        tagsText.setText(originalTags);
     }
 
     private void InitializeEditTextAndButtons(Item item) {
@@ -262,7 +259,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment = findViewById(R.id.commentField);
         date = findViewById(R.id.dateField);
         value = findViewById(R.id.valueField);
-        tagsText = findViewById(R.id.tagsField);
         // Initialize Buttons
         saveButton = findViewById(R.id.saveBtn);
         editButton = findViewById(R.id.editInfoBtn);
@@ -291,7 +287,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setText(originalComment);
         date.setText(originalDate);
         value.setText(originalValue);
-        tagsText.setText(originalTags);
 
         // Set fields to not be editable at first
         name.setEnabled(false);
@@ -302,7 +297,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setEnabled(false);
         date.setEnabled(false);
         value.setEnabled(false);
-        tagsText.setEnabled(false);
+    }
 
     private void displayTags() {
         LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
@@ -318,6 +313,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         }
     }
+
 
     private void loadTags() {
         // Assuming you have a method to fetch tags from Firestore
