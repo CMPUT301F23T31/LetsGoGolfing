@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+// generate javadocs for ViewDetailsActivity
+/**
+ * Activity for viewing the details of an item.
+ */
 public class ViewDetailsActivity extends AppCompatActivity {
 
 
@@ -70,6 +74,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private static final String TAG = "ViewDetailsActivity";
 
 
+    /**
+     * onCreate method for the ViewDetailsActivity.
+     * @param savedInstanceState The saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -198,6 +206,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Transition to edit view.
+     * @param v The view.
+     */
     private void TransitionToEdit(View v) {
         saveButton.setVisibility(v.VISIBLE);
         cancelButton.setVisibility(v.VISIBLE);
@@ -216,6 +228,11 @@ public class ViewDetailsActivity extends AppCompatActivity {
         Button addTagsButton = findViewById(R.id.add_tags_button_view);
         addTagsButton.setVisibility(View.VISIBLE);
     }
+
+    /**
+     * Transition to view item.
+     * @param v The view.
+     */
     private void TransitionToViewItem(View v) {
         saveButton.setVisibility(v.INVISIBLE);
         cancelButton.setVisibility(v.INVISIBLE);
@@ -235,6 +252,11 @@ public class ViewDetailsActivity extends AppCompatActivity {
         addTagsButton.setVisibility(View.INVISIBLE);
     }
 
+
+    /**
+     * Set fields to original values.
+     * @param v The view.
+     */
     private void SetFieldsToOriginalValues(View v) {
         name.setText(originalName);
         description.setText(originalDescription);
@@ -246,6 +268,11 @@ public class ViewDetailsActivity extends AppCompatActivity {
         value.setText(Double.toString(originalValue));
     }
 
+
+    /**
+     * Initialize edit text and buttons.
+     * @param item The item.
+     */
     private void InitializeEditTextAndButtons(Item item) {
 
         // Initialize EditTexts
@@ -298,6 +325,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
         value.setEnabled(false);
     }
 
+    /**
+     * Display tags.
+     */
     private void displayTags() {
         LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
@@ -314,6 +344,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Load tags.
+     */
     private void loadTags() {
         // Assuming you have a method to fetch tags from Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -331,6 +364,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Show tag selection dialog.
+     */
     private void showTagSelectionDialog() {
         // Convert List to array for AlertDialog
         String[] tagsArray = tagList.toArray(new String[0]);

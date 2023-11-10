@@ -49,6 +49,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Attempts to log in the user with the provided username.
+     * If the username is not empty and exists in the database, it proceeds to the MainActivity.
+     * Otherwise, it displays a Toast message indicating that the user does not exist.
+     */
     private void attemptLogin() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -75,6 +80,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Attempts to sign up the user with the provided username.
+     * If the username is not empty and does not exist in the database, it adds the user to the database
+     * and proceeds to the MainActivity. Otherwise, it displays a Toast message indicating that the
+     * username already exists.
+     */
     private void attemptSignUp() {
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
@@ -99,6 +110,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Navigates to the MainActivity and finishes the current activity.
+     *
+     * @param username A String representing the username to be passed to the MainActivity.
+     */
     private void proceedToMain(String username) {
         getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().putString("username", username).apply();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

@@ -16,10 +16,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Activity for managing tags.
+ */
 public class ManageTagsActivity extends AppCompatActivity {
     private ArrayAdapter<String> tagsAdapter;
     private List<String> tagsList = new ArrayList<>();
 
+    /**
+     * onCreate method for the ManageTagsActivity.
+     * @param savedInstanceState The saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
