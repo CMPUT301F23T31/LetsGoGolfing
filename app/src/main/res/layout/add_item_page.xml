@@ -148,20 +148,6 @@
 
 
     <!-- Tags Field -->
-    <EditText
-        android:id="@+id/tagsField"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/rounded_edittext"
-        android:hint="Tags (Optional)"
-        android:inputType="text"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/serialField" />
 
 
     <!-- Add Photo Button -->
@@ -170,13 +156,11 @@
         android:id="@+id/addPhotoBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
 
 
         android:text="Add Photo"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tagsField" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <!-- Confirm Button -->
@@ -185,24 +169,43 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:text="Confirm"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/addPhotoBtn"
-        app:layout_constraintTop_toBottomOf="@+id/tagsField" />
+        app:layout_constraintStart_toEndOf="@+id/addPhotoBtn" />
 
     <Button
         android:id="@+id/cancel_button_add_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
         android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/confirmBtn"
-        app:layout_constraintTop_toBottomOf="@+id/tagsField" />
+        app:layout_constraintStart_toEndOf="@+id/confirmBtn" />
+
+    <!-- Container for the tags -->
+    <LinearLayout
+        android:id="@+id/tagsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/serialField"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp">
+        <!-- Tags TextViews will be added here programmatically -->
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/add_tags_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="36dp"
+        android:text="Add Tags"
+        app:layout_constraintBottom_toTopOf="@+id/confirmBtn"
+        tools:layout_editor_absoluteX="126dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

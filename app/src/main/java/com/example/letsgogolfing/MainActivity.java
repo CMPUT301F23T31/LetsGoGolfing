@@ -228,6 +228,13 @@ public class MainActivity extends AppCompatActivity {
             editItemActivityLauncher.launch(intent); // Use the launcher to start for result
         });
 
+        Button manageTagsButton = findViewById(R.id.manage_tags_button);
+        manageTagsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
+            startActivity(intent);
+        });
+
+
         selectTextCancel = findViewById(R.id.select_text_cancel);
         selectButton = findViewById(R.id.select_button);
         deleteButton = findViewById(R.id.delete_button);

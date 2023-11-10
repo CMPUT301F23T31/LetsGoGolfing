@@ -143,5 +143,15 @@
         app:layout_constraintStart_toStartOf="@+id/select_button"
         app:layout_constraintTop_toTopOf="@+id/select_button" />
 
+    <Button
+        android:id="@+id/manage_tags_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="4dp"
+        android:text="Add Tags"
+        app:layout_constraintBottom_toTopOf="@+id/totalValue"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
