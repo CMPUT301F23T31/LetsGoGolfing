@@ -184,7 +184,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
                     .update(updatedValues)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(ViewDetailsActivity.this, "Changes saved", Toast.LENGTH_SHORT).show();
-
+                        // Update originalTagsList to reflect the newly saved tags
+                        originalTagsList = new ArrayList<>(selectedTags);
                         TransitionToViewItem(v);
 
                     })
