@@ -7,16 +7,6 @@
     android:background="#AED5B1"
     android:padding="24dp">
 
-
-    <!-- Header with "Item Detail" and Back Button -->
-
-
-    <!-- Name Field -->
-
-
-    <!-- Description Field -->
-
-
     <TextView
         android:id="@+id/header_title"
         android:layout_width="match_parent"
@@ -24,7 +14,7 @@
         android:layout_marginBottom="21dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
-        android:text="Item Detail"
+        android:text="Edit Item"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/name_edit_text"
         tools:layout_editor_absoluteX="1dp" />
@@ -179,26 +169,12 @@
 
     <!-- Tags Field -->
 
-
-    <!-- View Photo Button -->
-
-
-    <Button
-        android:id="@+id/viewPhotoBtn"
-        android:layout_width="125dp"
-        android:layout_height="wrap_content"
-        android:text="View Photo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
     <!-- Add Photo Button -->
     <Button
         android:id="@+id/add_photo_button"
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:text="Add Photo"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -213,23 +189,9 @@
         android:layout_marginEnd="10dp"
         android:text="Cancel"
         android:textColor="#FFFFFF"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/save_button"
-        app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn" />
-
-    <Button
-        android:id="@+id/editInfoBtn"
-        android:layout_width="110dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:text="Edit Info"
-        android:textColor="#FFFFFF"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/save_button"
-        app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn" />
+        app:layout_constraintStart_toEndOf="@+id/add_photo_button" />
 
     <LinearLayout
         android:id="@+id/tags_linear_layout"
@@ -251,7 +213,6 @@
         android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:text="Save"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -262,8 +223,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginBottom="16dp"
         android:text="Add Tags"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/viewPhotoBtn"
+        app:layout_constraintBottom_toTopOf="@+id/add_photo_button"
         app:layout_constraintStart_toStartOf="parent" />
 
 

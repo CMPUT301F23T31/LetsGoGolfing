@@ -1,13 +1,10 @@
 package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
-import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,14 +21,11 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class ViewDetailsActivity extends AppCompatActivity {
@@ -87,7 +81,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         //String tagsString = TextUtils.join(", ", tags);
 
 
-        LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
+        LinearLayout tagsContainerView = findViewById(R.id.tags_linear_layout);
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
 
         for (String tag : tags) {
@@ -113,7 +107,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
 
         editButton.setOnClickListener(v -> {
-
             TransitionToEdit(v);
         });
 
@@ -249,20 +242,20 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private void InitializeEditTextAndButtons(Item item) {
 
         // Initialize EditTexts
-        name = findViewById(R.id.nameField);
-        description = findViewById(R.id.descriptionField);
-        make = findViewById(R.id.makeField);
-        model = findViewById(R.id.modelField);
-        serial = findViewById(R.id.serialField);
-        comment = findViewById(R.id.commentField);
-        date = findViewById(R.id.dateField);
-        value = findViewById(R.id.valueField);
+        name = findViewById(R.id.name_edit_text);
+        description = findViewById(R.id.description_edit_text);
+        make = findViewById(R.id.make_edit_text);
+        model = findViewById(R.id.model_edit_text);
+        serial = findViewById(R.id.serial_edit_text);
+        comment = findViewById(R.id.comment_edit_text);
+        date = findViewById(R.id.date_edit_text);
+        value = findViewById(R.id.value_edit_text);
         // Initialize Buttons
-        saveButton = findViewById(R.id.saveBtn);
+        saveButton = findViewById(R.id.save_button);
         editButton = findViewById(R.id.editInfoBtn);
         cancelButton = findViewById(R.id.cancel_edit_button);
         addPhotoButton = findViewById(R.id.add_photo_button);
-        backButton = findViewById(R.id.backButton);
+        backButton = findViewById(R.id.back_button);
         viewPhotoButton = findViewById(R.id.viewPhotoBtn);
 
         // Set original values for when cancel is pressed
@@ -299,7 +292,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     }
 
     private void displayTags() {
-        LinearLayout tagsContainerView = findViewById(R.id.tagsContainerView);
+        LinearLayout tagsContainerView = findViewById(R.id.tags_linear_layout);
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
 
         for (String tag : selectedTags) {
