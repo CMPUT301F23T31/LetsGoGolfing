@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,7 +19,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,11 +35,11 @@ import java.util.Map;
  */
 public class AddItemActivity extends AppCompatActivity {
 
-    private Item item;
     private static final String TAG = "EditItemActivity";
-
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
+    private FirestoreRepository firestoreRepository;
+
 
 
     /**
@@ -55,6 +53,8 @@ public class AddItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item_page);
+
+        firestoreRepository = new FirestoreRepository();
 
         // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
@@ -217,26 +217,25 @@ public class AddItemActivity extends AppCompatActivity {
         // Parse and set the tags
         newItem.setTags(selectedTags);
 
-        // Now, use the Firestore API to add the Item object
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         // Convert Item object to Map for Firestore
         Map<String, Object> itemMap = convertItemToMap(newItem);
 
-        db.collection("items").add(itemMap)
-                .addOnSuccessListener(documentReference -> {
-                    // Optionally, save the document ID in the Item object
-                    newItem.setId(documentReference.getId());
-
-                    Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                    Intent data = new Intent();
-                    data.putExtra("item_added", true);
-                    setResult(RESULT_OK, data);
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
-                });
+        firestoreRepository.addItem(itemMap, new FirestoreRepository.OnItemAddedListener() {
+            @Override
+            public void onItemAdded(String itemId) {
+                Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
+                // we can now use the itemId if needed
+                Intent data = new Intent();
+                data.putExtra("item_added", true);
+                setResult(RESULT_OK, data);
+                finish();
+            }
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
+                // Handle error
+            }
+        });
     }
 
     /**
