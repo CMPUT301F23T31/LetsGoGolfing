@@ -241,6 +241,11 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         this.tags = tags;
     }
 
+    public void addTags(List<String>tags){
+       for (String tag : tags)
+           if (!this.tags.contains(tag))
+               this.tags.add(tag);
+    }
 
     /**
      * Generates a string representation of the Item for debugging and logging purposes.

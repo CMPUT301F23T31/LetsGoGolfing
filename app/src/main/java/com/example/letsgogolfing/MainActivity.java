@@ -24,8 +24,11 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
+import java.util.Map;
 import java.util.Set;
 
 
@@ -148,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
         itemGrid.setAdapter(itemAdapter);
+        GetTags getTags = new GetTags(this);
+        getTags.fetchTagsFromFirestore();
 
         fetchItemsAndRefreshAdapter();
 
@@ -220,6 +225,16 @@ public class MainActivity extends AppCompatActivity {
 
         Button manageTagsButton = findViewById(R.id.manage_tags_button);
         manageTagsButton.setOnClickListener(v -> {
+            if (isSelectMode) {
+                getTags.showTagSelectionDialog(selectedTags -> {
+                    Map<String, Object> update = new HashMap<>();
+                    for(Item item : itemAdapter.getSelectedItems()) {
+                        item.addTags(selectedTags);
+                        db.collection("items").document(item.getId()).update("tags", item.getTags());
+                    }
+                });
+                return;
+            }
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
@@ -232,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
         selectButton.setOnClickListener(v -> {
+            getTags.fetchTagsFromFirestore();
             isSelectMode = !isSelectMode; // Toggle select mode
             itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
             deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
