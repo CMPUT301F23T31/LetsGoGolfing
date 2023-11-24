@@ -12,10 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import com.google.firebase.Timestamp;
 
 /**
  * Activity for adding a new item to the inventory.
@@ -41,6 +39,14 @@ public class AddItemActivity extends AppCompatActivity {
     private FirestoreRepository firestoreRepository;
 
 
+    private EditText nameField;
+    private EditText descriptionField;
+    private EditText makeField;
+    private EditText modelField;
+    private EditText commentField;
+    private EditText dateField;
+    private EditText valueField;
+
 
     /**
      * Called when the activity is starting. Responsible for initializing the activity.
@@ -53,8 +59,17 @@ public class AddItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item_page);
-
+        // Initialize the FireStoreRepo
         firestoreRepository = new FirestoreRepository();
+
+        nameField = findViewById(R.id.nameField);
+        descriptionField = findViewById(R.id.descriptionField);
+        makeField = findViewById(R.id.makeField);
+        modelField = findViewById(R.id.modelField);
+        commentField = findViewById(R.id.commentField);
+        dateField = findViewById(R.id.dateField);
+        valueField = findViewById(R.id.valueField);
+
 
         // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
@@ -72,6 +87,7 @@ public class AddItemActivity extends AppCompatActivity {
         fetchTagsFromFirestore();
     }
 
+
     /**
      * Fetches tags from Firestore.
      * <p>
@@ -81,18 +97,16 @@ public class AddItemActivity extends AppCompatActivity {
      * activity to ensure that the tagList is up-to-date.
      */
     private void fetchTagsFromFirestore() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Fetch the tags from Firestore
-        db.collection("tags").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+        firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
+            @Override
+            public void onTagsFetched(List<String> tags) { // this will make sure to fetch all tags from database into the tags list
                 tagList.clear();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    tagList.add(document.getString("name"));
-                }
-                // Now that the tags are fetched, you can enable the 'Add Tags' button
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
+                tagList.addAll(tags);
+            }
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
+                // Handle error
             }
         });
     }
@@ -183,14 +197,14 @@ public class AddItemActivity extends AppCompatActivity {
         Item newItem = new Item();
 
         // Set name, description, make, model, and comment directly on the Item object
-        newItem.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
-        newItem.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
-        newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
-        newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
-        newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
+        newItem.setName(nameField.getText().toString());
+        newItem.setDescription(descriptionField.getText().toString());
+        newItem.setMake(makeField.getText().toString());
+        newItem.setModel(modelField.getText().toString());
+        newItem.setComment(commentField.getText().toString());
 
         // Parse and set the date of purchase
-        String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
+        String dateString = dateField.getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
             Date date = sdf.parse(dateString);
@@ -239,21 +253,6 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     /**
-     * Updates the tagList with the provided list of tags.
-     * <p>
-     * This method updates the tagList with the provided list of tags. This method is typically
-     * called from the {@link ManageTagsActivity} when the user adds or removes tags.
-     *
-     * @param newTags A List of Strings representing the updated list of tags.
-     */
-    public void updateTagList(List<String> newTags) {
-        tagList.clear();
-        tagList.addAll(newTags);
-        // If needed, update the UI or other elements that depend on the tagList
-    }
-
-
-    /**
      * Converts an {@link Item} object to a {@link Map} for Firestore storage.
      * <p>
      * This method takes an {@code Item} object and creates a {@code Map} where each field
@@ -265,8 +264,6 @@ public class AddItemActivity extends AppCompatActivity {
      *
      * @param item The {@code Item} object to be converted to a {@code Map}.
      * @return A {@code Map} representing the fields of the provided {@code Item} object.
-     * @throws NullPointerException If the provided {@code Item} object is {@code null}.
-     * @see Item
      */
     // Helper method to convert an Item object into a Map for Firestore
     private Map<String, Object> convertItemToMap(Item item) {
