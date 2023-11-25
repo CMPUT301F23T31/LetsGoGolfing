@@ -24,9 +24,9 @@
         android:layout_marginBottom="21dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
-        android:text="Item Detail"
+        android:text="Item Details"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/name_edit_text"
+        app:layout_constraintBottom_toTopOf="@+id/name_view_text"
         tools:layout_editor_absoluteX="1dp" />
 
 
@@ -42,8 +42,8 @@
         app:layout_constraintVertical_bias="0.0" />
 
 
-    <EditText
-        android:id="@+id/name_edit_text"
+    <TextView
+        android:id="@+id/name_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="68dp"
@@ -58,8 +58,8 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <EditText
-        android:id="@+id/description_edit_text"
+    <TextView
+        android:id="@+id/description_view_text"
         android:layout_width="0dp"
         android:layout_height="110dp"
         android:layout_marginTop="12dp"
@@ -71,12 +71,12 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/name_view_text" />
 
 
     <!-- Date and Model Fields in a row -->
-    <EditText
-        android:id="@+id/date_edit_text"
+    <TextView
+        android:id="@+id/date_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
@@ -86,13 +86,12 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/model_edit_text"
+        app:layout_constraintEnd_toStartOf="@+id/model_view_text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/description_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/description_view_text" />
 
-
-    <EditText
-        android:id="@+id/model_edit_text"
+    <TextView
+        android:id="@+id/model_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginStart="12dp"
@@ -104,13 +103,12 @@
         android:paddingEnd="16dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/date_edit_text"
-        app:layout_constraintTop_toBottomOf="@+id/description_edit_text" />
-
+        app:layout_constraintStart_toEndOf="@+id/date_view_text"
+        app:layout_constraintTop_toBottomOf="@+id/description_view_text" />
 
     <!-- Make and Value Fields in a row -->
-    <EditText
-        android:id="@+id/make_edit_text"
+    <TextView
+        android:id="@+id/make_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
@@ -120,13 +118,13 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/value_edit_text"
+        app:layout_constraintEnd_toStartOf="@+id/value_view_text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/date_view_text" />
 
 
-    <EditText
-        android:id="@+id/value_edit_text"
+    <TextView
+        android:id="@+id/value_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginStart="12dp"
@@ -138,13 +136,13 @@
         android:paddingEnd="16dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/make_edit_text"
-        app:layout_constraintTop_toBottomOf="@+id/model_edit_text" />
+        app:layout_constraintStart_toEndOf="@+id/make_view_text"
+        app:layout_constraintTop_toBottomOf="@+id/model_view_text" />
 
 
     <!-- Comment Field -->
-    <EditText
-        android:id="@+id/comment_edit_text"
+    <TextView
+        android:id="@+id/comment_view_text"
         android:layout_width="0dp"
         android:layout_height="110dp"
         android:layout_marginTop="12dp"
@@ -157,12 +155,12 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/make_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/make_view_text" />
 
 
     <!-- Serial Field -->
-    <EditText
-        android:id="@+id/serial_edit_text"
+    <TextView
+        android:id="@+id/serial_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
@@ -174,7 +172,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/comment_view_text" />
 
 
     <!-- Tags Field -->
@@ -184,52 +182,24 @@
 
 
     <Button
-        android:id="@+id/viewPhotoBtn"
+        android:id="@+id/view_photo_button"
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:text="View Photo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-
-    <!-- Add Photo Button -->
     <Button
-        android:id="@+id/add_photo_button"
-        android:layout_width="125dp"
-        android:layout_height="wrap_content"
-        android:text="Add Photo"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Confirm Button -->
-
-    <Button
-
-        android:id="@+id/cancel_edit_button"
+        android:id="@+id/edit_item_button"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:text="Cancel"
-        android:textColor="#FFFFFF"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/save_button"
-        app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn" />
-
-    <Button
-        android:id="@+id/editInfoBtn"
-        android:layout_width="110dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:text="Edit Info"
+        android:text="Edit Item"
         android:textColor="#FFFFFF"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/save_button"
-        app:layout_constraintStart_toEndOf="@+id/viewPhotoBtn" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/tags_linear_layout"
@@ -239,32 +209,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/serial_edit_text">
+        app:layout_constraintTop_toBottomOf="@id/serial_view_text">
         <!-- Tags TextViews will be added here programmatically -->
     </LinearLayout>
-
-    <!-- Cancel Button -->
-
-    <!-- Save Button -->
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="110dp"
-        android:layout_height="wrap_content"
-        android:text="Save"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/add_tags_button_view"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginBottom="16dp"
-        android:text="Add Tags"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/viewPhotoBtn"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
