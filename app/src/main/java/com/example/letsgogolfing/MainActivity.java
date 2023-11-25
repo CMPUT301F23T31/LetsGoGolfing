@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -208,8 +209,22 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
             if (isSelectMode) {
                 itemAdapter.toggleSelection(position); // Toggle item selection
-                if(itemAdapter.isSelectionEmpty())
+                if(itemAdapter.isSelectionEmpty()) {
+
+                    // relevant ChatGPT prompt:
+                    // write code to: if a condition isn't true after 2 seconds, then call a function
+//                    new Handler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // Check your condition here
+//                            if (itemAdapter.isSelectionEmpty()) {
+//                                // Condition is not true after 2 seconds, call your function
+//                                clearSelection();
+//                            }
+//                        }
+//                    }, 2000);
                     clearSelection();
+                }
             } else {
                 // Existing code to show item details...
                 Item item = itemAdapter.getItem(position);
