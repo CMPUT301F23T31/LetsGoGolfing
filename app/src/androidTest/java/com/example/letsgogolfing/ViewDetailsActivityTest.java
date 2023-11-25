@@ -89,7 +89,7 @@ public class ViewDetailsActivityTest {
     @Test
     public void editButton_EnablesFields() {
         // Click on the edit button
-        onView(withId(R.id.editInfoBtn)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
 
         // Check if the name field is enabled
         onView(withId(R.id.name_edit_text)).check(matches(isEnabled()));
@@ -121,7 +121,7 @@ public class ViewDetailsActivityTest {
 
     @Test
     public void editButton_EnablesSaveButton() {
-        onView(withId(R.id.editInfoBtn)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
 
         onView(withId(R.id.addItemButton)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
@@ -129,7 +129,7 @@ public class ViewDetailsActivityTest {
     @Test
     public void fields_AreNotEnabled_AfterSaveButtonClicked() {
         // Click the edit button to enable the fields
-        onView(withId(R.id.editInfoBtn)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
 
         // Click the save button to save the changes and disable the fields
         onView(withId(R.id.save_button)).perform(click());
