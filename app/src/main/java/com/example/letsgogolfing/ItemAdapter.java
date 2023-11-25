@@ -60,7 +60,9 @@ public class ItemAdapter extends BaseAdapter {
         selectedItems.clear(); // Clear selections when toggling mode
         notifyDataSetChanged();
     }
-
+    public boolean isSelectionEmpty(){
+        return selectedItems.isEmpty();
+    }
 
     // generate javadocs for toggleSelection
     /**

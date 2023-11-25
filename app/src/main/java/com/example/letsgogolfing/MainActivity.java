@@ -128,9 +128,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
             // Reset select mode
-            isSelectMode = false;
-            itemAdapter.setSelectModeEnabled(false);
-            deleteButton.setVisibility(View.GONE);
+//            isSelectMode = false;
+//            itemAdapter.setSelectModeEnabled(false);
+//            deleteButton.setVisibility(View.GONE);
+            clearSelection();
         });
     }
 
@@ -170,26 +171,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
-
+        selectTextCancel = findViewById(R.id.select_text_cancel);
+        selectButton = findViewById(R.id.select_button);
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
             if (item != null && item.getId() != null) {
+                getTags.fetchTagsFromFirestore(); // this is necessary for the tags menu to not be empty...
+                if(isSelectMode == false){
+                    isSelectMode = true;
+                    deleteButton.setVisibility(View.VISIBLE);
+                    itemAdapter.toggleSelection(position);
+                    selectTextCancel.setVisibility(View.VISIBLE);
+                    selectButton.setVisibility(View.VISIBLE);
+                }
                 // Proceed with deletion
-                db.collection("items").document(item.getId()).delete()
-                        .addOnSuccessListener(aVoid -> {
-                            // Deletion successful, update UI
-                            itemAdapter.removeItem(position); // You need to implement this method in your adapter
-                            itemAdapter.notifyDataSetChanged();
-                            updateTotalValue(itemAdapter.getItems());
-                            Toast.makeText(MainActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            // Handle error
-                            Toast.makeText(MainActivity.this, "Error deleting item", Toast.LENGTH_SHORT).show();
-                        });
+//                db.collection("items").document(item.getId()).delete()
+//                        .addOnSuccessListener(aVoid -> {
+//                            // Deletion successful, update UI
+//                            itemAdapter.removeItem(position); // You need to implement this method in your adapter
+//                            itemAdapter.notifyDataSetChanged();
+//                            updateTotalValue(itemAdapter.getItems());
+//                            Toast.makeText(MainActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
+//                        })
+//                        .addOnFailureListener(e -> {
+//                            // Handle error
+//                            Toast.makeText(MainActivity.this, "Error deleting item", Toast.LENGTH_SHORT).show();
+//                        });
             } else {
                 // Document ID is null, handle this case
-                Toast.makeText(MainActivity.this, "Cannot delete item without an ID", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Cannot select item without an ID", Toast.LENGTH_SHORT).show();
             }
 
             return true; // True to indicate the long click was consumed
@@ -198,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
             if (isSelectMode) {
                 itemAdapter.toggleSelection(position); // Toggle item selection
+                if(itemAdapter.isSelectionEmpty())
+                    clearSelection();
             } else {
                 // Existing code to show item details...
                 Item item = itemAdapter.getItem(position);
@@ -232,7 +244,9 @@ public class MainActivity extends AppCompatActivity {
                         item.addTags(selectedTags);
                         db.collection("items").document(item.getId()).update("tags", item.getTags());
                     }
+                    clearSelection();
                 });
+
                 return;
             }
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
@@ -240,18 +254,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
+
         deleteButton = findViewById(R.id.delete_button);
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
         selectButton.setOnClickListener(v -> {
-            getTags.fetchTagsFromFirestore();
-            isSelectMode = !isSelectMode; // Toggle select mode
-            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
-            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
+            clearSelection();
         });
 
         deleteButton.setOnClickListener(v -> deleteSelectedItems());
@@ -263,5 +272,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    /**
+     * Clears the relevant buttons whenever the selection needs to be cleared
+     * including when the user explicity presses "cancel" on the selection
+     */
+    private void clearSelection(){
+        isSelectMode = !isSelectMode; // Toggle select mode
+        itemAdapter.clearSelection(); // Inform the adapter
+        deleteButton.setVisibility(View.GONE);
+        selectTextCancel.setVisibility(View.GONE);
+        selectButton.setVisibility(View.GONE);
+    }
 
 }
