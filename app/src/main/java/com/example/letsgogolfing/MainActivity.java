@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
+    private FirestoreRepository firestoreRepository;
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
@@ -76,19 +77,17 @@ public class MainActivity extends AppCompatActivity {
      * It also updates the total value of all items displayed.
      */
     private void fetchItemsAndRefreshAdapter() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<Item> newItems = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Item item = document.toObject(Item.class);
-                    item.setId(document.getId()); // Make sure to set the document ID
-                    newItems.add(item);
-                }
-                itemAdapter.updateItems(newItems); // Assuming your adapter has this method
-                updateTotalValue(newItems);
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
+        // I changed this so that we use the FirestoreRepo class to handle the database - refactoring legend (vedant)
+        firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
+            @Override
+            public void onItemsFetched(List<Item> items) {
+                itemAdapter.updateItems(items);
+                updateTotalValue(items);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.w(TAG, "Error getting documents: ", e);
             }
         });
     }
@@ -98,21 +97,18 @@ public class MainActivity extends AppCompatActivity {
      * It clears the selection mode after deletion is completed.
      */
     private void deleteSelectedItems() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        WriteBatch batch = db.batch();
-
-        // Use the getSelectedPositions method to get the set of selected item positions
         Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
+        List<String> itemIdsToDelete = new ArrayList<>();
         for (int position : selectedPositions) {
             Item item = itemAdapter.getItem(position);
-            batch.delete(db.collection("items").document(item.getId()));
+            itemIdsToDelete.add(item.getId());
         }
 
-        batch.commit().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+        firestoreRepository.deleteItems(itemIdsToDelete, new FirestoreRepository.OnItemDeletedListener() {
+            @Override
+            public void OnItemsDeleted() {
                 // Remove items from the adapter and refresh
-                List<Integer> positions = new ArrayList<>(selectedPositions); // Create a list from the set
-                // Sort the positions in reverse order before removing items
+                List<Integer> positions = new ArrayList<>(selectedPositions);
                 Collections.sort(positions, Collections.reverseOrder());
                 for (int position : positions) {
                     itemAdapter.removeItem(position);
@@ -121,15 +117,20 @@ public class MainActivity extends AppCompatActivity {
                 itemAdapter.notifyDataSetChanged();
                 updateTotalValue(itemAdapter.getItems());
                 Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
-            } else {
+
+                // Reset select mode
+                isSelectMode = false;
+                itemAdapter.setSelectModeEnabled(false);
+                deleteButton.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(Exception e) {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
-            // Reset select mode
-            isSelectMode = false;
-            itemAdapter.setSelectModeEnabled(false);
-            deleteButton.setVisibility(View.GONE);
         });
     }
+
 
 
     /**
@@ -144,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        firestoreRepository = new FirestoreRepository();
 
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());

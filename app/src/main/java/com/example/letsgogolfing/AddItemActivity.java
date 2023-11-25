@@ -1,5 +1,6 @@
 package com.example.letsgogolfing;
 
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,8 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import static com.example.letsgogolfing.FirestoreRepository.convertItemToMap;
 
-import com.google.firebase.Timestamp;
 
 /**
  * Activity for adding a new item to the inventory.
@@ -187,7 +188,7 @@ public class AddItemActivity extends AppCompatActivity {
      * if successful, the activity finishes and notifies the calling activity with a success flag.
      * </p>
      * <p>
-     * Note: This method relies on the {@link #convertItemToMap(Item)} method to convert the
+     * Note: This method relies on the 'convertItemToMap' method to convert the
      * {@link Item} object into a {@link Map} for Firestore storage.
      * </p>
      */
@@ -231,10 +232,7 @@ public class AddItemActivity extends AppCompatActivity {
         // Parse and set the tags
         newItem.setTags(selectedTags);
 
-        // Convert Item object to Map for Firestore
-        Map<String, Object> itemMap = convertItemToMap(newItem);
-
-        firestoreRepository.addItem(itemMap, new FirestoreRepository.OnItemAddedListener() {
+        firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
             @Override
             public void onItemAdded(String itemId) {
                 Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
@@ -251,34 +249,4 @@ public class AddItemActivity extends AppCompatActivity {
             }
         });
     }
-
-    /**
-     * Converts an {@link Item} object to a {@link Map} for Firestore storage.
-     * <p>
-     * This method takes an {@code Item} object and creates a {@code Map} where each field
-     * of the item is represented by a key-value pair. The keys are field names, and the values
-     * are obtained from the corresponding getters in the {@code Item} class. The date of purchase
-     * is converted to a {@link Timestamp} for Firestore storage. The resulting {@code Map} can be
-     * used to store the item data in Firestore.
-     * </p>
-     *
-     * @param item The {@code Item} object to be converted to a {@code Map}.
-     * @return A {@code Map} representing the fields of the provided {@code Item} object.
-     */
-    // Helper method to convert an Item object into a Map for Firestore
-    private Map<String, Object> convertItemToMap(Item item) {
-        Map<String, Object> itemMap = new HashMap<>();
-        itemMap.put("name", item.getName());
-        itemMap.put("description", item.getDescription());
-        itemMap.put("dateOfPurchase", new Timestamp(item.getDateOfPurchase()));
-        itemMap.put("make", item.getMake());
-        itemMap.put("model", item.getModel());
-        itemMap.put("serialNumber", item.getSerialNumber());
-        itemMap.put("estimatedValue", item.getEstimatedValue());
-        itemMap.put("comment", item.getComment());
-        itemMap.put("tags", item.getTags());
-        return itemMap;
-    }
-
-
 }
