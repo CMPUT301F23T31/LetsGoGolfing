@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -23,8 +24,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -62,6 +69,35 @@ public class CameraActivity extends AppCompatActivity {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent data = result.getData();
                     imageView.setImageURI(imageUri);
+                    try {
+                        // Get the image data from the URI
+                        InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+        
+                        // Convert the Bitmap to a byte array
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] imageData = baos.toByteArray();
+        
+                        // Create a reference to 'images/mountains.jpg'
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                        String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
+                        StorageReference imagesRef = storageRef.child("images/testImages/" + photoFileName);
+        
+                        // Upload the byte array to Firebase Storage
+                        UploadTask uploadTask = imagesRef.putBytes(imageData);
+                        uploadTask.addOnFailureListener(exception -> {
+                            // Handle unsuccessful uploads
+                            Log.e("Firebase Upload", "Upload failed", exception);
+                            Toast.makeText(CameraActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        }).addOnSuccessListener(taskSnapshot -> {
+                            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                            StorageMetadata metadata = taskSnapshot.getMetadata();
+                            Toast.makeText(CameraActivity.this, "Upload successful: " + metadata.getPath(), Toast.LENGTH_SHORT).show();
+                        });
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         );
@@ -81,12 +117,12 @@ public class CameraActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show();
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 cameraActivityResultLauncher.launch(cameraIntent);
             } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -97,12 +133,8 @@ public class CameraActivity extends AppCompatActivity {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             try {
                 imageUri = data.getData();
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                imageView.setImageBitmap(selectedImage);
-                Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 Glide.with(this)
-                    .load(thumbnail)
+                    .load(imageUri)
                     .into(imageView);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -119,4 +151,8 @@ public class CameraActivity extends AppCompatActivity {
         imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         return imageUri;
     }
+
+    
+
+
 }
