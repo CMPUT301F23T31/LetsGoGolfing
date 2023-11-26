@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
-
+    private ImageView scanItemButton;
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
         selectTextCancel = findViewById(R.id.select_text_cancel);
         selectButton = findViewById(R.id.select_button);
         deleteButton = findViewById(R.id.delete_button);
+        scanItemButton = findViewById(R.id.scan_item_button);
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
@@ -244,6 +245,15 @@ public class MainActivity extends AppCompatActivity {
         profileButton.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
             startActivity(intent);
+        });
+
+        scanItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to start CameraActivity
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                startActivity(intent);
+            }
         });
     }
 

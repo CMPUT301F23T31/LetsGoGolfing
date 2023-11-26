@@ -4,4 +4,5 @@
     <string name="item_value">Value: $%s</string>
 
     <string name="cost_formatting">$%s</string>
+    <string name="captured_image">Captured Image</string>
 </resources>

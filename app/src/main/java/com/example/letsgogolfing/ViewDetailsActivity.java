@@ -3,6 +3,9 @@ package com.example.letsgogolfing;
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
+import com.example.letsgogolfing.utils.ImageFragment;
+import com.example.letsgogolfing.utils.PhotoStorageManager;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +27,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 // generate javadocs for ViewDetailsActivity
 /**
@@ -203,7 +208,20 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         Toast.makeText(ViewDetailsActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                     });
         });
-    }
+
+//        viewPhotoButton.setOnClickListener(v -> {
+//            PhotoStorageManager photoStorageManager = new PhotoStorageManager(this);
+//            Byte[] imageData = photoStorageManager.retrievePhotos(UUID.fromString(item.getId()));
+//            ImageFragment fragment = ImageFragment.newInstance(imageData);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.fragment_container, fragment)
+//                    .commit();
+//        });
+//
+//        addPhotoButton.setOnClickListener(v -> {
+//
+//        });
+    };
 
 
     /**
