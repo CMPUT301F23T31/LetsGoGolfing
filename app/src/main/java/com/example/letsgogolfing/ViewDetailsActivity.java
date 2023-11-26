@@ -71,41 +71,41 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void InitializeUI() {
-        // Retrieve the item from the intent
-        item = (Item) getIntent().getSerializableExtra("ITEM");
+        private void InitializeUI() {
+            // Retrieve the item from the intent
+            item = (Item) getIntent().getSerializableExtra("ITEM");
 
-        // Instantiate TextViews
-        name = findViewById(R.id.name_view_text);
-        description = findViewById(R.id.description_view_text);
-        make = findViewById(R.id.make_view_text);
-        model = findViewById(R.id.model_view_text);
-        serial = findViewById(R.id.serial_view_text);
-        comment = findViewById(R.id.comment_view_text);
-        date = findViewById(R.id.date_view_text);
-        value = findViewById(R.id.value_view_text);
+            // Instantiate TextViews
+            name = findViewById(R.id.name_view_text);
+            description = findViewById(R.id.description_view_text);
+            make = findViewById(R.id.make_view_text);
+            model = findViewById(R.id.model_view_text);
+            serial = findViewById(R.id.serial_view_text);
+            comment = findViewById(R.id.comment_view_text);
+            date = findViewById(R.id.date_view_text);
+            value = findViewById(R.id.value_view_text);
 
-        // Instantiate Buttons
-        editButton = findViewById(R.id.edit_item_button);
-        backButton = findViewById(R.id.back_button);
-        viewPhotoButton = findViewById(R.id.view_photo_button);
+            // Instantiate Buttons
+            editButton = findViewById(R.id.edit_item_button);
+            backButton = findViewById(R.id.back_button);
+            viewPhotoButton = findViewById(R.id.view_photo_button);
 
-        // Instantiate Tag Container
-        tagsContainerView = findViewById(R.id.tags_linear_layout);
+            // Instantiate Tag Container
+            tagsContainerView = findViewById(R.id.tags_linear_layout);
 
-        // Set content TextViews
-        name.setText(item.getName());
-        description.setText(item.getDescription());
-        make.setText(item.getMake());
-        model.setText(item.getModel());
-        serial.setText(item.getSerialNumber());
-        comment.setText(item.getComment());
-        date.setText(dateFormat.format(item.getDateOfPurchase()));
-        value.setText(Double.toString(item.getEstimatedValue()));
+            // Set content TextViews
+            name.setText(item.getName());
+            description.setText(item.getDescription());
+            make.setText(item.getMake());
+            model.setText(item.getModel());
+            serial.setText(item.getSerialNumber());
+            comment.setText(item.getComment());
+            date.setText(dateFormat.format(item.getDateOfPurchase()));
+            value.setText(Double.toString(item.getEstimatedValue()));
 
-        // Set content of Tag Container
-        loadTags();
-    }
+            // Set content of Tag Container
+            loadTags();
+        }
 
     /**
      * Display tags.
@@ -115,7 +115,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
 
         for (String tag : selectedTags) {
-
             TextView tagView = new TextView(this);
             tagView.setText(tag);
             tagView.setBackgroundResource(R.drawable.tag_background); // Make sure this drawable exists
