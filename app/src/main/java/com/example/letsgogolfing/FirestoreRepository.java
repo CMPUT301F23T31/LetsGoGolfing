@@ -45,6 +45,26 @@ public class FirestoreRepository {
     }
 
     /**
+     * Adds a new tag to Firestore and notifies through a callback.
+     *
+     * @param tag The tag to be added to Firestore.
+     * @param listener The callback listener for tag addition results.
+     */
+    public void addTag(String tag, OnTagAddedListener listener) {
+        Map<String, Object> tagMap = new HashMap<>();
+        tagMap.put("name", tag);
+
+        db.collection("tags").add(tagMap)
+                .addOnSuccessListener(documentReference -> listener.onTagAdded())
+                .addOnFailureListener(listener::onError);
+    }
+
+    public interface OnTagAddedListener {
+        void onTagAdded();
+        void onError(Exception e);
+    }
+
+    /**
      * Adds a new item to Firestore and notifies it through a callback.
      *
      * @param item  The item data to be added to Firestore.
