@@ -248,6 +248,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private void processImageWithMLKit(Context context, Bitmap bitmap) {
         BarcodeScannerActivity barcodeScannerActivity = new BarcodeScannerActivity();
+        BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
         try {
             InputImage image = InputImage.fromBitmap(bitmap, 0);
 
@@ -267,8 +268,12 @@ public class CameraActivity extends AppCompatActivity {
                                 String barcodeValue = barcode.getRawValue();
                                 // Log or print the barcode value
                                 Log.d("Barcode Value", "Barcode: " + barcodeValue);
-                                barcodeScannerActivity.setBarcode_string(barcodeValue);
-                                barcodeScannerActivity.printBarcodeString();
+                                try{
+                                    barcodeFetchInfo.fetchProductDetails(barcodeValue);
+                                } catch (Exception e) {
+                                    Log.e("Barcode Fetch", "Error fetching barcode", e);
+                                }
+
                                 // You can also handle the barcode value as needed
                                 // For example, updating UI, calling a method, etc.
                             }

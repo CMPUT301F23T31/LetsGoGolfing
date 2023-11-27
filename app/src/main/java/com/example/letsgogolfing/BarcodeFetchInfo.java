@@ -18,6 +18,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class BarcodeFetchInfo {
+
+
     public void fetchProductDetails(String upc) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient.Builder()
         .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
@@ -59,7 +61,8 @@ public class BarcodeFetchInfo {
                                 tags.add(categoryParts[0]);
                                 tags.add(categoryParts[categoryParts.length - 1]);
                             }
-                            String title = object.getString("title");    
+                            String title = object.getString("title");
+                            
                             String upc = object.getString("upc");
                             String description = object.getString("description");
                             double lowestPrice = object.getDouble("lowest_recorded_price");
@@ -81,4 +84,4 @@ public class BarcodeFetchInfo {
         });
     }
 }
-}
+
