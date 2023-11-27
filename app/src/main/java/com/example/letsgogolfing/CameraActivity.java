@@ -40,6 +40,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class CameraActivity extends AppCompatActivity {
@@ -181,15 +188,19 @@ public class CameraActivity extends AppCompatActivity {
     
         Frame frame = new Frame.Builder().setBitmap(bitmap).build();
         SparseArray<Barcode> barcodes = barcodeDetector.detect(frame);
-    
+
+        String gtin = null;
         for(int i = 0; i< barcodes.size(); i++){
             Barcode barcode = barcodes.valueAt(i);
             // Check the format of the barcode to ensure it's of type UPC or EAN (GTIN)
             if (barcode.format == Barcode.UPC_A || barcode.format == Barcode.UPC_E ||
                 barcode.format == Barcode.EAN_8 || barcode.format == Barcode.EAN_13) {
-                String gtin = barcode.rawValue;
-                // Do something with the GTIN (barcode data)
+                gtin = barcode.rawValue;
+
                 Log.d("GTIN", "Barcode data: " + gtin);
+                //Call getProductInfo with gtin
+                getProductInfo(gtin);
+                break;
             }
         }
     }
@@ -206,5 +217,34 @@ public class CameraActivity extends AppCompatActivity {
         });
     }
 
+    private void getProductInfo(String gtin) {
+        OkHttpClient client = new OkHttpClient.Builder()
+        .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
+        .writeTimeout(20, TimeUnit.SECONDS) // write timeout
+        .readTimeout(30, TimeUnit.SECONDS) // read timeout
+        .build();
 
+        String url = "https://api.rainforestapi.com/request?api_key=83D3CF6386FE423289847177DF2D3BDC&amazon_domain=amazon.com&type=product&gtin=" + gtin;
+
+        Request request = new Request.Builder()
+            .url(url)
+            .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String myResponse = response.body().string();
+
+                    // Print the response to the log
+                    Log.d("API Response", myResponse);
+                }
+            }
+        });
+    }
 }
