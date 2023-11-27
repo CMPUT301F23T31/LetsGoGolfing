@@ -209,18 +209,23 @@ public class ViewDetailsActivity extends AppCompatActivity {
                     });
         });
 
-//        viewPhotoButton.setOnClickListener(v -> {
-//            PhotoStorageManager photoStorageManager = new PhotoStorageManager(this);
-//            Byte[] imageData = photoStorageManager.retrievePhotos(UUID.fromString(item.getId()));
-//            ImageFragment fragment = ImageFragment.newInstance(imageData);
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.fragment_container, fragment)
-//                    .commit();
-//        });
-//
-//        addPhotoButton.setOnClickListener(v -> {
-//
-//        });
+        Button viewPhotoButton = findViewById(R.id.viewPhotoBtn);
+
+        // Set an OnClickListener on the button
+        viewPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an Intent to start ViewPhotoActivity
+                Intent intent = new Intent(ViewDetailsActivity.this, ViewPhotoActivity.class);
+                
+                // Pass the item ID to ViewPhotoActivity
+                /**change once item id is included in item*/
+                intent.putExtra("itemId", 0);
+                
+                // Start ViewPhotoActivity
+                startActivity(intent);
+            }
+        });
     };
 
 
