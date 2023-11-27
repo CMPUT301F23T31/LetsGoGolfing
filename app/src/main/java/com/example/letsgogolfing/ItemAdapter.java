@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +60,9 @@ public class ItemAdapter extends BaseAdapter {
         selectedItems.clear(); // Clear selections when toggling mode
         notifyDataSetChanged();
     }
-
+    public boolean isSelectionEmpty(){
+        return selectedItems.isEmpty();
+    }
 
     // generate javadocs for toggleSelection
     /**
@@ -181,7 +184,12 @@ public class ItemAdapter extends BaseAdapter {
             items.remove(position);
         }
     }
-
+    public ArrayList<Item> getSelectedItems(){
+        ArrayList<Item> itemList = new ArrayList<Item>();
+        for(Integer i : selectedItems)
+            itemList.add(getItem(i));
+        return itemList;
+    }
     // ViewHolder pattern to optimize performance
     private static class ViewHolder {
         TextView nameTextView;

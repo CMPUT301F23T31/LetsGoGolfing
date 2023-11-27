@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,8 +25,11 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
+import java.util.Map;
 import java.util.Set;
 
 
@@ -128,6 +132,11 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
+            // Reset select mode
+//            isSelectMode = false;
+//            itemAdapter.setSelectModeEnabled(false);
+//            deleteButton.setVisibility(View.GONE);
+            clearSelection();
         });
     }
 
@@ -150,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
         itemGrid.setAdapter(itemAdapter);
+        GetTags getTags = new GetTags(this);
+        getTags.fetchTagsFromFirestore();
 
         fetchItemsAndRefreshAdapter();
 
@@ -167,26 +178,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
-
+        selectTextCancel = findViewById(R.id.select_text_cancel);
+        selectButton = findViewById(R.id.select_button);
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
             if (item != null && item.getId() != null) {
+                getTags.fetchTagsFromFirestore(); // this is necessary for the tags menu to not be empty...
+                if(isSelectMode == false){
+                    isSelectMode = true;
+                    deleteButton.setVisibility(View.VISIBLE);
+                    itemAdapter.toggleSelection(position);
+                    selectTextCancel.setVisibility(View.VISIBLE);
+                    selectButton.setVisibility(View.VISIBLE);
+                }
                 // Proceed with deletion
-                db.collection("items").document(item.getId()).delete()
-                        .addOnSuccessListener(aVoid -> {
-                            // Deletion successful, update UI
-                            itemAdapter.removeItem(position); // You need to implement this method in your adapter
-                            itemAdapter.notifyDataSetChanged();
-                            updateTotalValue(itemAdapter.getItems());
-                            Toast.makeText(MainActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            // Handle error
-                            Toast.makeText(MainActivity.this, "Error deleting item", Toast.LENGTH_SHORT).show();
-                        });
+//                db.collection("items").document(item.getId()).delete()
+//                        .addOnSuccessListener(aVoid -> {
+//                            // Deletion successful, update UI
+//                            itemAdapter.removeItem(position); // You need to implement this method in your adapter
+//                            itemAdapter.notifyDataSetChanged();
+//                            updateTotalValue(itemAdapter.getItems());
+//                            Toast.makeText(MainActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
+//                        })
+//                        .addOnFailureListener(e -> {
+//                            // Handle error
+//                            Toast.makeText(MainActivity.this, "Error deleting item", Toast.LENGTH_SHORT).show();
+//                        });
             } else {
                 // Document ID is null, handle this case
-                Toast.makeText(MainActivity.this, "Cannot delete item without an ID", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Cannot select item without an ID", Toast.LENGTH_SHORT).show();
             }
 
             return true; // True to indicate the long click was consumed
@@ -195,6 +215,22 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
             if (isSelectMode) {
                 itemAdapter.toggleSelection(position); // Toggle item selection
+                if(itemAdapter.isSelectionEmpty()) {
+
+                    // relevant ChatGPT prompt:
+                    // write code to: if a condition isn't true after 2 seconds, then call a function
+//                    new Handler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // Check your condition here
+//                            if (itemAdapter.isSelectionEmpty()) {
+//                                // Condition is not true after 2 seconds, call your function
+//                                clearSelection();
+//                            }
+//                        }
+//                    }, 2000);
+                    clearSelection();
+                }
             } else {
                 // Existing code to show item details...
                 Item item = itemAdapter.getItem(position);
@@ -222,22 +258,30 @@ public class MainActivity extends AppCompatActivity {
 
         Button manageTagsButton = findViewById(R.id.manage_tags_button);
         manageTagsButton.setOnClickListener(v -> {
+            if (isSelectMode) {
+                getTags.showTagSelectionDialog(selectedTags -> {
+                    Map<String, Object> update = new HashMap<>();
+                    for(Item item : itemAdapter.getSelectedItems()) {
+                        item.addTags(selectedTags);
+                        db.collection("items").document(item.getId()).update("tags", item.getTags());
+                    }
+                    clearSelection();
+                });
+
+                return;
+            }
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
 
 
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
+
         deleteButton = findViewById(R.id.delete_button);
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
         selectButton.setOnClickListener(v -> {
-            isSelectMode = !isSelectMode; // Toggle select mode
-            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
-            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
+            clearSelection();
         });
 
         deleteButton.setOnClickListener(v -> deleteSelectedItems());
@@ -249,5 +293,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    /**
+     * Clears the relevant buttons whenever the selection needs to be cleared
+     * including when the user explicity presses "cancel" on the selection
+     */
+    private void clearSelection(){
+        isSelectMode = !isSelectMode; // Toggle select mode
+        itemAdapter.clearSelection(); // Inform the adapter
+        deleteButton.setVisibility(View.GONE);
+        selectTextCancel.setVisibility(View.GONE);
+        selectButton.setVisibility(View.GONE);
+    }
 
 }
