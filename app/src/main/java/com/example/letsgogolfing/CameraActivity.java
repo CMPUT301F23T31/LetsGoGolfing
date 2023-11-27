@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -20,10 +21,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -67,6 +69,7 @@ public class CameraActivity extends AppCompatActivity {
                         Intent data = result.getData();
                         imageView.setImageURI(imageUri);
                         uploadImageBitmap(imageUri, UUID.randomUUID());
+                        //processImageForGTIN(imageUri);
                     }
                 }
         );
@@ -79,7 +82,9 @@ public class CameraActivity extends AppCompatActivity {
             cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             cameraActivityResultLauncher.launch(cameraIntent);
         }
+        downloadAndProcessImage("images/testImages/barcode.jpg");
     }
+    
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -152,4 +157,54 @@ public class CameraActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    //2 options for processing image for GTIN: Uri or Bitmap
+    private void processImageForGTIN(Uri imageUri) {
+        Bitmap bitmap;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            processImageForGTIN(bitmap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void processImageForGTIN(Bitmap bitmap) {
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext())
+                .setBarcodeFormats(Barcode.ALL_FORMATS)
+                .build();
+    
+        if(!barcodeDetector.isOperational()){
+            Toast.makeText(getApplicationContext(), "Could not set up the detector!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+    
+        Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+        SparseArray<Barcode> barcodes = barcodeDetector.detect(frame);
+    
+        for(int i = 0; i< barcodes.size(); i++){
+            Barcode barcode = barcodes.valueAt(i);
+            // Check the format of the barcode to ensure it's of type UPC or EAN (GTIN)
+            if (barcode.format == Barcode.UPC_A || barcode.format == Barcode.UPC_E ||
+                barcode.format == Barcode.EAN_8 || barcode.format == Barcode.EAN_13) {
+                String gtin = barcode.rawValue;
+                // Do something with the GTIN (barcode data)
+                Log.d("GTIN", "Barcode data: " + gtin);
+            }
+        }
+    }
+
+    //for testing barcode detection
+    private void downloadAndProcessImage(String imagePath) {
+        StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
+        final long ONE_MEGABYTE = 1024 * 1024;
+        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            processImageForGTIN(bitmap);
+        }).addOnFailureListener(exception -> {
+            Log.e("Firebase Storage", "Failed to download image", exception);
+        });
+    }
+
+
 }
