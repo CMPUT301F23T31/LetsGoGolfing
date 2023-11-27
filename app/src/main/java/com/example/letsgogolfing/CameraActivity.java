@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseArray;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -66,13 +67,25 @@ public class CameraActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
+                        // The camera activity has finished and the photo has been taken
                         imageView.setImageURI(imageUri);
-                        uploadImageBitmap(imageUri, UUID.randomUUID());
-                        //processImageForGTIN(imageUri);
+
+                        // Now, we need to send back the URI of the captured image to the AddItemActivity
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("imageUri", imageUri.toString()); // Assuming imageUri is the URI of the captured image
+                        setResult(Activity.RESULT_OK, resultIntent);
+                        finish(); // Finish this activity and return to AddItemActivity with the result
                     }
                 }
         );
+
+
+        Button back_to_main = findViewById(R.id.home_button);
+
+        back_to_main.setOnClickListener(v -> {
+            Intent intent = new Intent(CameraActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);

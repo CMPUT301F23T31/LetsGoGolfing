@@ -8,7 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.HashSet;
 import java.util.List;
@@ -136,6 +139,7 @@ public class ItemAdapter extends BaseAdapter {
             holder.nameTextView = convertView.findViewById(R.id.itemName);
             holder.descriptionTextView = convertView.findViewById(R.id.itemDescription);
             holder.valueTextView = convertView.findViewById(R.id.itemValue);
+            holder.imageView = convertView.findViewById(R.id.itemImage);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -148,6 +152,14 @@ public class ItemAdapter extends BaseAdapter {
         holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
 
         // Set other properties to the holder's views as needed
+
+        if (item.getImageUri() != null && !item.getImageUri().isEmpty()) {
+            Glide.with(context)
+                    .load(item.getImageUri())
+                    .into(holder.imageView);
+        } else {
+            holder.imageView.setImageResource(R.drawable.default_image); // Set a default image if no URI is available
+        }
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
@@ -187,6 +199,7 @@ public class ItemAdapter extends BaseAdapter {
         TextView nameTextView;
         TextView descriptionTextView;
         TextView valueTextView;
+        ImageView imageView;
         // Add more views as needed
     }
 }

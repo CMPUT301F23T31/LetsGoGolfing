@@ -1,12 +1,20 @@
 package com.example.letsgogolfing;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -16,7 +24,13 @@ import android.widget.Toast;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,6 +53,8 @@ public class AddItemActivity extends AppCompatActivity {
 
     private Item item;
     private static final String TAG = "EditItemActivity";
+
+    private String tempUri;
 
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
@@ -70,6 +86,30 @@ public class AddItemActivity extends AppCompatActivity {
 
         // Fetch the tags from Firestore
         fetchTagsFromFirestore();
+
+        // add photo button listener
+        Button add_photo_button = findViewById(R.id.addPhotoBtn);
+
+
+        ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null && data.getStringExtra("imageUri") != null) {
+                            String imageUriString = data.getStringExtra("imageUri");
+                            Uri imageUri = Uri.parse(imageUriString);
+                            uploadImage(imageUri); // Call the upload method here
+                            tempUri = imageUriString;
+                        }
+                    }
+                }
+        );
+
+        add_photo_button.setOnClickListener(v -> {
+            Intent intent = new Intent(AddItemActivity.this, CameraActivity.class);
+            cameraActivityResultLauncher.launch(intent);
+        });
     }
 
     /**
@@ -189,6 +229,10 @@ public class AddItemActivity extends AppCompatActivity {
         newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
         newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
 
+        if (tempUri != null) {
+            newItem.setImageUri(tempUri.toString());
+        }
+
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -253,6 +297,33 @@ public class AddItemActivity extends AppCompatActivity {
         // If needed, update the UI or other elements that depend on the tagList
     }
 
+    private void uploadImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageData = baos.toByteArray();
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
+            StorageReference imagesRef = storageRef.child("images/testImages/" + photoFileName);
+
+            UploadTask uploadTask = imagesRef.putBytes(imageData);
+            uploadTask.addOnFailureListener(exception -> {
+                Log.e("Firebase Upload", "Upload failed", exception);
+                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                // Here you can also update the newItem object with the URL of the uploaded image, if needed
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     /**
      * Converts an {@link Item} object to a {@link Map} for Firestore storage.
@@ -281,6 +352,7 @@ public class AddItemActivity extends AppCompatActivity {
         itemMap.put("estimatedValue", item.getEstimatedValue());
         itemMap.put("comment", item.getComment());
         itemMap.put("tags", item.getTags());
+        itemMap.put("imageUri", item.getImageUri());
         return itemMap;
     }
 

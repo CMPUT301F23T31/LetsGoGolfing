@@ -17,6 +17,8 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
     private String id;
 
+    private String imageUri;
+
     private String name;
     private String description;
     private Date dateOfPurchase; // im assuming its "of purchase"?
@@ -68,6 +70,14 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      */
     public String getId() {
         return id;
+    }
+
+    public String getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(String imageUri) {
+        this.imageUri = imageUri;
     }
 
     /**
