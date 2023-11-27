@@ -108,6 +108,7 @@ public class AddItemActivity extends AppCompatActivity {
 
         add_photo_button.setOnClickListener(v -> {
             Intent intent = new Intent(AddItemActivity.this, CameraActivity.class);
+            intent.putExtra(CameraActivity.MODE_KEY, CameraActivity.MODE_PHOTO);
             cameraActivityResultLauncher.launch(intent);
         });
     }

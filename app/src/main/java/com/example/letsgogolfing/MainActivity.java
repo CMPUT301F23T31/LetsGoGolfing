@@ -252,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Create an Intent to start CameraActivity
                 Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                intent.putExtra(CameraActivity.MODE_KEY, CameraActivity.MODE_BARCODE);
                 startActivity(intent);
             }
         });
