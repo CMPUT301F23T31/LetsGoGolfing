@@ -44,6 +44,8 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     testImplementation("junit:junit:4.13.2")
     implementation("androidx.activity:activity:1.2.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("org.json:json:20210307")
     implementation("com.google.android.gms:play-services-vision:20.1.3")
     // Can't get ML Kit to work, using Firebase Vision instead (deprecated)
     // AndroidX Test - Core library
