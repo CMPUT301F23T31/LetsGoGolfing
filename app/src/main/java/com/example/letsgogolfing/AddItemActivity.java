@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -84,9 +86,22 @@ public class AddItemActivity extends AppCompatActivity {
         Button tagButton = findViewById(R.id.add_tags_button);
         tagButton.setOnClickListener(v -> showTagSelectionDialog());
 
+        Button addPhotoBtn = findViewById(R.id.addPhotoBtn);
+        addPhotoBtn.setOnClickListener(v -> dispatchTakePictureIntent());
+
         // Fetch the tags from Firestore
         fetchTagsFromFirestore();
     }
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
 
 
     /**
@@ -204,49 +219,84 @@ public class AddItemActivity extends AppCompatActivity {
         newItem.setModel(modelField.getText().toString());
         newItem.setComment(commentField.getText().toString());
 
-        // Parse and set the date of purchase
+        // Get the date string from the EditText
         String dateString = dateField.getText().toString();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        try {
-            Date date = sdf.parse(dateString);
-            if (date != null) {
+
+        // Use isValidDate to check the date
+        if (isValidDate(dateString)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            try {
+                Date date = sdf.parse(dateString);
                 newItem.setDateOfPurchase(date);
-            } else {
-                Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-                return;
+            } catch (ParseException e) {
+                // This should not happen as you have already checked the date
+                e.printStackTrace();
             }
-        } catch (ParseException e) {
-            Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
             return;
         }
 
         // Parse and set the estimated value
         try {
-            double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
+            double estimatedValue = Double.parseDouble(valueField.getText().toString());
             newItem.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
-            Toast.makeText(AddItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
-            double estimatedValue = 0;
+            Toast.makeText(this, "Invalid number format for value", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         // Parse and set the tags
         newItem.setTags(selectedTags);
 
+        // Add the item to Firestore
         firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
             @Override
             public void onItemAdded(String itemId) {
                 Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                // we can now use the itemId if needed
-                Intent data = new Intent();
-                data.putExtra("item_added", true);
-                setResult(RESULT_OK, data);
-                finish();
+                // Handle success
+                finishWithResult(true);
             }
+
             @Override
             public void onError(Exception e) {
                 Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
                 // Handle error
+                finishWithResult(false);
             }
         });
+    }
+
+    private void finishWithResult(boolean success) {
+        Intent data = new Intent();
+        data.putExtra("item_added", success);
+        setResult(success ? RESULT_OK : RESULT_CANCELED, data);
+        finish();
+    }
+
+
+    public boolean isValidDate(String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        sdf.setLenient(false); // This will make sure SimpleDateFormat doesn't adjust dates on its own
+
+        try {
+            Date date = sdf.parse(dateString);
+
+            // Extract the year, month, and day to perform additional checks
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // Month is 0-based in Calendar
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            // Check if month and day are in valid ranges
+            if (month > 12 || day > 31) {
+                return false;
+            }
+
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
     }
 }

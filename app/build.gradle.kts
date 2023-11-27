@@ -37,6 +37,8 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     testImplementation("junit:junit:4.13.2")
+    testImplementation ("org.robolectric:robolectric:4.11.1") // use the latest version
+
     // AndroidX Test - Core library
     androidTestImplementation("androidx.test:core:1.5.0")
     // AndroidX Test - Assertions and runner

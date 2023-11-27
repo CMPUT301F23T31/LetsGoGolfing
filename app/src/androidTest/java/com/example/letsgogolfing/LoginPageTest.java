@@ -1,9 +1,7 @@
 package com.example.letsgogolfing;
 
-import androidx.test.*;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.junit.runners.AndroidJUnit4;
-import androidx.test.espresso.Espresso;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;
