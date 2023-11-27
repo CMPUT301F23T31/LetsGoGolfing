@@ -9,43 +9,36 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // generate javadocs for ViewDetailsActivity
 /**
- * Activity for viewing the details of an item.
+ * Activity for viewing the details of an item in an Android application.
+ * This activity allows users to view item details, edit the item, and view photos associated with the item.
+ * It interacts with Firestore to fetch tags related to the item.
  */
 public class ViewDetailsActivity extends AppCompatActivity {
-    private TextView name;
-    private TextView description;
-    private TextView value;
-    private TextView make;
-    private TextView model;
-    private TextView serial;
-    private TextView comment;
-    private TextView date;
     private LinearLayout tagsContainerView;
-
-    private Button editButton;
-    private Button viewPhotoButton;
+    private Button editButton, viewPhotoButton;
     private ImageButton backButton;
-
-    private List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
+    private final List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
+    private FirestoreRepository db;
     private static final String TAG = "ViewDetailsActivity";
 
-
     /**
-     * onCreate method for the ViewDetailsActivity.
-     * @param savedInstanceState The saved instance state.
+     * Initializes the activity. This method sets up the user interface and initializes
+     * the listeners for various UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     *                           Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +49,12 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> {
             // takes back to home page main_activity
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(ViewDetailsActivity.this, MainActivity.class);
             startActivity(intent);
         });
 
         editButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, EditItemActivity.class);
+            Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
             intent.putExtra("ITEM", item);
             startActivity(intent);
         });
@@ -71,19 +64,24 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Initializes the user interface components of this activity.
+     * This method retrieves the item details passed via Intent, sets up the text views,
+     * buttons, and tag container view. It also populates the views with the item's data.
+     */
         private void InitializeUI() {
             // Retrieve the item from the intent
             item = (Item) getIntent().getSerializableExtra("ITEM");
 
             // Instantiate TextViews
-            name = findViewById(R.id.name_view_text);
-            description = findViewById(R.id.description_view_text);
-            make = findViewById(R.id.make_view_text);
-            model = findViewById(R.id.model_view_text);
-            serial = findViewById(R.id.serial_view_text);
-            comment = findViewById(R.id.comment_view_text);
-            date = findViewById(R.id.date_view_text);
-            value = findViewById(R.id.value_view_text);
+            TextView name = findViewById(R.id.name_view_text);
+            TextView description = findViewById(R.id.description_view_text);
+            TextView make = findViewById(R.id.make_view_text);
+            TextView model = findViewById(R.id.model_view_text);
+            TextView serial = findViewById(R.id.serial_view_text);
+            TextView comment = findViewById(R.id.comment_view_text);
+            TextView date = findViewById(R.id.date_view_text);
+            TextView value = findViewById(R.id.value_view_text);
 
             // Instantiate Buttons
             editButton = findViewById(R.id.edit_item_button);
@@ -103,12 +101,17 @@ public class ViewDetailsActivity extends AppCompatActivity {
             date.setText(dateFormat.format(item.getDateOfPurchase()));
             value.setText(Double.toString(item.getEstimatedValue()));
 
+            // Connect to database
+            db = new FirestoreRepository();
+
+
             // Set content of Tag Container
             loadTags();
         }
 
     /**
-     * Display tags.
+     * This method is responsible for displaying the tags associated with the item.
+     * It dynamically creates TextViews for each tag and adds them to the tag container layout.
      */
     private void displayTags() {
         tagsContainerView = findViewById(R.id.tags_linear_layout);
@@ -133,21 +136,24 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
 
     /**
-     * Load tags.
+     * Loads tags from Firestore and updates the UI accordingly.
+     * This method fetches a collection of tags from Firestore, processes the response,
+     * and calls displayTags() to update the user interface.
      */
     private void loadTags() {
-        // Assuming you have a method to fetch tags from Firestore
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("tags").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+        db.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
+            @Override
+            public void onTagsFetched(List<String> tags) {
                 tagList.clear();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    tagList.add(document.getString("name"));
-                }
+                tagList.addAll(tags);
                 selectedTags = new ArrayList<>(item.getTags()); // Use the tags from the item
                 displayTags();
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(ViewDetailsActivity.this, "Failed to fetch tags", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Error getting documents: ", e);
             }
         });
     }
