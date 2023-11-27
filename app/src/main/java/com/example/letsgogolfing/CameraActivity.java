@@ -199,11 +199,11 @@ public class CameraActivity extends AppCompatActivity {
                 //getProductInfo(gtin);
 
                 //Call fetchProductDetails with gtin
-                try {
-                    fetchProductDetails(gtin);
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    fetchProductDetails(gtin);
+//                } catch (IOException | JSONException e) {
+//                    e.printStackTrace();
+//                }
                 break;
             }
         }
