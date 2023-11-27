@@ -12,10 +12,11 @@ import java.util.Map;
 // so far this only handles fetching tags and adding new items - vedant
 public class FirestoreRepository {
 
-    private final FirebaseFirestore db;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final String currentUserId;
 
-    public FirestoreRepository() {
-        db = FirebaseFirestore.getInstance();
+    public FirestoreRepository(String userId) {
+        this.currentUserId = userId;
     }
 
     /**
@@ -29,7 +30,7 @@ public class FirestoreRepository {
      */
 
     public void fetchItems(OnItemsFetchedListener listener) {
-        db.collection("items").get().addOnCompleteListener(task -> {
+        db.collection("users").document(currentUserId).collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> items = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -72,7 +73,7 @@ public class FirestoreRepository {
      */
     public void addItem(Item item, OnItemAddedListener listener) {
         Map<String, Object> itemMap = convertItemToMap(item);
-        db.collection("items").add(itemMap)
+        db.collection("users").document(currentUserId).collection("items").add(itemMap)
                 .addOnSuccessListener(documentReference -> listener.onItemAdded(documentReference.getId()))
                 .addOnFailureListener(listener::onError);
     }
@@ -89,7 +90,7 @@ public class FirestoreRepository {
     public void deleteItems(List<String> itemIds, OnItemDeletedListener listener) {
         WriteBatch batch = db.batch();
         for (String id : itemIds) {
-            batch.delete(db.collection("items").document(id));
+            batch.delete(db.collection("users").document(currentUserId).collection("items").document(id));
         }
         batch.commit().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -113,7 +114,7 @@ public class FirestoreRepository {
 
     public void updateItem(String itemId, Item item, OnItemUpdatedListener listener) {
         Map<String, Object> itemMap = convertItemToMap(item);
-        db.collection("items").document(itemId).set(itemMap)
+        db.collection("users").document(currentUserId).collection("items").document(itemId).set(itemMap)
                 .addOnSuccessListener(aVoid -> listener.onItemUpdated())
                 .addOnFailureListener(listener::onError);
     }

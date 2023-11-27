@@ -55,28 +55,25 @@ public class LoginActivity extends AppCompatActivity {
      * Otherwise, it displays a Toast message indicating that the user does not exist.
      */
     private void attemptLogin() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
-            db.collection("users") // Assuming you have a 'users' collection
-                    .whereEqualTo("username", username)
-                    .get()
+            db.collection("users").document(username).get()
                     .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            if (!task.getResult().isEmpty()) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult() != null && task.getResult().exists()) {
                                 // User exists, proceed to login
                                 proceedToMain(username);
                             } else {
                                 // User does not exist, prompt to sign up
-                                Toast.makeText(LoginActivity.this, "User does not exist, please sign up", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "User does not exist, please sign up", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(LoginActivity.this, "Error checking user", Toast.LENGTH_SHORT).show();
+                            // Error checking user
+                            Toast.makeText(this, "Error checking user", Toast.LENGTH_SHORT).show();
                         }
                     });
         } else {
-            Toast.makeText(LoginActivity.this, "Please enter a username", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -89,25 +86,39 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptSignUp() {
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
-            db.collection("users") // Assuming you have a 'users' collection
-                    .whereEqualTo("username", username)
-                    .get()
+            db.collection("users").document(username).get()
                     .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            if (task.getResult().isEmpty()) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult() != null && !task.getResult().exists()) {
                                 // Username does not exist, can create new user
                                 addUserToDatabase(username);
                             } else {
                                 // Username already exists, prompt to log in
-                                Toast.makeText(LoginActivity.this, "Username already exists, please login", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Username already exists, please login", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(LoginActivity.this, "Error checking for username", Toast.LENGTH_SHORT).show();
+                            // Error checking for username
+                            Toast.makeText(this, "Error checking for username", Toast.LENGTH_SHORT).show();
                         }
                     });
         } else {
-            Toast.makeText(LoginActivity.this, "Please enter a username", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Adds a new user with the provided username to the "users" collection in Firestore.
+     * Upon successful addition, it navigates to the MainActivity and finishes the current activity.
+     *
+     * @param username A String representing the username to be added to the database.
+     */
+    private void addUserToDatabase(String username) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("username", username); // This might be optional since the username is the document ID
+
+        db.collection("users").document(username).set(user)
+                .addOnSuccessListener(documentReference -> proceedToMain(username))
+                .addOnFailureListener(e -> Toast.makeText(this, "Error adding user", Toast.LENGTH_SHORT).show());
     }
 
     /**
@@ -120,24 +131,6 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
-
-
     }
 
-    /**
-     * Adds a new user with the provided username to the "users" collection in Firestore.
-     * Upon successful addition, it navigates to the MainActivity and finishes the current activity.
-     *
-     * @param username A String representing the username to be added to the database.
-     */
-    private void addUserToDatabase(String username) {
-        // Create a new user with a username
-        Map<String, Object> user = new HashMap<>();
-        user.put("username", username);
-        // Add a new document with a generated ID
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(documentReference -> proceedToMain(username))
-                .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error adding user", Toast.LENGTH_SHORT).show());
-    }
 }

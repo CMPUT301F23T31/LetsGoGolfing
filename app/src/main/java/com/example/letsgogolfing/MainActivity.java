@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -145,7 +147,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        firestoreRepository = new FirestoreRepository();
+
+        // Retrieve current username from SharedPreferences
+        SharedPreferences sharedPref = getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+        String currentUsername = sharedPref.getString("currentUsername", null);
+
+        // Initialize FirestoreRepository with the current username
+        firestoreRepository = new FirestoreRepository(currentUsername);
 
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
@@ -202,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     db.collection("items").document(item.getId()).get()
                         .addOnSuccessListener(aVoid -> {
                             Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+                            intent.putExtra("username", currentUsername); // currentUsername retrieved from SharedPreferences
                             intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
                             startActivity(intent);
                         })
