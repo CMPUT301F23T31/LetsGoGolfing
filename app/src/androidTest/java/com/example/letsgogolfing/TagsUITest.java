@@ -34,7 +34,7 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class TagsUITest {
-
+    private AnimationUtils animationUtils = new AnimationUtils();
     @Rule
     public ActivityScenarioRule<MainActivity> mainActivityRule = new ActivityScenarioRule<>(MainActivity.class);
 
@@ -61,25 +61,21 @@ public class TagsUITest {
     public void testEditingTagsInViewDetailsActivity() {
         // Implementation for testing in ViewDetailsActivity
     }
-    private FirestoreIdlingResource firestoreIdlingResource;
 
     @Before
     public void setup() {
-        firestoreIdlingResource = new FirestoreIdlingResource();
-        IdlingRegistry.getInstance().register(firestoreIdlingResource);
+        animationUtils.disableAnimations();
     }
 
     @After
     public void cleanup() {
-        IdlingRegistry.getInstance().unregister(firestoreIdlingResource);
+        animationUtils.enableAnimations();
     }
 
 
     @Test
     public void testApplyTagsToSelectedItems() {
         int itemPosition = 0;
-        // firestoreIdlingResource.setIdleState(false);
-        // need to change settings in the phone itself to disable animations or else espresso will give you an error...
 
         // wait for items to get fetched first...
         while (!MainActivity.itemsFetched) {
@@ -94,8 +90,8 @@ public class TagsUITest {
                 .atPosition(itemPosition)
                 .perform(ViewActions.longClick());
         onView(withId(R.id.manage_tags_button)).perform(click());
+
         String checkboxText = "bathroom";
-        //String[] toCheck = new String ["bathroom", "kitchen"];
 
         onView(ViewMatchers.withText(checkboxText)).perform(click());
         onView(ViewMatchers.withText("OK")).perform(click());
