@@ -4,9 +4,11 @@ package com.example.letsgogolfing;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
+    private DialogFragment sortDialog = new SortDialogFragment();
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -223,10 +226,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
+        ImageButton sortButton = findViewById(R.id.sort_button);
+        sortButton.setOnClickListener(v -> {
+            sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
+
+        });
 
 
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
         deleteButton = findViewById(R.id.delete_button);
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
