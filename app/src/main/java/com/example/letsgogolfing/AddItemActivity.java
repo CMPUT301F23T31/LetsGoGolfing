@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,8 +46,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import android.Manifest;
-import static com.example.letsgogolfing.FirestoreRepository.convertItemToMap;
-
 
 /**
  * Activity for adding a new item to the inventory.
@@ -58,6 +56,7 @@ import static com.example.letsgogolfing.FirestoreRepository.convertItemToMap;
  */
 public class AddItemActivity extends AppCompatActivity {
 
+    private Item item;
     private static final String TAG = "EditItemActivity";
 
     private List<String> tempUris = new ArrayList<>();
@@ -65,16 +64,6 @@ public class AddItemActivity extends AppCompatActivity {
 
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
-    private FirestoreRepository firestoreRepository;
-
-
-    private EditText nameField;
-    private EditText descriptionField;
-    private EditText makeField;
-    private EditText modelField;
-    private EditText commentField;
-    private EditText dateField;
-    private EditText valueField;
 
     private Uri imageUri;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
@@ -99,17 +88,6 @@ public class AddItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item_page);
-        // Initialize the FireStoreRepo
-        firestoreRepository = new FirestoreRepository();
-
-        nameField = findViewById(R.id.nameField);
-        descriptionField = findViewById(R.id.descriptionField);
-        makeField = findViewById(R.id.makeField);
-        modelField = findViewById(R.id.modelField);
-        commentField = findViewById(R.id.commentField);
-        dateField = findViewById(R.id.dateField);
-        valueField = findViewById(R.id.valueField);
-
 
         Item item = (Item) getIntent().getSerializableExtra("item");
         if (item != null) {
@@ -143,9 +121,6 @@ public class AddItemActivity extends AppCompatActivity {
         // add tags button listener
         Button tagButton = findViewById(R.id.add_tags_button);
         tagButton.setOnClickListener(v -> showTagSelectionDialog());
-
-        Button addPhotoBtn = findViewById(R.id.addPhotoBtn);
-        addPhotoBtn.setOnClickListener(v -> dispatchTakePictureIntent());
 
         // Fetch the tags from Firestore
         fetchTagsFromFirestore();
@@ -216,16 +191,18 @@ public class AddItemActivity extends AppCompatActivity {
      * activity to ensure that the tagList is up-to-date.
      */
     private void fetchTagsFromFirestore() {
-        firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
-            @Override
-            public void onTagsFetched(List<String> tags) { // this will make sure to fetch all tags from database into the tags list
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Fetch the tags from Firestore
+        db.collection("tags").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
                 tagList.clear();
-                tagList.addAll(tags);
-            }
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
-                // Handle error
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    tagList.add(document.getString("name"));
+                }
+                // Now that the tags are fetched, you can enable the 'Add Tags' button
+            } else {
+                Log.w(TAG, "Error getting documents: ", task.getException());
             }
         });
     }
@@ -306,7 +283,7 @@ public class AddItemActivity extends AppCompatActivity {
      * if successful, the activity finishes and notifies the calling activity with a success flag.
      * </p>
      * <p>
-     * Note: This method relies on the 'convertItemToMap' method to convert the
+     * Note: This method relies on the {@link #convertItemToMap(Item)} method to convert the
      * {@link Item} object into a {@link Map} for Firestore storage.
      * </p>
      */
@@ -316,11 +293,11 @@ public class AddItemActivity extends AppCompatActivity {
         Item newItem = new Item();
 
         // Set name, description, make, model, and comment directly on the Item object
-        newItem.setName(nameField.getText().toString());
-        newItem.setDescription(descriptionField.getText().toString());
-        newItem.setMake(makeField.getText().toString());
-        newItem.setModel(modelField.getText().toString());
-        newItem.setComment(commentField.getText().toString());
+        newItem.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
+        newItem.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
+        newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
+        newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
+        newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
 
         String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
         newItem.setUsername(currentUsername); // Set the username before saving
@@ -334,36 +311,30 @@ public class AddItemActivity extends AppCompatActivity {
             Date date = sdf.parse(dateString);
             if (date != null) {
                 newItem.setDateOfPurchase(date);
-            } catch (ParseException e) {
-                // This should not happen as you have already checked the date
-                e.printStackTrace();
+            } else {
+                Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+                return;
             }
-        } else {
-            Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+        } catch (ParseException e) {
+            Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
             return;
         }
 
         // Parse and set the estimated value
         try {
-            double estimatedValue = Double.parseDouble(valueField.getText().toString());
+            double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
             newItem.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid number format for value", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(AddItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
+            double estimatedValue = 0;
         }
 
         // Parse and set the tags
         newItem.setTags(selectedTags);
 
-        // Add the item to Firestore
-        firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
-            @Override
-            public void onItemAdded(String itemId) {
-                Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                // Handle success
-                finishWithResult(true);
-            }
-        });     
+        // Now, use the Firestore API to add the Item object
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         // Convert Item object to Map for Firestore
         Map<String, Object> itemMap = convertItemToMap(newItem);
 
@@ -467,33 +438,8 @@ public class AddItemActivity extends AppCompatActivity {
         itemMap.put("tags", item.getTags());
         itemMap.put("imageUris", item.getImageUris());
         itemMap.put("username", item.getUsername());
-
         return itemMap;
     }
 
 
-    public boolean isValidDate(String dateString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        sdf.setLenient(false); // This will make sure SimpleDateFormat doesn't adjust dates on its own
-
-        try {
-            Date date = sdf.parse(dateString);
-
-            // Extract the year, month, and day to perform additional checks
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH) + 1; // Month is 0-based in Calendar
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            // Check if month and day are in valid ranges
-            if (month > 12 || day > 31) {
-                return false;
-            }
-
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
-    }
 }
