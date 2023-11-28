@@ -3,6 +3,7 @@ package com.example.letsgogolfing;
 
 //import com.google.firebase.firestore.Exclude;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
     private String id;
 
-    private List<String> imageUris;
+    private ArrayList<String> imageUris;
 
     private String username;
 
@@ -83,11 +84,11 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         return id;
     }
 
-    public List<String> getImageUris() {
+    public ArrayList<String> getImageUris() {
         return imageUris;
     }
 
-    public void setImageUris(List<String> imageUris) {
+    public void setImageUris(ArrayList<String> imageUris) {
         this.imageUris = imageUris;
     }
 

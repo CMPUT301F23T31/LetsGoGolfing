@@ -2,9 +2,17 @@ package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,11 +21,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /**
  * Activity for editing the details of an item in an Android application.
@@ -34,7 +55,13 @@ public class EditItemActivity extends AppCompatActivity {
     private Item item;
     private FirestoreRepository db;
     private String username;
+    private Uri imageUri;
+
+    private List<String> tempUris = new ArrayList<>();
+
+    private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private static final String TAG = "EditItemActivity";
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
 
     /**
      * Initializes the activity. This method sets up the user interface and initializes
@@ -54,7 +81,7 @@ public class EditItemActivity extends AppCompatActivity {
         item = (Item) getIntent().getSerializableExtra("ITEM");
 
 
-        InitializeEditTextAndButtons(item);
+        InitializeUI(item);
 
         backButton.setOnClickListener(v -> {
             // takes back to home page main_activity
@@ -71,7 +98,11 @@ public class EditItemActivity extends AppCompatActivity {
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
 
         addPhotoButton.setOnClickListener(v -> {
-            // Implement Add Photo
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+            } else {
+                launchCamera();
+            }
         });
 
         saveButton.setOnClickListener(v -> {
@@ -92,6 +123,14 @@ public class EditItemActivity extends AppCompatActivity {
                 }
             });
         });
+
+        cameraActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
+                        // Handle the taken photo, similar to uploadImage in AddItemActivity
+                        uploadImage(imageUri);
+                    }
+        });
     }
 
 
@@ -101,7 +140,7 @@ public class EditItemActivity extends AppCompatActivity {
      *
      * @param item The item to be edited, passed through the Intent.
      */
-    private void InitializeEditTextAndButtons(Item item) {
+    private void InitializeUI(Item item) {
         // Initialize EditTexts
         name = findViewById(R.id.name_edit_text);
         description = findViewById(R.id.description_edit_text);
@@ -127,7 +166,64 @@ public class EditItemActivity extends AppCompatActivity {
         comment.setText(item.getComment());
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
+        tempUris = item.getImageUris();
         loadTags();
+    }
+
+
+
+
+
+    private void launchCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        imageUri = createImageFile();
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraActivityResultLauncher.launch(cameraIntent);
+    }
+
+    // Implement the createImageFile method
+    private Uri createImageFile(){
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String imageFileName = "Cliche" + timeStamp;
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        return imageUri;
+    }
+
+    // Implement the uploadImage method
+    private void uploadImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageData = baos.toByteArray();
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
+            StorageReference imagesRef = storageRef.child("images/" + photoFileName);
+
+            UploadTask uploadTask = imagesRef.putBytes(imageData);
+            uploadTask.addOnFailureListener(exception -> {
+                Log.e("Firebase Upload", "Upload failed", exception);
+                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                // Get the download URL
+                imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    if (tempUris == null) {
+                        tempUris = new ArrayList<>();
+                    }
+                    tempUris.add(downloadUri.toString());
+                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                });
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -235,5 +331,17 @@ public class EditItemActivity extends AppCompatActivity {
         item.setSerialNumber(serial.getText().toString());
         item.setComment(comment.getText().toString());
         item.setTags(selectedTags);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

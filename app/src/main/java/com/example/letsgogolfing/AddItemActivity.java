@@ -61,7 +61,7 @@ public class AddItemActivity extends AppCompatActivity {
     private Item item;
     private static final String TAG = "EditItemActivity";
 
-    private List<String> tempUris = new ArrayList<>();
+    private ArrayList<String> tempUris = new ArrayList<>();
 
     private FirestoreRepository firestoreRepository;
 
@@ -523,7 +523,6 @@ public class AddItemActivity extends AppCompatActivity {
         itemMap.put("comment", item.getComment());
         itemMap.put("tags", item.getTags());
         itemMap.put("imageUris", item.getImageUris());
-        itemMap.put("username", item.getUsername());
         return itemMap;
     }
 

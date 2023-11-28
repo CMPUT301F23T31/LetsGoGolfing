@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+        scanItemButton = findViewById(R.id.scan_item_button);
         scanItemButton.setOnClickListener(v -> {
             // Check for camera permission before launching the camera
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -225,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),

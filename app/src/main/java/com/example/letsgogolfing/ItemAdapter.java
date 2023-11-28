@@ -24,7 +24,6 @@ public class ItemAdapter extends BaseAdapter {
     private List<Item> items;
     private LayoutInflater inflater;
 
-    private String currentUsername;
 
 
     private boolean isSelectModeEnabled = false;
@@ -47,11 +46,10 @@ public class ItemAdapter extends BaseAdapter {
      * @param context The context of the activity that is using the adapter.
      * @param items   The list of items to be displayed.
      */
-    public ItemAdapter(Context context, List<Item> items, String currentUsername) {
+    public ItemAdapter(Context context, List<Item> items) {
         this.context = context;
         this.items = items;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.currentUsername = currentUsername;
     }
 
 
@@ -183,14 +181,8 @@ public class ItemAdapter extends BaseAdapter {
      * @param newItems The new list of items to update the adapter with.
      */
     public void updateItems(List<Item> newItems) {
-        List<Item> filteredItems = new ArrayList<>();
-        for (Item item : newItems) {
-            if (item.getUsername() != null && item.getUsername().equals(currentUsername)) {
-                filteredItems.add(item);
-            }
-        }
         this.items.clear();
-        this.items.addAll(filteredItems);
+        this.items.addAll(newItems);
         notifyDataSetChanged();
     }
 
