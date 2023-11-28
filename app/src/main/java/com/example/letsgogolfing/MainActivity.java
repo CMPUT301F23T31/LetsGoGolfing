@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
-    private FirestoreRepository firestoreRepository;
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
@@ -80,26 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
-    /**
-     * Updates the total value text view with the sum of estimated values of all items.
-     *
-     * @param items The list of items whose values are to be summed.
-     */
-    private void updateTotalValue(List<Item> items) {
-        double totalValue = 0;
-        for (Item item : items) {
-            totalValue += item.getEstimatedValue(); // Assuming getEstimatedValue() returns a double
-        }
-
-        TextView totalValueTextView = findViewById(R.id.totalValue);
-        totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
-    }
-
-
-
-
-
     /**
      * Initializes the activity with the required layout and sets up the item grid adapter.
      * It also configures click listeners for the item grid and other UI components.
@@ -112,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        firestoreRepository = new FirestoreRepository();
 
         itemGrid = findViewById(R.id.itemGrid);
         String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);

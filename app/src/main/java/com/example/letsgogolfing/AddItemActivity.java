@@ -39,6 +39,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -270,6 +271,75 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
+    public boolean isValidDate(String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        sdf.setLenient(false); // This will make sure SimpleDateFormat doesn't adjust dates on its own
+        try {
+            Date date = sdf.parse(dateString);
+            if (date == null) {
+                return false;
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH is zero-based
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            if (year < 1900 || year > Calendar.getInstance().get(Calendar.YEAR)) {
+                return false; // Year is out of range
+            }
+
+            if (month < 1 || month > 12) {
+                return false; // Month is out of range
+            }
+
+            if (day < 1 || day > getDaysInMonth(month, year)) {
+                return false; // Day is out of range
+            }
+
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the number of days in a given month and year.
+     *
+     * @param month The month (1-12).
+     * @param year The year.
+     * @return The number of days in the month.
+     */
+    private int getDaysInMonth(int month, int year) {
+        switch (month) {
+            case 2: // February
+                if (isLeapYear(year)) {
+                    return 29;
+                } else {
+                    return 28;
+                }
+            case 4: case 6: case 9: case 11: // April, June, September, November
+                return 30;
+            default:
+                return 31;
+        }
+    }
+
+    /**
+     * Checks if a given year is a leap year.
+     *
+     * @param year The year.
+     * @return True if it's a leap year, false otherwise.
+     */
+    private boolean isLeapYear(int year) {
+        if (year % 4 != 0) {
+            return false;
+        } else if (year % 100 != 0) {
+            return true;
+        } else return year % 400 == 0;
+    }
 
 
     /**
@@ -306,6 +376,12 @@ public class AddItemActivity extends AppCompatActivity {
 
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
+
+        if (!isValidDate(dateString)) {
+            Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+            return; // Exit the method if the date is not valid
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
             Date date = sdf.parse(dateString);
