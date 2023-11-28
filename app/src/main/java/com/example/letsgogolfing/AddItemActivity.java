@@ -72,6 +72,27 @@ public class AddItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item_page);
 
+        Item item = (Item) getIntent().getSerializableExtra("item");
+        if (item != null) {
+            ((EditText) findViewById(R.id.nameField)).setText(item.getName());
+            ((EditText) findViewById(R.id.descriptionField)).setText(item.getDescription());
+            ((EditText) findViewById(R.id.makeField)).setText(item.getMake());
+            ((EditText) findViewById(R.id.modelField)).setText(item.getModel());
+            ((EditText) findViewById(R.id.commentField)).setText(item.getComment());
+            ((EditText) findViewById(R.id.serialField)).setText(item.getSerialNumber());
+
+            // limit the number of decimals in the value field to 2
+            double value = item.getEstimatedValue();
+            String valueString = String.format("%.2f", value);
+
+
+            ((EditText) findViewById(R.id.valueField)).setText(valueString);
+
+            // set the date as todays current date in 'yyyy-mm-dd' format
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            ((EditText) findViewById(R.id.dateField)).setText(sdf.format(new Date()));
+        }
+
         // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> saveItem());
@@ -278,10 +299,18 @@ public class AddItemActivity extends AppCompatActivity {
                     data.putExtra("item_added", true);
                     setResult(RESULT_OK, data);
                     finish();
+                    navigateToMainActivity();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void navigateToMainActivity() {
+        Intent intent = new Intent(AddItemActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish(); // Close the current activity
     }
 
     /**

@@ -25,11 +25,16 @@
             android:scaleType="fitCenter"
             android:contentDescription="@string/captured_image" />
 
-        <Button
-            android:id="@+id/home_button"
+        <TextView
+            android:id="@+id/loading_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Done" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:fontFamily="cursive"
+            android:text="Loading"
+            android:textSize="32sp"
+            android:textStyle="bold" />
 
     </RelativeLayout>
 </RelativeLayout>

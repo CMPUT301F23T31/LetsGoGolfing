@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +21,7 @@ import okhttp3.Response;
 public class BarcodeFetchInfo {
 
 
-    public void fetchProductDetails(String upc) throws IOException, JSONException {
+    public void fetchProductDetails(String upc, OnProductFetchedListener listener) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient.Builder()
         .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
         .writeTimeout(20, TimeUnit.SECONDS) // write timeout
@@ -47,8 +48,11 @@ public class BarcodeFetchInfo {
                     try {
                         JSONObject Jobject = new JSONObject(jsonData);
                         JSONArray Jarray = Jobject.getJSONArray("items");
-
+                        Item item = new Item();
                         for (int i = 0; i < Jarray.length(); i++) {
+
+
+
                             JSONObject object = Jarray.getJSONObject(i);
                             String brand = object.getString("brand");
                             String model = object.getString("model");
@@ -62,7 +66,7 @@ public class BarcodeFetchInfo {
                                 tags.add(categoryParts[categoryParts.length - 1]);
                             }
                             String title = object.getString("title");
-                            
+
                             String upc = object.getString("upc");
                             String description = object.getString("description");
                             double lowestPrice = object.getDouble("lowest_recorded_price");
@@ -75,7 +79,19 @@ public class BarcodeFetchInfo {
                                 JSONObject offer = offers.getJSONObject(j);
                                 Log.d("Offer Details", offer.getString("domain") + "\t" + offer.getString("title") + "\t" + offer.getString("price"));
                             }
+
+                            item.setName(title);
+                            item.setMake(brand);
+                            item.setModel(model);
+                            item.setEstimatedValue(averagePrice);
+                            item.setTags(tags);
+                            item.setDescription(description);
+                            item.setSerialNumber(upc);
+                            Date date = new Date();
+                            item.setDateOfPurchase(date);
                         }
+
+                        listener.onProductFetched(item);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -83,5 +99,14 @@ public class BarcodeFetchInfo {
             }
         });
     }
+
+    public interface OnProductFetchedListener {
+        void onProductFetched(Item item);
+    }
+
+
+
+
+
 }
 

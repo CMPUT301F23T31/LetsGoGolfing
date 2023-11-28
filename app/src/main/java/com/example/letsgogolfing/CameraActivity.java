@@ -57,6 +57,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -115,9 +116,6 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
         );
-
-        Button back_to_main = findViewById(R.id.home_button);
-        back_to_main.setOnClickListener(v -> finish());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
@@ -269,7 +267,14 @@ public class CameraActivity extends AppCompatActivity {
                                 // Log or print the barcode value
                                 Log.d("Barcode Value", "Barcode: " + barcodeValue);
                                 try{
-                                    barcodeFetchInfo.fetchProductDetails(barcodeValue);
+                                    barcodeFetchInfo.fetchProductDetails(barcodeValue, new BarcodeFetchInfo.OnProductFetchedListener() {
+                                        @Override
+                                        public void onProductFetched(Item item) {
+                                            Intent intent = new Intent(context, AddItemActivity.class);
+                                            intent.putExtra("item", item); // Assuming Item is Serializable
+                                            context.startActivity(intent);
+                                        }
+                                    });
                                 } catch (Exception e) {
                                     Log.e("Barcode Fetch", "Error fetching barcode", e);
                                 }
