@@ -4,11 +4,21 @@ package com.example.letsgogolfing;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import android.Manifest;
+
 
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,9 +31,17 @@ import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.mlkit.vision.barcode.Barcode;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.common.InputImage;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import java.util.Set;
@@ -36,6 +54,11 @@ import java.util.Set;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private Uri imageUri;
+
+    private static final int CAMERA_REQUEST = 2104;
+    private static final int MY_CAMERA_PERMISSION_CODE = 420;
+
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
@@ -45,6 +68,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton selectButton;
     private ImageButton deleteButton;
     private ImageView scanItemButton;
+
+    private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
+
+    CameraActivity cameraActivity = new CameraActivity();
+
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -212,6 +240,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
@@ -247,16 +277,125 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        scanItemButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create an Intent to start CameraActivity
-                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                intent.putExtra(CameraActivity.MODE_KEY, CameraActivity.MODE_BARCODE);
-                startActivity(intent);
+        cameraActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // Image captured successfully
+                        if (imageUri != null) {
+                            processImageForBarcode(imageUri);
+                        }
+                    }
+                });
+
+
+
+
+        scanItemButton.setOnClickListener(v -> {
+            // Check for camera permission before launching the camera
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                imageUri = createImageFile(); // Ensure this method returns a valid Uri
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                cameraActivityResultLauncher.launch(cameraIntent);
+            } else {
+                // Request camera permission if not granted
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
             }
         });
+
+
+
     }
+
+    public void processImageForBarcode(Uri imageUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            processImageWithMLKit(this, bitmap);
+        } catch (IOException e) {
+            Log.e("CameraActivity", "Error processing barcode image", e);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, launch the camera
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                imageUri = createImageFile();
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                cameraActivityResultLauncher.launch(cameraIntent);
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Camera permission is required", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
+    private void processImageWithMLKit(Context context, Bitmap bitmap) {
+        BarcodeScannerActivity barcodeScannerActivity = new BarcodeScannerActivity();
+        BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
+        try {
+            InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
+                    .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
+                    .build();
+
+            BarcodeScanner scanner = BarcodeScanning.getClient(options);
+
+            scanner.process(image)
+                    .addOnSuccessListener(barcodes -> {
+                        // Check if list of barcodes is not empty
+                        if (!barcodes.isEmpty()) {
+                            // Iterate through the barcodes
+                            for (Barcode barcode : barcodes) {
+                                // Get raw value of the barcode
+                                String barcodeValue = barcode.getRawValue();
+                                // Log or print the barcode value
+                                Log.d("Barcode Value", "Barcode: " + barcodeValue);
+                                try{
+                                    barcodeFetchInfo.fetchProductDetails(barcodeValue, new BarcodeFetchInfo.OnProductFetchedListener() {
+                                        @Override
+                                        public void onProductFetched(Item item) {
+                                            Intent intent = new Intent(context, AddItemActivity.class);
+                                            intent.putExtra("item", item); // Assuming Item is Serializable
+                                            context.startActivity(intent);
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    Log.e("Barcode Fetch", "Error fetching barcode", e);
+                                }
+
+                                // You can also handle the barcode value as needed
+                                // For example, updating UI, calling a method, etc.
+                            }
+                        } else {
+                            Log.d("Barcode Processing", "No barcodes found");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle any errors during processing
+                        Log.e("Barcode Processing", "Error processing barcode", e);
+                    });
+        } catch (Exception e) {
+            Log.e("Image Processing", "Error processing image", e);
+        }
+    }
+
+    private Uri createImageFile(){
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String imageFileName = "Cliche" + timeStamp;
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        return imageUri;
+    }
+
 
 
 }

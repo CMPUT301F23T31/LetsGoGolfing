@@ -4,9 +4,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -41,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import android.Manifest;
 
 /**
  * Activity for adding a new item to the inventory.
@@ -58,6 +63,18 @@ public class AddItemActivity extends AppCompatActivity {
 
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
+
+    private Uri imageUri;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+
+    private ActivityResultLauncher<Intent> cameraActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
+                    // Handle the taken photo
+                    uploadImage(imageUri);
+                    tempUri = imageUri.toString();
+                }
+            });
 
 
     /**
@@ -109,8 +126,6 @@ public class AddItemActivity extends AppCompatActivity {
         fetchTagsFromFirestore();
 
         // add photo button listener
-        Button add_photo_button = findViewById(R.id.addPhotoBtn);
-
 
         ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -127,12 +142,46 @@ public class AddItemActivity extends AppCompatActivity {
                 }
         );
 
+        Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> {
-            Intent intent = new Intent(AddItemActivity.this, CameraActivity.class);
-            intent.putExtra(CameraActivity.MODE_KEY, CameraActivity.MODE_PHOTO);
-            cameraActivityResultLauncher.launch(intent);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+            } else {
+                launchCamera();
+            }
         });
     }
+
+    private void launchCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        imageUri = createImageFile();
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraActivityResultLauncher.launch(cameraIntent);
+    }
+
+    private Uri createImageFile(){
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String imageFileName = "Cliche" + timeStamp;
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        return imageUri;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
 
     /**
      * Fetches tags from Firestore.

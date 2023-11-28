@@ -111,18 +111,13 @@ public class CameraActivity extends AppCompatActivity {
                             finish();
                         } else if (mode == MODE_BARCODE) {
                             // Handle the result for barcode mode
-                            processImageForBarcode(imageUri);
                         }
                     }
                 }
         );
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-        } else {
-            launchCamera(mode); // Launch camera based on mode
-        }
     }
+
 
     private void launchCamera(int mode) {
         if (mode == MODE_PHOTO || mode == MODE_BARCODE) {
@@ -133,14 +128,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    private void processImageForBarcode(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            processImageWithMLKit(this, bitmap);
-        } catch (IOException e) {
-            Log.e("CameraActivity", "Error processing barcode image", e);
-        }
-    }
+
 
     private void uploadImage(Uri imageUri) {
         try {
@@ -244,56 +232,7 @@ public class CameraActivity extends AppCompatActivity {
     //2 options for processing image for GTIN: Uri or Bitmap
 
 
-    private void processImageWithMLKit(Context context, Bitmap bitmap) {
-        BarcodeScannerActivity barcodeScannerActivity = new BarcodeScannerActivity();
-        BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
-        try {
-            InputImage image = InputImage.fromBitmap(bitmap, 0);
 
-            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
-                    .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
-                    .build();
-
-            BarcodeScanner scanner = BarcodeScanning.getClient(options);
-
-            scanner.process(image)
-                    .addOnSuccessListener(barcodes -> {
-                        // Check if list of barcodes is not empty
-                        if (!barcodes.isEmpty()) {
-                            // Iterate through the barcodes
-                            for (Barcode barcode : barcodes) {
-                                // Get raw value of the barcode
-                                String barcodeValue = barcode.getRawValue();
-                                // Log or print the barcode value
-                                Log.d("Barcode Value", "Barcode: " + barcodeValue);
-                                try{
-                                    barcodeFetchInfo.fetchProductDetails(barcodeValue, new BarcodeFetchInfo.OnProductFetchedListener() {
-                                        @Override
-                                        public void onProductFetched(Item item) {
-                                            Intent intent = new Intent(context, AddItemActivity.class);
-                                            intent.putExtra("item", item); // Assuming Item is Serializable
-                                            context.startActivity(intent);
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    Log.e("Barcode Fetch", "Error fetching barcode", e);
-                                }
-
-                                // You can also handle the barcode value as needed
-                                // For example, updating UI, calling a method, etc.
-                            }
-                        } else {
-                            Log.d("Barcode Processing", "No barcodes found");
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        // Handle any errors during processing
-                        Log.e("Barcode Processing", "Error processing barcode", e);
-                    });
-        } catch (Exception e) {
-            Log.e("Image Processing", "Error processing image", e);
-        }
-    }
 
     //for testing barcode detection
     private void downloadAndProcessImage(Context context, String imagePath) {
@@ -301,7 +240,6 @@ public class CameraActivity extends AppCompatActivity {
         final long ONE_MEGABYTE = 1024 * 1024;
         imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            processImageWithMLKit(context, bitmap);
         }).addOnFailureListener(exception -> {
             Log.e("Firebase Storage", "Failed to download image", exception);
         });
