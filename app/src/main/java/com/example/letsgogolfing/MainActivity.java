@@ -40,6 +40,7 @@ import java.util.Set;
  */
 public class MainActivity extends AppCompatActivity {
 
+    public static boolean itemsFetched;
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
     private FirestoreRepository firestoreRepository;
@@ -74,7 +75,9 @@ public class MainActivity extends AppCompatActivity {
         TextView totalValueTextView = findViewById(R.id.totalValue);
         totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
     }
-
+    boolean getItemsFetched(){
+        return itemsFetched;
+    }
 
     /**
      * Fetches items from the Firestore database and updates the grid adapter.
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemsFetched(List<Item> items) {
                 itemAdapter.updateItems(items);
                 updateTotalValue(items);
+                itemsFetched = true;
             }
 
             @Override
@@ -117,15 +121,11 @@ public class MainActivity extends AppCompatActivity {
                 for (int position : positions) {
                     itemAdapter.removeItem(position);
                 }
-                itemAdapter.clearSelection();
+                clearSelection();
                 itemAdapter.notifyDataSetChanged();
                 updateTotalValue(itemAdapter.getItems());
                 Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
 
-                // Reset select mode
-                isSelectMode = false;
-                itemAdapter.setSelectModeEnabled(false);
-                deleteButton.setVisibility(View.GONE);
             }
 
             @Override
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 //            isSelectMode = false;
 //            itemAdapter.setSelectModeEnabled(false);
 //            deleteButton.setVisibility(View.GONE);
-            clearSelection();
+
         });
     }
 

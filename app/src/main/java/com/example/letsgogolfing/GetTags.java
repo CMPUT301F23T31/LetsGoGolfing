@@ -98,4 +98,5 @@ public class GetTags {
             Toast.makeText(activity, "Error showing dialog: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
 }
