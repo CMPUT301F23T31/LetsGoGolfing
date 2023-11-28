@@ -20,6 +20,15 @@ public class FirestoreRepository {
     }
 
     /**
+     * Gets the current user's ID (username).
+     *
+     * @return The current user's ID (username).
+     */
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+
+    /**
      * Fetches all items from the Firestore database.
      * This method retrieves a collection of items stored in Firestore. Each document is converted into an {@link Item} object.
      * The method populates a list of {@link Item} objects with data from the Firestore documents and passes this list to the {@link OnItemsFetchedListener} upon successful retrieval.

@@ -81,6 +81,7 @@ public class EditItemActivity extends AppCompatActivity {
                 public void onItemUpdated() {
                     Toast.makeText(EditItemActivity.this, "Successfully updated item", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
+                    intent.putExtra("username", username);
                     intent.putExtra("ITEM", item);
                     startActivity(intent);
                 }

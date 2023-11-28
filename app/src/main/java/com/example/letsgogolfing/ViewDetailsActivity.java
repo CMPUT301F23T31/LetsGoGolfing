@@ -58,6 +58,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
             item = (Item) getIntent().getSerializableExtra("ITEM");
             Log.d(TAG, "Item ID: " + item.getId());
+            intent.putExtra("username", username); //THIS IS IMPORTANT!!!!
             intent.putExtra("ITEM", item);
             startActivity(intent);
         });
