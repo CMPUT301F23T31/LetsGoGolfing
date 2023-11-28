@@ -35,7 +35,6 @@
             android:exported="true" />
         <activity android:name=".MainActivity"
             android:exported="true" />
-        <activity android:name=".CameraActivity"></activity>
         <activity android:name=".ViewPhotoActivity"></activity>
         <provider
             android:name="androidx.core.content.FileProvider"

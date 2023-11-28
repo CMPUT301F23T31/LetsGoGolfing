@@ -1,6 +1,7 @@
 package com.example.letsgogolfing;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Source;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!username.isEmpty()) {
             db.collection("users") // Assuming you have a 'users' collection
                     .whereEqualTo("username", username)
-                    .get()
+                    .get(Source.SERVER)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             if (!task.getResult().isEmpty()) {
@@ -91,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!username.isEmpty()) {
             db.collection("users") // Assuming you have a 'users' collection
                     .whereEqualTo("username", username)
-                    .get()
+                    .get(Source.SERVER)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             if (task.getResult().isEmpty()) {
@@ -116,12 +118,14 @@ public class LoginActivity extends AppCompatActivity {
      * @param username A String representing the username to be passed to the MainActivity.
      */
     private void proceedToMain(String username) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().putString("username", username).apply();
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("username", username);
+        editor.apply();
+
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
-
-
     }
 
     /**

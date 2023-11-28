@@ -300,6 +300,9 @@ public class AddItemActivity extends AppCompatActivity {
         newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
         newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
 
+        String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
+        newItem.setUsername(currentUsername); // Set the username before saving
+
         if (tempUri != null) {
             newItem.setImageUri(tempUri.toString());
         }
@@ -432,6 +435,7 @@ public class AddItemActivity extends AppCompatActivity {
         itemMap.put("comment", item.getComment());
         itemMap.put("tags", item.getTags());
         itemMap.put("imageUri", item.getImageUri());
+        itemMap.put("username", item.getUsername());
         return itemMap;
     }
 

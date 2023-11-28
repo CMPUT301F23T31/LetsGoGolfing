@@ -22,6 +22,8 @@ public class Item implements Comparable<Item>, java.io.Serializable {
 
     private String imageUri;
 
+    private String username;
+
     private String name;
     private String description;
     private Date dateOfPurchase; // im assuming its "of purchase"?
@@ -64,6 +66,14 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         this.estimatedValue = estimatedValue;
         this.comment = comment;
         this.tags = tags;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /**

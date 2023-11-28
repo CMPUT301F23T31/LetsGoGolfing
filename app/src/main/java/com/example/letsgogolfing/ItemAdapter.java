@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,9 @@ public class ItemAdapter extends BaseAdapter {
     private Context context;
     private List<Item> items;
     private LayoutInflater inflater;
+
+    private String currentUsername;
+
 
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
@@ -43,10 +47,11 @@ public class ItemAdapter extends BaseAdapter {
      * @param context The context of the activity that is using the adapter.
      * @param items   The list of items to be displayed.
      */
-    public ItemAdapter(Context context, List<Item> items) {
+    public ItemAdapter(Context context, List<Item> items, String currentUsername) {
         this.context = context;
         this.items = items;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.currentUsername = currentUsername;
     }
 
 
@@ -178,10 +183,17 @@ public class ItemAdapter extends BaseAdapter {
      * @param newItems The new list of items to update the adapter with.
      */
     public void updateItems(List<Item> newItems) {
-        items.clear();
-        items.addAll(newItems);
+        List<Item> filteredItems = new ArrayList<>();
+        for (Item item : newItems) {
+            if (item.getUsername() != null && item.getUsername().equals(currentUsername)) {
+                filteredItems.add(item);
+            }
+        }
+        this.items.clear();
+        this.items.addAll(filteredItems);
         notifyDataSetChanged();
     }
+
 
     /**
      * Remove item at position.
@@ -193,6 +205,7 @@ public class ItemAdapter extends BaseAdapter {
             items.remove(position);
         }
     }
+
 
     // ViewHolder pattern to optimize performance
     private static class ViewHolder {

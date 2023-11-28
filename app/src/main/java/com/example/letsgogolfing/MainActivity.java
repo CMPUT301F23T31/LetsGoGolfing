@@ -71,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
 
-    CameraActivity cameraActivity = new CameraActivity();
-
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -96,7 +94,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         itemGrid = findViewById(R.id.itemGrid);
-        itemAdapter = new ItemAdapter(this, new ArrayList<>());
+        String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
+        itemAdapter = new ItemAdapter(this, new ArrayList<>(), currentUsername);
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
@@ -252,22 +251,29 @@ public class MainActivity extends AppCompatActivity {
      * It also updates the total value of all items displayed.
      */
     private void fetchItemsAndRefreshAdapter() {
+        String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<Item> newItems = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Item item = document.toObject(Item.class);
-                    item.setId(document.getId()); // Make sure to set the document ID
-                    newItems.add(item);
-                }
-                itemAdapter.updateItems(newItems); // Assuming your adapter has this method
-                updateTotalValue(newItems);
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
-            }
-        });
+
+        db.collection("items")
+                .get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<Item> newItems = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Item item = document.toObject(Item.class);
+                            item.setId(document.getId());
+                            if (item.getUsername() != null && item.getUsername().equals(currentUsername)) {
+                                newItems.add(item);
+                            }
+                        }
+                        itemAdapter.updateItems(newItems); // Update your adapter with the filtered list
+                        updateTotalValue(newItems);
+                    } else {
+                        Log.w(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
     }
+
+
 
     /**
      * Deletes the selected items from the Firestore database and updates the UI accordingly.
