@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -62,6 +63,8 @@ public class AddItemActivity extends AppCompatActivity {
 
     private List<String> tempUris = new ArrayList<>();
 
+    private FirestoreRepository firestoreRepository;
+
 
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
@@ -89,6 +92,13 @@ public class AddItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item_page);
+
+        // Retrieve the current username from SharedPreferences
+        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String currentUsername = sharedPref.getString("username", null);
+
+        // Initialize FirestoreRepository with the current username
+        firestoreRepository = new FirestoreRepository(currentUsername);
 
         Item item = (Item) getIntent().getSerializableExtra("item");
         if (item != null) {

@@ -2,9 +2,7 @@ package com.example.letsgogolfing;
 
 
 //import com.google.firebase.firestore.Exclude;
-import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -93,9 +91,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         this.imageUris = imageUris;
     }
 
-    public void addImageUri(String imageUri) {
-        this.imageUris.add(imageUri);
-    }
+
     /**
      * Sets the unique identifier for this item.
      *

@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.List;
+
 /**
  * Activity for viewing the user's profile.
  */
@@ -20,6 +22,8 @@ public class ViewProfileActivity extends AppCompatActivity {
     private TextView totalItems;
     private TextView totalCost;
     private TextView userName;
+    private FirestoreRepository firestoreRepository;
+
 
     /**
      * onCreate method for the ViewProfileActivity.
@@ -33,7 +37,13 @@ public class ViewProfileActivity extends AppCompatActivity {
         totalItems = findViewById(R.id.totalItemCount);
         totalCost = findViewById(R.id.totalItemValue);
         userName = findViewById(R.id.nameLabel);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String currentUsername = prefs.getString("username", null);
+
+        firestoreRepository = new FirestoreRepository(currentUsername);
         fetchProfileData();
+
         ImageView homeButton = findViewById(R.id.homeButton);
         homeButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewProfileActivity.this, MainActivity.class);
@@ -69,22 +79,21 @@ public class ViewProfileActivity extends AppCompatActivity {
      * Fetches the user's profile data from Firestore.
      */
     private void fetchProfileData() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                int totalItemCount = 0;
+        firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
+            @Override
+            public void onItemsFetched(List<Item> items) {
+                int totalItemCount = items.size();
                 double totalItemValue = 0;
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Item item = document.toObject(Item.class);
-                    totalItemCount++;
-                    totalItemValue += item.getEstimatedValue(); // Replace with your method to get item value
+                for (Item item : items) {
+                    totalItemValue += item.getEstimatedValue(); // Assuming getEstimatedValue() returns the item value
                 }
                 totalItems.setText(String.valueOf(totalItemCount));
                 totalCost.setText(String.format(getString(R.string.cost_formatting), totalItemValue));
-                SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE); // fetch username from session
-                String username = prefs.getString("username", "No name"); // "No name" is a default value.
-                userName.setText(username);
-            } else {
+                userName.setText(firestoreRepository.getCurrentUserId());
+            }
+
+            @Override
+            public void onError(Exception e) {
                 // Handle the error
             }
         });

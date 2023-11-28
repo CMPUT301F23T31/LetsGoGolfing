@@ -12,10 +12,20 @@ import java.util.Map;
 // so far this only handles fetching tags and adding new items - vedant
 public class FirestoreRepository {
 
-    private final FirebaseFirestore db;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final String currentUserId;
 
-    public FirestoreRepository() {
-        db = FirebaseFirestore.getInstance();
+    public FirestoreRepository(String userId) {
+        this.currentUserId = userId;
+    }
+
+    /**
+     * Gets the current user's ID (username).
+     *
+     * @return The current user's ID (username).
+     */
+    public String getCurrentUserId() {
+        return currentUserId;
     }
 
     /**
@@ -27,9 +37,8 @@ public class FirestoreRepository {
      * @param listener The {@link OnItemsFetchedListener} callback for handling the results of the fetch operation.
      *                 It receives a list of {@link Item} objects on successful data retrieval or an exception on failure.
      */
-
     public void fetchItems(OnItemsFetchedListener listener) {
-        db.collection("items").get().addOnCompleteListener(task -> {
+        db.collection("users").document(currentUserId).collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<Item> items = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -42,6 +51,29 @@ public class FirestoreRepository {
                 listener.onError(task.getException());
             }
         });
+    }
+
+    public void fetchItemById(String itemId, OnItemFetchedListener listener) {
+        db.collection("users").document(currentUserId).collection("items").document(itemId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Item item = documentSnapshot.toObject(Item.class);
+                        if (item != null) {
+                            item.setId(documentSnapshot.getId());
+                            listener.onItemFetched(item);
+                        } else {
+                            listener.onError(new Exception("Error parsing item."));
+                        }
+                    } else {
+                        listener.onError(new Exception("Item not found."));
+                    }
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    public interface OnItemFetchedListener {
+        void onItemFetched(Item item);
+        void onError(Exception e);
     }
 
     /**
@@ -72,7 +104,7 @@ public class FirestoreRepository {
      */
     public void addItem(Item item, OnItemAddedListener listener) {
         Map<String, Object> itemMap = convertItemToMap(item);
-        db.collection("items").add(itemMap)
+        db.collection("users").document(currentUserId).collection("items").add(itemMap)
                 .addOnSuccessListener(documentReference -> listener.onItemAdded(documentReference.getId()))
                 .addOnFailureListener(listener::onError);
     }
@@ -89,7 +121,7 @@ public class FirestoreRepository {
     public void deleteItems(List<String> itemIds, OnItemDeletedListener listener) {
         WriteBatch batch = db.batch();
         for (String id : itemIds) {
-            batch.delete(db.collection("items").document(id));
+            batch.delete(db.collection("users").document(currentUserId).collection("items").document(id));
         }
         batch.commit().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -113,7 +145,7 @@ public class FirestoreRepository {
 
     public void updateItem(String itemId, Item item, OnItemUpdatedListener listener) {
         Map<String, Object> itemMap = convertItemToMap(item);
-        db.collection("items").document(itemId).set(itemMap)
+        db.collection("users").document(currentUserId).collection("items").document(itemId).set(itemMap)
                 .addOnSuccessListener(aVoid -> listener.onItemUpdated())
                 .addOnFailureListener(listener::onError);
     }
@@ -135,6 +167,39 @@ public class FirestoreRepository {
                 listener.onError(task.getException());
             }
         });
+    }
+
+    public void checkUserExists(String username, OnUserExistenceCheckedListener listener) {
+        db.collection("users").document(username).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        listener.onUserExists();
+                    } else {
+                        listener.onUserDoesNotExist();
+                    }
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    public void addUser(String username, OnUserAddedListener listener) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("username", username);
+
+        db.collection("users").document(username).set(user)
+                .addOnSuccessListener(aVoid -> listener.onUserAdded(username))
+                .addOnFailureListener(listener::onError);
+    }
+
+    // Callback interfaces
+    public interface OnUserExistenceCheckedListener {
+        void onUserExists();
+        void onUserDoesNotExist();
+        void onError(Exception e);
+    }
+
+    public interface OnUserAddedListener {
+        void onUserAdded(String userId);
+        void onError(Exception e);
     }
 
 
