@@ -418,6 +418,7 @@ public class AddItemActivity extends AppCompatActivity {
         // Parse and set the tags
         newItem.setTags(selectedTags);
 
+        // FIX THISSSS FIRESTOREREPO
         // Now, use the Firestore API to add the Item object
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
