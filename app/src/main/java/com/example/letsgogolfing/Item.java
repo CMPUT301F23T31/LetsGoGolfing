@@ -16,7 +16,6 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     // ** private String id; ** we may or may not need this? depends if we want to deal with item id's separately
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
     private String id;
-
     private String name;
     private String description;
     private Date dateOfPurchase; // im assuming its "of purchase"?

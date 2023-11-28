@@ -1,5 +1,6 @@
 package com.example.letsgogolfing;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,7 +22,12 @@ public class ManageTagsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_tags);
 
-        firestoreRepository = new FirestoreRepository();
+        // Retrieve the current username from SharedPreferences
+        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String currentUsername = sharedPref.getString("username", null);
+
+        // Initialize FirestoreRepository with the current username
+        firestoreRepository = new FirestoreRepository(currentUsername);
 
         ListView tagsListView = findViewById(R.id.tagsListView);
         tagsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tagsList);
