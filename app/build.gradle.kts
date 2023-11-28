@@ -48,6 +48,8 @@ dependencies {
     implementation("org.json:json:20210307")
     implementation("com.google.android.gms:play-services-vision:20.1.3")
     // Can't get ML Kit to work, using Firebase Vision instead (deprecated)
+    testImplementation ("org.robolectric:robolectric:4.11.1") // use the latest version
+
     // AndroidX Test - Core library
     androidTestImplementation("androidx.test:core:1.5.0")
     // AndroidX Test - Assertions and runner
