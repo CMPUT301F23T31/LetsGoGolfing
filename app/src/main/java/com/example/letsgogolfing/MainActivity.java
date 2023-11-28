@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     // The item was added or updated, so refresh your list
-                    fetchItemsAndRefreshAdapter();
                 }
             });
 
@@ -98,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         itemAdapter = new ItemAdapter(this, new ArrayList<>(), currentUsername);
         itemGrid.setAdapter(itemAdapter);
 
-        fetchItemsAndRefreshAdapter();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,7 +39,31 @@ public class ViewProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ViewProfileActivity.this, MainActivity.class);
             startActivity(intent);
         });
+
+        Button logout_button = findViewById(R.id.logout_button);
+
+        logout_button.setOnClickListener(v -> {
+            logoutUser();
+        });
+
+
+
     }
+
+    private void logoutUser() {
+        // Clear the stored username
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove("username");
+        editor.apply();
+
+        // Navigate back to the LoginActivity
+        Intent intent = new Intent(ViewProfileActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish(); // Close the current activity
+    }
+
 
     /**
      * Fetches the user's profile data from Firestore.

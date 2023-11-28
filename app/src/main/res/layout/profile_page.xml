@@ -100,5 +100,15 @@
 
     </RelativeLayout>
 
+    <Button
+        android:id="@+id/logout_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="168dp"
+        android:layout_marginBottom="383dp"
+        android:text="Logout" />
+
 
 </RelativeLayout>
