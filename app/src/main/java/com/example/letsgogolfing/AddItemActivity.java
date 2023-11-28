@@ -59,7 +59,8 @@ public class AddItemActivity extends AppCompatActivity {
     private Item item;
     private static final String TAG = "EditItemActivity";
 
-    private String tempUri;
+    private List<String> tempUris = new ArrayList<>();
+
 
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
@@ -72,7 +73,6 @@ public class AddItemActivity extends AppCompatActivity {
                 if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
                     // Handle the taken photo
                     uploadImage(imageUri);
-                    tempUri = imageUri.toString();
                 }
             });
 
@@ -136,7 +136,6 @@ public class AddItemActivity extends AppCompatActivity {
                             String imageUriString = data.getStringExtra("imageUri");
                             Uri imageUri = Uri.parse(imageUriString);
                             uploadImage(imageUri); // Call the upload method here
-                            tempUri = imageUriString;
                         }
                     }
                 }
@@ -303,9 +302,7 @@ public class AddItemActivity extends AppCompatActivity {
         String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
         newItem.setUsername(currentUsername); // Set the username before saving
 
-        if (tempUri != null) {
-            newItem.setImageUri(tempUri.toString());
-        }
+        newItem.setImageUris(tempUris);
 
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
@@ -390,20 +387,25 @@ public class AddItemActivity extends AppCompatActivity {
 
             StorageReference storageRef = FirebaseStorage.getInstance().getReference();
             String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child("images/testImages/" + photoFileName);
+            StorageReference imagesRef = storageRef.child("images/" + photoFileName);
 
             UploadTask uploadTask = imagesRef.putBytes(imageData);
             uploadTask.addOnFailureListener(exception -> {
                 Log.e("Firebase Upload", "Upload failed", exception);
                 Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
             }).addOnSuccessListener(taskSnapshot -> {
-                Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
-                // Here you can also update the newItem object with the URL of the uploaded image, if needed
+                // Get the download URL
+                imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    tempUris.add(downloadUri.toString());
+                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                });
             });
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
 
@@ -434,7 +436,7 @@ public class AddItemActivity extends AppCompatActivity {
         itemMap.put("estimatedValue", item.getEstimatedValue());
         itemMap.put("comment", item.getComment());
         itemMap.put("tags", item.getTags());
-        itemMap.put("imageUri", item.getImageUri());
+        itemMap.put("imageUris", item.getImageUris());
         itemMap.put("username", item.getUsername());
         return itemMap;
     }

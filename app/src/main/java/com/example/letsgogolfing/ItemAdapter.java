@@ -158,12 +158,12 @@ public class ItemAdapter extends BaseAdapter {
 
         // Set other properties to the holder's views as needed
 
-        if (item.getImageUri() != null && !item.getImageUri().isEmpty()) {
+        if (item.getImageUris() != null && !item.getImageUris().isEmpty()) {
             Glide.with(context)
-                    .load(item.getImageUri())
+                    .load(item.getImageUris().get(0)) // Load the first image URI
                     .into(holder.imageView);
         } else {
-            holder.imageView.setImageResource(R.drawable.default_image); // Set a default image if no URI is available
+            holder.imageView.setImageResource(R.drawable.default_image); // Set a default image
         }
 
         // Change background color if selected

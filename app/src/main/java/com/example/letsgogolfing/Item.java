@@ -20,7 +20,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
     private String id;
 
-    private String imageUri;
+    private List<String> imageUris;
 
     private String username;
 
@@ -85,14 +85,17 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         return id;
     }
 
-    public String getImageUri() {
-        return imageUri;
+    public List<String> getImageUris() {
+        return imageUris;
     }
 
-    public void setImageUri(String imageUri) {
-        this.imageUri = imageUri;
+    public void setImageUris(List<String> imageUris) {
+        this.imageUris = imageUris;
     }
 
+    public void addImageUri(String imageUri) {
+        this.imageUris.add(imageUri);
+    }
     /**
      * Sets the unique identifier for this item.
      *

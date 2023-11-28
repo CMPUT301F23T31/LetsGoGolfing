@@ -6,10 +6,17 @@ import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import com.example.letsgogolfing.utils.ImageFragment;
 import com.example.letsgogolfing.utils.PhotoStorageManager;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -20,14 +27,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import android.Manifest;
 
 // generate javadocs for ViewDetailsActivity
 /**
@@ -72,11 +90,19 @@ public class ViewDetailsActivity extends AppCompatActivity {
     Button addPhotoButton;
     ImageButton backButton;
 
+    private List<String> tempUris = new ArrayList<>();
+
     private List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
     private List<String> originalTagsList = new ArrayList<>();
     private static final String TAG = "ViewDetailsActivity";
+
+    private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
+
+    private Uri imageUri;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+
 
 
     /**
@@ -90,6 +116,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         // Retrieve the item from the intent
         item = (Item) getIntent().getSerializableExtra("ITEM");
+
+        tempUris = item.getImageUris();
+
+
 
 
         InitializeEditTextAndButtons(item);
@@ -189,6 +219,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
             updatedValues.put("estimatedValue", updatedEstimatedValue);
             updatedValues.put("tags", selectedTags);
 
+            if (!tempUris.isEmpty()) {
+                updatedValues.put("imageUris", tempUris);
+            }
+
             // Get the document ID from the item
             String documentId = item.getId(); // Assuming 'item' is an instance variable representing the current item
 
@@ -200,6 +234,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
                         Toast.makeText(ViewDetailsActivity.this, "Changes saved", Toast.LENGTH_SHORT).show();
                         // Update originalTagsList to reflect the newly saved tags
                         originalTagsList = new ArrayList<>(selectedTags);
+                        tempUris.clear();
                         TransitionToViewItem(v);
 
                     })
@@ -209,6 +244,25 @@ public class ViewDetailsActivity extends AppCompatActivity {
                     });
         });
 
+        cameraActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
+                        // Handle the taken photo, similar to uploadImage in AddItemActivity
+                        uploadImage(imageUri);
+                    }
+                });
+
+        addPhotoButton = findViewById(R.id.add_photo_button);
+        addPhotoButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+            } else {
+                launchCamera();
+            }
+        });
+
+
+
         Button viewPhotoButton = findViewById(R.id.viewPhotoBtn);
 
         // Set an OnClickListener on the button
@@ -217,17 +271,76 @@ public class ViewDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Create an Intent to start ViewPhotoActivity
                 Intent intent = new Intent(ViewDetailsActivity.this, ViewPhotoActivity.class);
-                
-                // Pass the item ID to ViewPhotoActivity
-                /**change once item id is included in item*/
-                intent.putExtra("itemId", 0);
-                
+
+                // Pass the list of image URIs to ViewPhotoActivity
+                intent.putStringArrayListExtra("imageUris", new ArrayList<>(item.getImageUris()));
+
                 // Start ViewPhotoActivity
                 startActivity(intent);
             }
         });
-    };
+    }
 
+    private void launchCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        imageUri = createImageFile();
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraActivityResultLauncher.launch(cameraIntent);
+    }
+
+    // Implement the createImageFile method
+    private Uri createImageFile(){
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String imageFileName = "Cliche" + timeStamp;
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        return imageUri;
+    }
+
+    // Implement the uploadImage method
+    private void uploadImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageData = baos.toByteArray();
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
+            StorageReference imagesRef = storageRef.child("images/" + photoFileName);
+
+            UploadTask uploadTask = imagesRef.putBytes(imageData);
+            uploadTask.addOnFailureListener(exception -> {
+                Log.e("Firebase Upload", "Upload failed", exception);
+                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                // Get the download URL
+                imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    tempUris.add(downloadUri.toString());
+                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                });
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     /**
      * Transition to edit view.

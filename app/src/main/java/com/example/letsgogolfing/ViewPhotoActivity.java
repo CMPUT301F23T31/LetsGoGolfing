@@ -3,6 +3,7 @@ package com.example.letsgogolfing;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,33 +21,45 @@ import java.util.List;
 public class ViewPhotoActivity extends AppCompatActivity {
     private ImageAdapter imageAdapter;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_photo);
 
-        // Initialize the RecyclerView with an empty adapter
+        // Initialize the RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         imageAdapter = new ImageAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(imageAdapter);
 
-        // Retrieve the itemId as an Integer
-        /** fix this once item ID is properly used */
-        int itemId = getIntent().getIntExtra("itemId", 0);
+        // Retrieve the list of image URIs passed from ViewDetailsActivity
+        List<String> imageUris = getIntent().getStringArrayListExtra("imageUris");
+        if (imageUris != null) {
+            // Convert String URIs to Uri objects
+            List<Uri> uriList = new ArrayList<>();
+            for (String uriString : imageUris) {
+                uriList.add(Uri.parse(uriString));
+            }
 
-        // Convert the itemId to a String
-        String itemIdString = Integer.toString(itemId);
-
-        // Check if the user is signed in
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            displayImagesFromFirebase();
+            // Update the adapter with the image URIs
+            imageAdapter.setImageUris(uriList);
+            imageAdapter.notifyDataSetChanged();
         } else {
-            // Handle the case where the user is not signed in
-            Log.e("Firebase Auth", "User is not signed in");
-            displayImagesFromFirebase();
+            // Handle the case where no image URIs are passed
+            Log.e("ViewPhotoActivity", "No image URIs received");
         }
+
+        Button back_button = findViewById(R.id.back_button);
+        back_button.setOnClickListener(v -> {
+            finish();
+        });
+
+
+
     }
+
 
     public void displayImagesFromFirebase() {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
