@@ -34,14 +34,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.d("ImageAdapter", "Creating view holder for item type " + viewType);
         View view = LayoutInflater.from(context).inflate(R.layout.image_item, parent, false);
-        return new ImageViewHolder(view);
+        return new ImageViewHolder(view, context);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         Uri imageUri = imageUris.get(position);
         Log.d("ImageAdapter", "Binding view holder for item " + position + ": " + imageUri.toString());
-        Glide.with(context).load(imageUri).into(holder.imageView);
+        holder.bind(imageUri);
     }
 
     @Override
@@ -51,10 +51,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        Context context;
 
-    public ImageViewHolder(@NonNull View itemView) {
+    public ImageViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
         imageView = itemView.findViewById(R.id.image_view);
+        this.context = context;
     }
+
+    public void bind(Uri imageUri) {
+        Glide.with(context).load(imageUri).into(imageView);
     }
+}
 }

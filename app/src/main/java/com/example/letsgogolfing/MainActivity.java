@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param items The list of items whose values are to be summed.
      */
-    private void updateTotalValue(List<Item> items) {
+    void updateTotalValue(List<Item> items) {
         double totalValue = 0;
         for (Item item : items) {
             totalValue += item.getEstimatedValue(); // Assuming getEstimatedValue() returns a double
