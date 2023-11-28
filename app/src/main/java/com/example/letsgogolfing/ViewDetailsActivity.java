@@ -30,6 +30,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
     private FirestoreRepository db;
+    private String username;
     private static final String TAG = "ViewDetailsActivity";
 
     /**
@@ -55,6 +56,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
+            item = (Item) getIntent().getSerializableExtra("ITEM");
+            Log.d(TAG, "Item ID: " + item.getId());
             intent.putExtra("ITEM", item);
             startActivity(intent);
         });
@@ -71,6 +74,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
      */
         private void InitializeUI() {
             // Retrieve the item from the intent
+            username = getIntent().getStringExtra("username");
             item = (Item) getIntent().getSerializableExtra("ITEM");
 
             // Instantiate TextViews
@@ -102,7 +106,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
             value.setText(Double.toString(item.getEstimatedValue()));
 
             // Connect to database
-            db = new FirestoreRepository();
+            db = new FirestoreRepository(username);
 
 
             // Set content of Tag Container

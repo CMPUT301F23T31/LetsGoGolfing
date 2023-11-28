@@ -33,6 +33,7 @@ public class EditItemActivity extends AppCompatActivity {
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
     private FirestoreRepository db;
+    private String username;
     private static final String TAG = "EditItemActivity";
 
     /**
@@ -48,6 +49,8 @@ public class EditItemActivity extends AppCompatActivity {
         setContentView(R.layout.edit_item);
 
         // Retrieve the item from the intent
+        username = getIntent().getStringExtra("username");
+        db = new FirestoreRepository(username);
         item = (Item) getIntent().getSerializableExtra("ITEM");
 
 
@@ -73,7 +76,6 @@ public class EditItemActivity extends AppCompatActivity {
 
         saveButton.setOnClickListener(v -> {
             updateItem();
-
             db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
                 @Override
                 public void onItemUpdated() {
@@ -124,7 +126,6 @@ public class EditItemActivity extends AppCompatActivity {
         comment.setText(item.getComment());
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
-        db = new FirestoreRepository();
         loadTags();
     }
 
@@ -202,6 +203,7 @@ public class EditItemActivity extends AppCompatActivity {
 
         builder.setPositiveButton("OK", (dialog, which) -> {
             displayTags(); // Update the display with the selected tags
+            item.setTags(new ArrayList<>(selectedTags));
         });
         builder.setNegativeButton("Cancel", null);
         AlertDialog dialog = builder.create();

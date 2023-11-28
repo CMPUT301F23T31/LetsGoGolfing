@@ -1,5 +1,6 @@
 package com.example.letsgogolfing;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -22,7 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText usernameInput;
     private Button loginButton;
     private Button signUpButton;
-    private FirebaseFirestore db;
+    private FirestoreRepository firestoreRepository;
 
     /**
      * Called when the activity is starting. This is where most initialization should go:
@@ -37,12 +38,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_page); // Set the layout for the activity
-        db = FirebaseFirestore.getInstance();
 
         // Initialize Firestore and UI elements
         usernameInput = findViewById(R.id.usernameInput);
         loginButton = findViewById(R.id.loginButton);
         signUpButton = findViewById(R.id.signUpButton);
+        firestoreRepository = new FirestoreRepository(usernameInput.getText().toString().trim()); // No username needed initially
 
         loginButton.setOnClickListener(v -> attemptLogin());
         signUpButton.setOnClickListener(v -> attemptSignUp());
@@ -57,21 +58,22 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptLogin() {
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
-            db.collection("users").document(username).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && task.getResult().exists()) {
-                                // User exists, proceed to login
-                                proceedToMain(username);
-                            } else {
-                                // User does not exist, prompt to sign up
-                                Toast.makeText(this, "User does not exist, please sign up", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            // Error checking user
-                            Toast.makeText(this, "Error checking user", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            firestoreRepository.checkUserExists(username, new FirestoreRepository.OnUserExistenceCheckedListener() {
+                @Override
+                public void onUserExists() {
+                    proceedToMain(username);
+                }
+
+                @Override
+                public void onUserDoesNotExist() {
+                    Toast.makeText(LoginActivity.this, "User does not exist, please sign up", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(LoginActivity.this, "Error checking user", Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
             Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
         }
@@ -86,21 +88,22 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptSignUp() {
         String username = usernameInput.getText().toString().trim();
         if (!username.isEmpty()) {
-            db.collection("users").document(username).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            if (task.getResult() != null && !task.getResult().exists()) {
-                                // Username does not exist, can create new user
-                                addUserToDatabase(username);
-                            } else {
-                                // Username already exists, prompt to log in
-                                Toast.makeText(this, "Username already exists, please login", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            // Error checking for username
-                            Toast.makeText(this, "Error checking for username", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            firestoreRepository.checkUserExists(username, new FirestoreRepository.OnUserExistenceCheckedListener() {
+                @Override
+                public void onUserExists() {
+                    Toast.makeText(LoginActivity.this, "Username already exists, please login", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onUserDoesNotExist() {
+                    addUserToDatabase(username);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(LoginActivity.this, "Error checking for username", Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
             Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
         }
@@ -113,12 +116,17 @@ public class LoginActivity extends AppCompatActivity {
      * @param username A String representing the username to be added to the database.
      */
     private void addUserToDatabase(String username) {
-        Map<String, Object> user = new HashMap<>();
-        user.put("username", username); // This might be optional since the username is the document ID
+        firestoreRepository.addUser(username, new FirestoreRepository.OnUserAddedListener() {
+            @Override
+            public void onUserAdded(String userId) {
+                proceedToMain(username);
+            }
 
-        db.collection("users").document(username).set(user)
-                .addOnSuccessListener(documentReference -> proceedToMain(username))
-                .addOnFailureListener(e -> Toast.makeText(this, "Error adding user", Toast.LENGTH_SHORT).show());
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(LoginActivity.this, "Error adding user", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -127,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
      * @param username A String representing the username to be passed to the MainActivity.
      */
     private void proceedToMain(String username) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().putString("username", username).apply();
+        getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).edit().putString("username", username).apply();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

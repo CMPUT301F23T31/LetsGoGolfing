@@ -28,7 +28,6 @@ public class FirestoreRepository {
      * @param listener The {@link OnItemsFetchedListener} callback for handling the results of the fetch operation.
      *                 It receives a list of {@link Item} objects on successful data retrieval or an exception on failure.
      */
-
     public void fetchItems(OnItemsFetchedListener listener) {
         db.collection("users").document(currentUserId).collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -43,6 +42,29 @@ public class FirestoreRepository {
                 listener.onError(task.getException());
             }
         });
+    }
+
+    public void fetchItemById(String itemId, OnItemFetchedListener listener) {
+        db.collection("users").document(currentUserId).collection("items").document(itemId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Item item = documentSnapshot.toObject(Item.class);
+                        if (item != null) {
+                            item.setId(documentSnapshot.getId());
+                            listener.onItemFetched(item);
+                        } else {
+                            listener.onError(new Exception("Error parsing item."));
+                        }
+                    } else {
+                        listener.onError(new Exception("Item not found."));
+                    }
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    public interface OnItemFetchedListener {
+        void onItemFetched(Item item);
+        void onError(Exception e);
     }
 
     /**
@@ -136,6 +158,39 @@ public class FirestoreRepository {
                 listener.onError(task.getException());
             }
         });
+    }
+
+    public void checkUserExists(String username, OnUserExistenceCheckedListener listener) {
+        db.collection("users").document(username).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        listener.onUserExists();
+                    } else {
+                        listener.onUserDoesNotExist();
+                    }
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    public void addUser(String username, OnUserAddedListener listener) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("username", username);
+
+        db.collection("users").document(username).set(user)
+                .addOnSuccessListener(aVoid -> listener.onUserAdded(username))
+                .addOnFailureListener(listener::onError);
+    }
+
+    // Callback interfaces
+    public interface OnUserExistenceCheckedListener {
+        void onUserExists();
+        void onUserDoesNotExist();
+        void onError(Exception e);
+    }
+
+    public interface OnUserAddedListener {
+        void onUserAdded(String userId);
+        void onError(Exception e);
     }
 
 
