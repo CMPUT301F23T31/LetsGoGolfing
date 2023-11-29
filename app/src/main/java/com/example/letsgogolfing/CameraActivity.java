@@ -99,7 +99,8 @@ public class CameraActivity extends AppCompatActivity {
                     }
         
                     if (BarcodeInfo && uri != null) {
-                        //Change back to processImageForBarcode(uri) when we have the barcode API working
+                        /**Change back to processImageForBarcode(uri) when we have the barcode API working
+                        processImageForBarcode(uri);*/
                         processImageForBarcodeMock();
                     } else if (uri != null) {
                         Log.d("Image URI", uri.toString());
