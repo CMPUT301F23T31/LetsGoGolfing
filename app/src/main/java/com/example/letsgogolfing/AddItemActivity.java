@@ -2,8 +2,6 @@ package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -16,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -82,7 +79,7 @@ public class AddItemActivity extends AppCompatActivity {
         // Initialize FirestoreRepository with the current username
         firestoreRepository = new FirestoreRepository(currentUsername);
 
-        Item item = (Item) getIntent().getSerializableExtra("item");
+        item = (Item) getIntent().getSerializableExtra("item");
         if (item != null) {
             ((EditText) findViewById(R.id.nameField)).setText(item.getName());
             ((EditText) findViewById(R.id.descriptionField)).setText(item.getDescription());
@@ -106,14 +103,9 @@ public class AddItemActivity extends AppCompatActivity {
         // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> {
-            Item newItem = null;
-            try {
-                newItem = saveItem();
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
-            if (newItem != null) {
-                addItemToFirestore(newItem);
+            saveItem();
+            if (item != null) {
+                addItemToFirestore();
             } else {
                 Log.e("AddItemActivity", "Item is null");
             }
@@ -145,19 +137,12 @@ public class AddItemActivity extends AppCompatActivity {
 
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> {
-            try {
-                // Save the item fields
-                Item newItem = saveItem();
-        
-                // Start the CameraActivity with the new item
+                saveItem();
                 Intent photoIntent = new Intent(this, CameraActivity.class);
                 photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
                 photoIntent.putExtra("BarcodeInfo", false);
-                photoIntent.putExtra("item", newItem);
+                photoIntent.putExtra("item", item);
                 startActivity(photoIntent);
-            } catch (ParseException | NumberFormatException e) {
-                Log.e(TAG, "Error saving item: ", e);
-            }
         });
     }
 
@@ -310,58 +295,58 @@ public class AddItemActivity extends AppCompatActivity {
      * </p>
      */
 
-     private Item saveItem() throws ParseException, NumberFormatException {
-        // Create a new Item object
-        Item newItem = new Item();
+     private void saveItem() {
     
         // Set name, description, make, model, and comment directly on the Item object
-        newItem.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
-        newItem.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
-        newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
-        newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
-        newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
-        newItem.setSerialNumber(((EditText) findViewById(R.id.serialField)).getText().toString());
+         item.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
+         item.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
+         item.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
+         item.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
+         item.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
+         item.setSerialNumber(((EditText) findViewById(R.id.serialField)).getText().toString());
     
         String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
-        newItem.setUsername(currentUsername); // Set the username before saving
-    
-        newItem.setImageUris(tempUris);
+         item.setUsername(currentUsername); // Set the username before saving
+
+         item.setImageUris(tempUris);
     
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
-    
-        if (!isValidDate(dateString)) {
-            throw new ParseException("Invalid date format", 0);
-        }
-    
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        try {
-            Date date = sdf.parse(dateString);
-            if (date != null) {
-                newItem.setDateOfPurchase(date);
-            } else {
-                throw new ParseException("Invalid date format", 0);
-            }
-        } catch (ParseException e) {
-            throw new ParseException("Failed to parse date", 0);
-        }
+
+         if (!isValidDate(dateString)) {
+             Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+             return; // Exit the method if the date is not valid
+         }
+
+         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+         try {
+             Date date = sdf.parse(dateString);
+             if (date != null) {
+                 item.setDateOfPurchase(date);
+             } else {
+                 Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+                 return;
+             }
+         } catch (ParseException e) {
+             Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
+             return;
+         }
     
         // Parse and set the estimated value
         try {
             double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
-            newItem.setEstimatedValue(estimatedValue);
+            item.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
             throw new NumberFormatException("No Value Entered. Defaulted to 0.");
         }
     
         // Parse and set the tags
-        newItem.setTags(selectedTags);
-        return newItem;
+         item.setTags(selectedTags);
     }
 
-    private void addItemToFirestore(Item newItem) {
+    private void addItemToFirestore() {
         // Use FirestoreRepository to add the new item
-        firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
+        firestoreRepository.addItem(item, new FirestoreRepository.OnItemAddedListener() {
                 @Override
                 public void onItemAdded(String itemId) {
                     Log.d("AddItemActivity", "Item added, ID: " + itemId);
