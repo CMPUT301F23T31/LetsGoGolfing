@@ -6,8 +6,10 @@ import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,11 +75,14 @@ public class EditItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_item);
 
-        // Retrieve the item from the intent
-        username = getIntent().getStringExtra("username");
+        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        username = sharedPref.getString("username", null);
         db = new FirestoreRepository(username);
+
+
         item = (Item) getIntent().getSerializableExtra("item");
 
+        // Retrieve the item from the intent
         if (item == null) {
             // If the Item object is null, log an error and finish the activity
             Log.e("EditItemActivity", "Item is null");
@@ -102,6 +107,7 @@ public class EditItemActivity extends AppCompatActivity {
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
 
         addPhotoButton.setOnClickListener(v -> {
+            updateItem();
             Intent photoIntent = new Intent(this, CameraActivity.class);
             photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
             photoIntent.putExtra("BarcodeInfo", false);
@@ -112,9 +118,11 @@ public class EditItemActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> {
             if (item != null && item.getId() != null) {
                 updateItem();
+                Log.d("EditItemActivity", "Item ID before update: " + item.getId());
                 db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
                     @Override
                     public void onItemUpdated() {
+                        Log.d("EditItemActivity", "Item ID after update: " + item.getId());
                         // Get the URI passed through the intent from CameraActivity
                         String uriString = getIntent().getStringExtra("uri");
                         Uri uri = Uri.parse(uriString);
@@ -123,11 +131,11 @@ public class EditItemActivity extends AppCompatActivity {
                         db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
                             @Override
                             public void onImageUploaded(String downloadUrl) {
+                                Log.d("EditItemActivity", "Item ID after image upload: " + item.getId());
                                 Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
             
                                 // Move to ViewDetailsActivity
                                 Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
-                                intent.putExtra("username", username);
                                 intent.putExtra("item", item);
                                 startActivity(intent);
                             }
