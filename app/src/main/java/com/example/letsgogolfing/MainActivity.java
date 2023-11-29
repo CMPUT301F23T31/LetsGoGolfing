@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
+import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_GALLERY;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import java.util.Set;
 
@@ -212,10 +215,10 @@ public class MainActivity extends AppCompatActivity {
         scanItemButton.setOnClickListener(v -> {
             // Check for camera permission before launching the camera
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                imageUri = createImageFile(); // Ensure this method returns a valid Uri
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                cameraActivityResultLauncher.launch(cameraIntent);
+                Intent photoIntent = new Intent(this, CameraActivity.class);
+                photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
+                photoIntent.putExtra("BarcodeInfo", true);
+                startActivity(photoIntent);
             } else {
                 // Request camera permission if not granted
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
