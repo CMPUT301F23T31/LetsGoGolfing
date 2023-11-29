@@ -1,21 +1,45 @@
 package com.example.letsgogolfing;
 
 import java.util.Comparator;
+
+/**
+ * A comparator for sorting instances of {@code Item} based on various fields.
+ * This comparator supports sorting by different fields such as name, date of purchase,
+ * estimated value, make, and description. It allows for both ascending and descending
+ * sorting orders.
+ */
 public class ItemComparator implements Comparator<Item>{
     private String sortField;
     private boolean ascending;
 
+    /**
+     * Constructs a new {@code ItemComparator} with the specified sorting field and order.
+     *
+     * @param sortField The field of {@code Item} by which to sort.
+     *                  Valid fields are "name", "date", "estimated value", "make", and "description".
+     * @param ascending A boolean where {@code true} indicates ascending order,
+     *                  and {@code false} indicates descending order.
+     */
     public ItemComparator(String sortField, boolean ascending) {
         this.sortField = sortField;
         this.ascending = ascending;
     }
 
+    /**
+     * Compares two {@code Item} objects based on the specified sorting field and order.
+     *
+     * @param item1 The first {@code Item} to be compared.
+     * @param item2 The second {@code Item} to be compared.
+     * @return A negative integer, zero, or a positive integer as the first argument
+     *         is less than, equal to, or greater than the second, in the context of the
+     *         specified sorting preferences.
+     */
     @Override
     public int compare(Item item1, Item item2) {
         int comparisonResult = 0;
         switch (sortField) {
             case "name":
-                comparisonResult = item1.getName().compareTo(item2.getName());
+                comparisonResult = item1.getName().toLowerCase().compareTo(item2.getName().toLowerCase());
                 break;
 
             case "date":
@@ -27,11 +51,11 @@ public class ItemComparator implements Comparator<Item>{
                 break;
 
             case "make":
-                comparisonResult = item1.getMake().compareTo(item2.getMake());
+                comparisonResult = item1.getMake().toLowerCase().compareTo(item2.getMake().toLowerCase());
                 break;
 
             case "description":
-                comparisonResult = item1.getDescription().compareTo(item2.getDescription());
+                comparisonResult = item1.getDescription().toLowerCase().compareTo(item2.getDescription().toLowerCase());
                 break;
         }
 

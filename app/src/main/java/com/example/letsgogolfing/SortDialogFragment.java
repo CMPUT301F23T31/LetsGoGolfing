@@ -14,10 +14,22 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * A dialog fragment that provides options for sorting items.
+ * This fragment presents a list of sorting options and directions (ascending or descending)
+ * to the user in the form of radio buttons. The user's selection is communicated back to
+ * the hosting activity or fragment through the {@code SortOptionListener} interface.
+ */
 public class SortDialogFragment extends DialogFragment {
     private int checkedItem = -1; // No item is selected by default
     private SortOptionListener mListener;
 
+    /**
+     * Called when the fragment is first attached to its context.
+     * Ensures that the hosting activity or fragment implements the {@code SortOptionListener} interface.
+     * @param context The context to which this fragment is attached.
+     * @throws ClassCastException if the context does not implement {@code SortOptionListener}.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -27,6 +39,14 @@ public class SortDialogFragment extends DialogFragment {
             throw new ClassCastException(context.toString() + " must implement SortOptionsListener");
         }
     }
+
+    /**
+     * Called to create the dialog and its content.
+     * Inflates the layout for the dialog, dynamically adds radio buttons for sort options,
+     * and sets up the positive and negative buttons.
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state, this is the state.
+     * @return The newly created dialog.
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -62,6 +82,11 @@ public class SortDialogFragment extends DialogFragment {
         return builder.create();
     }
 
+    /**
+     * Called when the fragment's dialog is started.
+     * Overrides the behavior of the positive button in the dialog to prevent automatic dismissal
+     * upon clicking and to handle the click event manually.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -77,6 +102,12 @@ public class SortDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Handles the click event of the confirm button in the dialog.
+     * Checks which sorting option and direction are selected and notifies the listener.
+     * If no sorting option is selected, a toast message is displayed and the dialog is not dismissed.
+     * @param dialog The dialog where the sorting options are presented.
+     */
     private void handleConfirmClick(AlertDialog dialog) {
         RadioGroup sortOptionsGroup = dialog.findViewById(R.id.sort_options_group);
         RadioGroup sortDirectionGroup = dialog.findViewById(R.id.sort_direction_group);
@@ -101,7 +132,15 @@ public class SortDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a sorting option is selected.
+     */
     public interface SortOptionListener {
+        /**
+         * Called when a sort option is selected in the dialog.
+         * @param selectedOption The sorting option chosen by the user.
+         * @param sortDirection The sorting direction, {@code true} for ascending, {@code false} for descending.
+         */
         void onSortOptionSelected(String selectedOption, boolean sortDirection);
     }
 }
