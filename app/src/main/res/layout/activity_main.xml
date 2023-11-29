@@ -115,7 +115,7 @@
         android:text="Delete"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/scanItemButton"
+        app:layout_constraintEnd_toStartOf="@+id/scan_item_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/totalValue" />
 
