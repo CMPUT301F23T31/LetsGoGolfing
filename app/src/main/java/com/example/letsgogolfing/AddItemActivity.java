@@ -1,5 +1,7 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -70,16 +72,6 @@ public class AddItemActivity extends AppCompatActivity {
     private List<String> selectedTags = new ArrayList<>();
 
     private Uri imageUri;
-    private static final int MY_CAMERA_PERMISSION_CODE = 100;
-
-    private ActivityResultLauncher<Intent> cameraActivityResultLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
-                    // Handle the taken photo
-                    uploadImage(imageUri);
-                }
-            });
-
 
     /**
      * Called when the activity is starting. Responsible for initializing the activity.
@@ -151,43 +143,13 @@ public class AddItemActivity extends AppCompatActivity {
 
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-            } else {
-                launchCamera();
-            }
+            Intent photoIntent = new Intent(this, CameraActivity.class);
+            photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
+            photoIntent.putExtra("BarcodeInfo", false);
+            photoIntent.putExtra("item", item);
+            startActivity(photoIntent);
         });
     }
-
-    private void launchCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        imageUri = createImageFile();
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        cameraActivityResultLauncher.launch(cameraIntent);
-    }
-
-    private Uri createImageFile(){
-        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String imageFileName = "Cliche" + timeStamp;
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        return imageUri;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera();
-            } else {
-                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
 
     /**
      * Displays a dialog for selecting tags.
@@ -393,8 +355,34 @@ public class AddItemActivity extends AppCompatActivity {
         firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
             @Override
             public void onItemAdded(String itemId) {
-                Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                navigateToMainActivity();
+                // Fetch the item again to get the item ID
+                firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
+                    @Override
+                    public void onItemFetched(Item fetchedItem) {
+                        // Get the URI passed through the intent from CameraActivity
+                        String uriString = getIntent().getStringExtra("uri");
+                        Uri uri = Uri.parse(uriString);
+
+                        // Upload the image with the fetched item and the URI
+                        firestoreRepository.uploadImage(uri, fetchedItem, new FirestoreRepository.OnImageUploadedListener() {
+                            @Override
+                            public void onImageUploaded(String downloadUrl) {
+                                Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
+                                navigateToMainActivity();
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("AddItemActivity", "Error uploading image", e);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("AddItemActivity", "Error fetching item", e);
+                    }
+                });
             }
 
             @Override
