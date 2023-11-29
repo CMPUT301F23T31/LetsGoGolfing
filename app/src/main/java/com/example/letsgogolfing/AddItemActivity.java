@@ -133,24 +133,21 @@ public class AddItemActivity extends AppCompatActivity {
         Button tagButton = findViewById(R.id.add_tags_button);
         tagButton.setOnClickListener(v -> showTagSelectionDialog());
 
-        // Fetch the tags from Firestore
-        fetchTagsFromFirestore();
+        // Fetch tags using FirestoreRepository
+        firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
+            @Override
+            public void onTagsFetched(List<String> tags) {
+                tagList.clear();
+                tagList.addAll(tags);
+                // Now that the tags are fetched, you can enable the 'Add Tags' button
+            }
 
-        // add photo button listener
+            @Override
+            public void onError(Exception e) {
+                Log.w(TAG, "Error getting tags: ", e);
+            }
+        });
 
-        ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null && data.getStringExtra("imageUri") != null) {
-                            String imageUriString = data.getStringExtra("imageUri");
-                            Uri imageUri = Uri.parse(imageUriString);
-                            uploadImage(imageUri); // Call the upload method here
-                        }
-                    }
-                }
-        );
 
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> {
@@ -189,33 +186,6 @@ public class AddItemActivity extends AppCompatActivity {
                 Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-
-
-    /**
-     * Fetches tags from Firestore.
-     * <p>
-     * This method queries the Firestore database to retrieve a list of available tags.
-     * If the retrieval is successful, the tagList is cleared and populated with the names
-     * of the fetched tags. This method is typically called during the initialization of the
-     * activity to ensure that the tagList is up-to-date.
-     */
-    private void fetchTagsFromFirestore() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Fetch the tags from Firestore
-        db.collection("tags").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                tagList.clear();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    tagList.add(document.getString("name"));
-                }
-                // Now that the tags are fetched, you can enable the 'Add Tags' button
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
-            }
-        });
     }
 
 
@@ -418,28 +388,20 @@ public class AddItemActivity extends AppCompatActivity {
         // Parse and set the tags
         newItem.setTags(selectedTags);
 
-        // FIX THISSSS FIRESTOREREPO
-        // Now, use the Firestore API to add the Item object
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Convert Item object to Map for Firestore
-        Map<String, Object> itemMap = convertItemToMap(newItem);
+        // Use FirestoreRepository to add the new item
+        firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
+            @Override
+            public void onItemAdded(String itemId) {
+                Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
+                navigateToMainActivity();
+            }
 
-        db.collection("items").add(itemMap)
-                .addOnSuccessListener(documentReference -> {
-                    // Optionally, save the document ID in the Item object
-                    newItem.setId(documentReference.getId());
-
-                    Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                    Intent data = new Intent();
-                    data.putExtra("item_added", true);
-                    setResult(RESULT_OK, data);
-                    finish();
-                    navigateToMainActivity();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(AddItemActivity.this, "Error adding item", Toast.LENGTH_SHORT).show();
-                });
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateToMainActivity() {

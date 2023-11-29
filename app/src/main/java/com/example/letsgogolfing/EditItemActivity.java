@@ -63,6 +63,8 @@ public class EditItemActivity extends AppCompatActivity {
     private static final String TAG = "EditItemActivity";
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
 
+
+
     /**
      * Initializes the activity. This method sets up the user interface and initializes
      * the listeners for various UI components.
@@ -125,12 +127,11 @@ public class EditItemActivity extends AppCompatActivity {
         });
 
         cameraActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
-                        // Handle the taken photo, similar to uploadImage in AddItemActivity
-                        uploadImage(imageUri);
-                    }
-        });
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
+                                uploadImage(imageUri); // This will start the upload and then update the item
+                            }
+                        });
     }
 
 
@@ -193,38 +194,53 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     // Implement the uploadImage method
+    // After capturing the image, upload it
     private void uploadImage(Uri imageUri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
+        StorageReference imagesRef = storageRef.child("images/" + photoFileName);
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] imageData = baos.toByteArray();
+        UploadTask uploadTask = imagesRef.putFile(imageUri);
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                // Update the item's image URI list
+                ArrayList<String> imageUris = item.getImageUris();
+                if (imageUris == null) {
+                    imageUris = new ArrayList<>();
+                }
+                imageUris.add(downloadUri.toString());
+                item.setImageUris(imageUris);
 
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child("images/" + photoFileName);
-
-            UploadTask uploadTask = imagesRef.putBytes(imageData);
-            uploadTask.addOnFailureListener(exception -> {
-                Log.e("Firebase Upload", "Upload failed", exception);
-                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                // Get the download URL
-                imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    if (tempUris == null) {
-                        tempUris = new ArrayList<>();
-                    }
-                    tempUris.add(downloadUri.toString());
-                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
-                });
+                // Update the item in Firestore
+                updateItemInFirestore();
             });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        }).addOnFailureListener(exception -> {
+            // Handle unsuccessful uploads
+            Log.e("Firebase Upload", "Upload failed", exception);
+            Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
+
+    /**
+     * This is a new thing i added to handle updating items with new images
+     */
+// Call this method after the image URI list is updated
+    private void updateItemInFirestore() {
+        db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+            @Override
+            public void onItemUpdated() {
+                // Notify user of success
+                Toast.makeText(EditItemActivity.this, "Item updated with new image", Toast.LENGTH_SHORT).show();
+                // Refresh the UI here if necessary
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(EditItemActivity.this, "Error updating item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     /**
      * Displays the tags associated with the item in the user interface.

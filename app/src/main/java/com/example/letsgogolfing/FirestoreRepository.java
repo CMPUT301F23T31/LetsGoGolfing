@@ -104,6 +104,8 @@ public class FirestoreRepository {
      */
     public void addItem(Item item, OnItemAddedListener listener) {
         Map<String, Object> itemMap = convertItemToMap(item);
+        // Ensure image URIs are included
+        itemMap.put("imageUris", item.getImageUris());
         db.collection("users").document(currentUserId).collection("items").add(itemMap)
                 .addOnSuccessListener(documentReference -> listener.onItemAdded(documentReference.getId()))
                 .addOnFailureListener(listener::onError);
@@ -264,6 +266,7 @@ public class FirestoreRepository {
         itemMap.put("estimatedValue", item.getEstimatedValue());
         itemMap.put("comment", item.getComment());
         itemMap.put("tags", item.getTags());
+        itemMap.put("imageUris", item.getImageUris());
         return itemMap;
     }
 }
