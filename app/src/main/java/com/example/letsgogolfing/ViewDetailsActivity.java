@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -143,6 +144,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
         TextView comment = findViewById(R.id.comment_view_text);
         TextView date = findViewById(R.id.date_view_text);
         TextView value = findViewById(R.id.value_view_text);
+
+        // the following is to make sure long descriptions can fit into the description box and comments box
+        description.setMovementMethod(new ScrollingMovementMethod());
+        comment.setMovementMethod(new ScrollingMovementMethod());
 
         // Instantiate Buttons
         editButton = findViewById(R.id.edit_item_button);

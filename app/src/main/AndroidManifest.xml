@@ -32,7 +32,8 @@
         <activity android:name=".ViewDetailsActivity" />
         <activity android:name=".ViewProfileActivity" />
         <activity android:name=".AddItemActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".MainActivity"
             android:exported="true" />
         <activity android:name=".ViewPhotoActivity"></activity>
@@ -45,7 +46,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <activity android:name=".EditItemActivity" />
+        <activity android:name=".EditItemActivity"
+            android:windowSoftInputMode="adjustResize" />
 
     </application>
 
