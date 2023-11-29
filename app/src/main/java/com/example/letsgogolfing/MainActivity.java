@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        GetTags getTags = new GetTags(this);
         // Retrieve current username from SharedPreferences
         SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         String currentUsername = sharedPref.getString("username", null);
@@ -86,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize FirestoreRepository with the current username
         firestoreRepository = new FirestoreRepository(currentUsername);
 
+        GetTags getTags = new GetTags(this, firestoreRepository);
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
         itemGrid.setAdapter(itemAdapter);
