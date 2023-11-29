@@ -78,9 +78,15 @@ public class EditItemActivity extends AppCompatActivity {
         // Retrieve the item from the intent
         username = getIntent().getStringExtra("username");
         db = new FirestoreRepository(username);
-        item = (Item) getIntent().getSerializableExtra("ITEM");
+        item = (Item) getIntent().getSerializableExtra("item");
 
-
+        if (item == null) {
+            // If the Item object is null, log an error and finish the activity
+            Log.e("EditItemActivity", "Item is null");
+            finish();
+            return;
+        }
+    
         InitializeUI(item);
 
         backButton.setOnClickListener(v -> {
@@ -91,7 +97,7 @@ public class EditItemActivity extends AppCompatActivity {
 
         cancelButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ViewDetailsActivity.class);
-            intent.putExtra("ITEM", item);
+            intent.putExtra("item", item);
             startActivity(intent);
         });
 
@@ -106,40 +112,44 @@ public class EditItemActivity extends AppCompatActivity {
         });
 
         saveButton.setOnClickListener(v -> {
-            updateItem();
-            db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
-                @Override
-                public void onItemUpdated() {
-                    // Get the URI passed through the intent from CameraActivity
-                    String uriString = getIntent().getStringExtra("uri");
-                    Uri uri = Uri.parse(uriString);
-        
-                    // Upload the image with the updated item and the URI
-                    db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
-                        @Override
-                        public void onImageUploaded(String downloadUrl) {
-                            Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
-        
-                            // Move to ViewDetailsActivity
-                            Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
-                            intent.putExtra("username", username);
-                            intent.putExtra("ITEM", item);
-                            startActivity(intent);
-                        }
-        
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("EditItemActivity", "Error uploading image", e);
-                        }
-                    });
-                }
-        
-                @Override
-                public void onError(Exception e) {
-                    Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
-                }
+            if (item != null && item.getId() != null) {
+                updateItem();
+                db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+                    @Override
+                    public void onItemUpdated() {
+                        // Get the URI passed through the intent from CameraActivity
+                        String uriString = getIntent().getStringExtra("uri");
+                        Uri uri = Uri.parse(uriString);
+            
+                        // Upload the image with the updated item and the URI
+                        db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
+                            @Override
+                            public void onImageUploaded(String downloadUrl) {
+                                Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
+            
+                                // Move to ViewDetailsActivity
+                                Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
+                                intent.putExtra("username", username);
+                                intent.putExtra("item", item);
+                                startActivity(intent);
+                            }
+            
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("EditItemActivity", "Error uploading image", e);
+                            }
+                        });
+                    }
+            
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Log.e("EditItemActivity", "Item or item ID is null");
+            }
             });
-        });
     }
 
 
