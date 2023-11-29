@@ -142,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onItemFetched(Item fetchedItem) {
                             Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-                            intent.putExtra("username", currentUsername); // currentUsername retrieved from SharedPreferences
                             intent.putExtra("item", fetchedItem); // Pass the fetched item
                             startActivity(intent);
                         }
