@@ -13,8 +13,6 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,15 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -115,7 +105,19 @@ public class AddItemActivity extends AppCompatActivity {
 
         // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
-        confirmBtn.setOnClickListener(v -> saveItem());
+        confirmBtn.setOnClickListener(v -> {
+            Item newItem = null;
+            try {
+                newItem = saveItem();
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            if (newItem != null) {
+                addItemToFirestore(newItem);
+            } else {
+                Log.e("AddItemActivity", "Item is null");
+            }
+        });
 
         // cancel button listener
         Button cancel_button = findViewById(R.id.cancel_button_add_item);
@@ -143,11 +145,19 @@ public class AddItemActivity extends AppCompatActivity {
 
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> {
-            Intent photoIntent = new Intent(this, CameraActivity.class);
-            photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
-            photoIntent.putExtra("BarcodeInfo", false);
-            photoIntent.putExtra("item", item);
-            startActivity(photoIntent);
+            try {
+                // Save the item fields
+                Item newItem = saveItem();
+        
+                // Start the CameraActivity with the new item
+                Intent photoIntent = new Intent(this, CameraActivity.class);
+                photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
+                photoIntent.putExtra("BarcodeInfo", false);
+                photoIntent.putExtra("item", newItem);
+                startActivity(photoIntent);
+            } catch (ParseException | NumberFormatException e) {
+                Log.e(TAG, "Error saving item: ", e);
+            }
         });
     }
 
@@ -300,107 +310,115 @@ public class AddItemActivity extends AppCompatActivity {
      * </p>
      */
 
-    private void saveItem() {
+     private Item saveItem() throws ParseException, NumberFormatException {
         // Create a new Item object
         Item newItem = new Item();
-
+    
         // Set name, description, make, model, and comment directly on the Item object
         newItem.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
         newItem.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
         newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
         newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
         newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
-
+        newItem.setSerialNumber(((EditText) findViewById(R.id.serialField)).getText().toString());
+    
         String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
         newItem.setUsername(currentUsername); // Set the username before saving
-
+    
         newItem.setImageUris(tempUris);
-
+    
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
-
+    
         if (!isValidDate(dateString)) {
-            Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-            return; // Exit the method if the date is not valid
+            throw new ParseException("Invalid date format", 0);
         }
-
+    
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
             Date date = sdf.parse(dateString);
             if (date != null) {
                 newItem.setDateOfPurchase(date);
             } else {
-                Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-                return;
+                throw new ParseException("Invalid date format", 0);
             }
         } catch (ParseException e) {
-            Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
-            return;
+            throw new ParseException("Failed to parse date", 0);
         }
-
+    
         // Parse and set the estimated value
         try {
             double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
             newItem.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
-            Toast.makeText(AddItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
-            double estimatedValue = 0;
+            throw new NumberFormatException("No Value Entered. Defaulted to 0.");
         }
-
+    
         // Parse and set the tags
         newItem.setTags(selectedTags);
+        return newItem;
+    }
 
-
+    private void addItemToFirestore(Item newItem) {
         // Use FirestoreRepository to add the new item
         firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
-            @Override
-            public void onItemAdded(String itemId) {
-                // Fetch the item again to get the item ID
-                firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
-                    @Override
-                    public void onItemFetched(Item fetchedItem) {
-                        // Get the URI passed through the intent from CameraActivity
-                        String uriString = getIntent().getStringExtra("uri");
-                        Uri uri = Uri.parse(uriString);
+                @Override
+                public void onItemAdded(String itemId) {
+                    Log.d("AddItemActivity", "Item added, ID: " + itemId);
+                    // Get the URI passed through the intent from CameraActivity
+                    String uriString = getIntent().getStringExtra("uri");
 
-                        // Upload the image with the fetched item and the URI
-                        firestoreRepository.uploadImage(uri, fetchedItem, new FirestoreRepository.OnImageUploadedListener() {
+                    if (uriString != null) {
+                        // Fetch the item again to get the item ID
+                        firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
                             @Override
-                            public void onImageUploaded(String downloadUrl) {
-                                Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
-                                firestoreRepository.updateItem(itemId, fetchedItem, new FirestoreRepository.OnItemUpdatedListener() {
+                            public void onItemFetched(Item fetchedItem) {
+                                Log.d("AddItemActivity", "Item fetched, ID: " + fetchedItem.getId() + ", Name: " + fetchedItem.getName() + ", Estimated Value: " + fetchedItem.getEstimatedValue());
+                                Uri uri = Uri.parse(uriString);
+
+                                // Upload the image with the fetched item and the URI
+                                firestoreRepository.uploadImage(uri, fetchedItem, new FirestoreRepository.OnImageUploadedListener() {
                                     @Override
-                                    public void onItemUpdated() {
-                                        // Navigate to MainActivity after the item has been updated
-                                        navigateToMainActivity();
+                                    public void onImageUploaded(String downloadUrl) {
+                                        Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
+                                        firestoreRepository.updateItem(itemId, fetchedItem, new FirestoreRepository.OnItemUpdatedListener() {
+                                            @Override
+                                            public void onItemUpdated() {
+                                                Log.d("AddItemActivity", "Item updated, ID: " + fetchedItem.getId() + ", Name: " + fetchedItem.getName() + ", Estimated Value: " + fetchedItem.getEstimatedValue());
+                                                // Navigate to MainActivity after the item has been updated
+                                                navigateToMainActivity();
+                                            }
+
+                                            @Override
+                                            public void onError(Exception e) {
+                                                Log.e("AddItemActivity", "Error updating item", e);
+                                            }
+                                        });
                                     }
-        
+
                                     @Override
                                     public void onError(Exception e) {
-                                        Log.e("AddItemActivity", "Error updating item", e);
+                                        Log.e("AddItemActivity", "Error uploading image", e);
                                     }
                                 });
                             }
 
                             @Override
                             public void onError(Exception e) {
-                                Log.e("AddItemActivity", "Error uploading image", e);
+                                Log.e("AddItemActivity", "Error fetching item", e);
                             }
                         });
+                    } else {
+                        // If the URI is null, navigate to MainActivity after adding the item
+                        navigateToMainActivity();
                     }
+                }
 
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e("AddItemActivity", "Error fetching item", e);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
     }
 
     private void navigateToMainActivity() {
