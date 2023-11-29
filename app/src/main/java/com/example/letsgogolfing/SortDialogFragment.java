@@ -84,17 +84,17 @@ public class SortDialogFragment extends DialogFragment {
         int selectedOptionId = sortOptionsGroup.getCheckedRadioButtonId();
         int selectedDirectionId = sortDirectionGroup.getCheckedRadioButtonId();
 
-        // Default sort direction to descending if not selected
-        String selectedDirection = selectedDirectionId != -1 ?
-                ((RadioButton) dialog.findViewById(selectedDirectionId)).getText().toString().toLowerCase():
-                getString(R.string.descending).toLowerCase();
-
+        boolean sortDirection = false;
+        if (selectedDirectionId != -1) {
+            String directionText = ((RadioButton) dialog.findViewById(selectedDirectionId)).getText().toString().toLowerCase();
+            sortDirection = directionText.equals("ascending");
+        }
         // If a sort option is not selected do not dismiss dialog
         if (selectedOptionId == -1) {
             Toast.makeText(getContext(), "Please select a sort option.", Toast.LENGTH_SHORT).show();
         } else { // If a sort option is selected call listener and dismiss dialog
             String selectedOption = ((RadioButton) dialog.findViewById(selectedOptionId)).getText().toString().toLowerCase();
-            mListener.onSortOptionSelected(selectedOption, selectedDirection);
+            mListener.onSortOptionSelected(selectedOption, sortDirection);
 
             // Dismiss the dialog only if a sort option is selected
             dialog.dismiss();
@@ -102,7 +102,7 @@ public class SortDialogFragment extends DialogFragment {
     }
 
     public interface SortOptionListener {
-        void onSortOptionSelected(String selectedOption, String selectedDirection);
+        void onSortOptionSelected(String selectedOption, boolean sortDirection);
     }
 }
 

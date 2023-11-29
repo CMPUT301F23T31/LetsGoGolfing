@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import java.util.Set;
@@ -51,9 +53,23 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private DialogFragment sortDialog = new SortDialogFragment();
 
     @Override
-    public void onSortOptionSelected(String selectedOption, String selectedDirection) {
-        Toast.makeText(MainActivity.this, "Sort By " + selectedOption + " in" + selectedDirection + " order", Toast.LENGTH_SHORT).show();
+    public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
+        ItemComparator comparator = new ItemComparator(selectedOption, sortDirection);
+        sortArrayAdapter(comparator);
+    }
 
+    private void sortArrayAdapter(Comparator<Item> comparator) {
+        if (itemAdapter != null) {
+            ArrayList<Item> itemList = new ArrayList<>();
+            for (int i = 0; i < itemAdapter.getCount(); i++) {
+                itemList.add(itemAdapter.getItem(i));
+            }
+
+            itemList.sort(comparator);
+            itemAdapter.clear();
+            itemAdapter.addAll(itemList);
+            itemAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

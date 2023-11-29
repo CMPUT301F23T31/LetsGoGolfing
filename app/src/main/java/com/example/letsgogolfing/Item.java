@@ -22,7 +22,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     private String make;
     private String model;
     private String serialNumber;
-    private double estimatedValue;
+    private Double estimatedValue;
     private String comment;
     private List<String> tags;
 
@@ -191,7 +191,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      *
      * @return The estimated value of the item.
      */
-    public double getEstimatedValue() {
+    public Double getEstimatedValue() {
         return estimatedValue;
     }
 

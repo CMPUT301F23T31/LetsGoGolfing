@@ -7,14 +7,16 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Collection;
 
-public class ItemAdapter extends BaseAdapter {
+public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
     private List<Item> items;
@@ -41,6 +43,7 @@ public class ItemAdapter extends BaseAdapter {
      * @param items   The list of items to be displayed.
      */
     public ItemAdapter(Context context, List<Item> items) {
+        super(context, R.layout.grid_item, items);
         this.context = context;
         this.items = items;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -188,5 +191,17 @@ public class ItemAdapter extends BaseAdapter {
         TextView descriptionTextView;
         TextView valueTextView;
         // Add more views as needed
+    }
+
+    @Override
+    public void clear() {
+        items.clear();
+        super.notifyDataSetChanged();
+    }
+
+    @Override
+    public void addAll(Collection<? extends Item> collection) {
+        items.addAll(collection);
+        super.notifyDataSetChanged();
     }
 }
