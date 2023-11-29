@@ -39,7 +39,7 @@
         app:layout_constraintTop_toTopOf="@+id/searchEditText" />
 
 
-    <ImageView
+    <ImageButton
         android:id="@+id/sort_button"
         android:layout_width="43dp"
         android:layout_height="41dp"

@@ -4,6 +4,7 @@ package com.example.letsgogolfing;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 
 import android.app.Activity;
@@ -36,7 +37,7 @@ import java.util.Set;
  * It handles the display and interaction with a grid of items, allowing the user to
  * select and delete items, as well as adding new ones and viewing their details.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener {
 
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
@@ -47,7 +48,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
+    private DialogFragment sortDialog = new SortDialogFragment();
 
+    @Override
+    public void onSortOptionSelected(String selectedOption, String selectedDirection) {
+        Toast.makeText(MainActivity.this, "Sort By " + selectedOption + " in" + selectedDirection + " order", Toast.LENGTH_SHORT).show();
+
+    }
 
     /**
      * Initializes the activity with the required layout and sets up the item grid adapter.
@@ -146,22 +153,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
+        ImageButton sortButton = findViewById(R.id.sort_button);
+        sortButton.setOnClickListener(v -> {
+            sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
 
-
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
-        deleteButton = findViewById(R.id.delete_button);
-
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
-
-        selectButton.setOnClickListener(v -> {
-            isSelectMode = !isSelectMode; // Toggle select mode
-            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
-            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
         });
-
-        deleteButton.setOnClickListener(v -> deleteSelectedItems());
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
         profileButton.setOnClickListener(view -> {
