@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -55,17 +56,16 @@ import org.json.*;
 
 
 public class CameraActivity extends AppCompatActivity {
-    private static final int CAMERA_REQUEST = 69;
     private static final int MY_CAMERA_PERMISSION_CODE = 420;
-    private static final int GALLERY_PERMISSION_CODE = 8008;
+    private static final int GALLERY_PERMISSION_CODE = 240;
     private Uri imageUri;
+    private SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+    private String currentUsername = sharedPref.getString("username", null);
+    private FirestoreRepository firebase = new FirestoreRepository(currentUsername);
     private ActivityResultLauncher<Intent> activityResultLauncher;
-    public boolean BarcodeInfo = false;
     public String galleryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
     public static final int MODE_PHOTO_CAMERA = 1;
     public static final int MODE_PHOTO_GALLERY = 2;
-
-
 
 
     @Override
@@ -74,6 +74,7 @@ public class CameraActivity extends AppCompatActivity {
 
         int mode = getIntent().getIntExtra("mode", MODE_PHOTO_CAMERA);
         boolean BarcodeInfo = getIntent().getBooleanExtra("BarcodeInfo", false);
+        Item item = (Item) getIntent().getSerializableExtra("item");
 
         activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -93,10 +94,8 @@ public class CameraActivity extends AppCompatActivity {
                     } else if (uri != null) {
                         Log.d("Image URI", uri.toString());
         
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("imageUri", uri.toString());
-                        setResult(Activity.RESULT_OK, resultIntent);
-                        finish();
+                        // Handle the item intent content
+                        handleItemIntentContent(item, uri);
                     } else {
                         // Uri is null
                         Toast.makeText(this, "No image was selected or captured!", Toast.LENGTH_SHORT).show();  
@@ -145,32 +144,6 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadImage(Uri imageUri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] imageData = baos.toByteArray();
-
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child("images/testImages/" + photoFileName);
-
-            UploadTask uploadTask = imagesRef.putBytes(imageData);
-            uploadTask.addOnFailureListener(exception -> {
-                Log.e("Firebase Upload", "Upload failed", exception);
-                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
-                // Here you can also update the newItem object with the URL of the uploaded image, if needed
-            });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -203,43 +176,8 @@ public class CameraActivity extends AppCompatActivity {
         return imageUri;
     }
 
-    private void uploadImageBitmap(Uri imageURI, UUID itemId) {
-        try {
-            // Get the image data from the URI
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-            // Convert the Bitmap to a byte array
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] imageData = baos.toByteArray();
-
-            // Create a reference to 'images/mountains.jpg'
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child("images/testImages/" + photoFileName);
-
-            // Upload the byte array to Firebase Storage
-            UploadTask uploadTask = imagesRef.putBytes(imageData);
-            uploadTask.addOnFailureListener(exception -> {
-                // Handle unsuccessful uploads
-                Log.e("Firebase Upload", "Upload failed", exception);
-                Toast.makeText(CameraActivity.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                StorageMetadata metadata = taskSnapshot.getMetadata();
-                Toast.makeText(CameraActivity.this, "Upload successful: " + metadata.getPath(), Toast.LENGTH_SHORT).show();
-            });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //2 options for processing image for GTIN: Uri or Bitmap
-
 
     private void processImageWithMLKit(Context context, Bitmap bitmap) {
-        BarcodeScannerActivity barcodeScannerActivity = new BarcodeScannerActivity();
         BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
         try {
             InputImage image = InputImage.fromBitmap(bitmap, 0);
@@ -261,13 +199,8 @@ public class CameraActivity extends AppCompatActivity {
                                 // Log or print the barcode value
                                 Log.d("Barcode Value", "Barcode: " + barcodeValue);
                                 try{
-                                    barcodeFetchInfo.fetchProductDetails(barcodeValue, new BarcodeFetchInfo.OnProductFetchedListener() {
-                                        @Override
-                                        public void onProductFetched(Item item) {
-                                            Intent intent = new Intent(context, AddItemActivity.class);
-                                            intent.putExtra("item", item); // Assuming Item is Serializable
-                                            context.startActivity(intent);
-                                        }
+                                    barcodeFetchInfo.fetchProductDetails(barcodeValue, item -> {
+                                        handleItemIntentContent(item);
                                     });
                                 } catch (Exception e) {
                                     Log.e("Barcode Fetch", "Error fetching barcode", e);
@@ -289,111 +222,34 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    //for testing barcode detection
-    private void downloadAndProcessImage(Context context, String imagePath) {
-        StorageReference imageRef = FirebaseStorage.getInstance().getReference().child(imagePath);
-        final long ONE_MEGABYTE = 1024 * 1024;
-        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            processImageWithMLKit(context, bitmap);
-        }).addOnFailureListener(exception -> {
-            Log.e("Firebase Storage", "Failed to download image", exception);
-        });
+    private void handleItemIntentContent(Item item) {
+        handleItemIntentContent(item, null);
     }
 
-    //Rainforest API call, too messy json to get field values
-    private void getProductInfo(String gtin) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
-                .writeTimeout(20, TimeUnit.SECONDS) // write timeout
-                .readTimeout(30, TimeUnit.SECONDS) // read timeout
-                .build();
-
-        String url = "https://api.rainforestapi.com/request?api_key=83D3CF6386FE423289847177DF2D3BDC&amazon_domain=amazon.com&type=product&gtin=" + gtin;
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    final String myResponse = response.body().string();
-
-                    // Print the response to the log
-                    Log.d("API Response", myResponse);
+    private void handleItemIntentContent(Item item, Uri uri) {
+        if (uri == null) {
+            // If the uri is null, launch AddItemActivity with item made from BarcodeFetchInfo
+            Intent intent = new Intent(this, AddItemActivity.class);
+            intent.putExtra("item", item);
+            startActivity(intent);
+        } else {
+            if (item == null) {
+                // If the item is null, report error to log
+                Log.e("CameraActivity", "Both item and Uri are null");
+            } else {
+                // Create the intent
+                Intent intent;
+                if (item.getId() == null) {
+                    // If the item ID is null, launch AddItemActivity with the same item
+                    intent = new Intent(CameraActivity.this, AddItemActivity.class);
+                } else {
+                    // If the item ID is not null, launch EditItemActivity with the same item
+                    intent = new Intent(CameraActivity.this, EditItemActivity.class);
                 }
+                intent.putExtra("item", item);
+                intent.putExtra("uri", uri.toString());
+                startActivity(intent);
             }
-        });
-    }
-
-    //upcitemdb API call, works
-    public void fetchProductDetails(String upc) throws IOException, JSONException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
-                .writeTimeout(20, TimeUnit.SECONDS) // write timeout
-                .readTimeout(30, TimeUnit.SECONDS) // read timeout
-                .build();
-
-        Request request = new Request.Builder()
-                .url("https://api.upcitemdb.com/prod/trial/lookup?upc=" + upc)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Accept", "application/json")
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String jsonData = response.body().string();
-                    Log.d("JSON Data", jsonData);
-                    try {
-                        JSONObject Jobject = new JSONObject(jsonData);
-                        JSONArray Jarray = Jobject.getJSONArray("items");
-
-                        for (int i = 0; i < Jarray.length(); i++) {
-                            JSONObject object = Jarray.getJSONObject(i);
-                            String brand = object.getString("brand");
-                            String model = object.getString("model");
-                            String category = object.getString("category");
-                            List<String> tags = new ArrayList<>();
-                            String[] categoryParts = category.split(" > ");
-                            if (categoryParts.length == 1) {
-                                tags.add(categoryParts[0]);
-                            } else if (categoryParts.length > 1) {
-                                tags.add(categoryParts[0]);
-                                tags.add(categoryParts[categoryParts.length - 1]);
-                            }
-                            String title = object.getString("title");
-                            String upc = object.getString("upc");
-                            String description = object.getString("description");
-                            double lowestPrice = object.getDouble("lowest_recorded_price");
-                            double highestPrice = object.getDouble("highest_recorded_price");
-                            double averagePrice = (lowestPrice + highestPrice) / 2;
-
-                            Log.d("Product Details", "Title: " + title + "\nBrand: " + brand + "\nModel: " + model + "\nAverage Price: " + averagePrice + "\nTags: " + tags + "\nUPC: " + upc + "\nDescription: " + description);
-                            JSONArray offers = object.getJSONArray("offers");
-                            for (int j = 0; j < offers.length(); j++) {
-                                JSONObject offer = offers.getJSONObject(j);
-                                Log.d("Offer Details", offer.getString("domain") + "\t" + offer.getString("title") + "\t" + offer.getString("price"));
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        }
     }
 }
