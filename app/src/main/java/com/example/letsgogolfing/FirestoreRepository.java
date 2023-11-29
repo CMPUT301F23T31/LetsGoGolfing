@@ -298,7 +298,7 @@ public class FirestoreRepository {
                     imageData.put("downloadUrl", documentId);
                     imageData.put("fileName", photoFileName);
 
-                    db.collection("imageData").document(documentId).set(imageData)
+                    db.collection("imageData").document(photoFileName).set(imageData)
                         .addOnSuccessListener(aVoid -> {
                             // Notify the listener that the image has been uploaded
                             listener.onImageUploaded(documentId);
@@ -316,27 +316,23 @@ public class FirestoreRepository {
     }
 
     public void deleteImage(String downloadUrl, OnImageDeletedListener listener) {
-        // Get the document from the imageData collection
-        db.collection("imageData").document(downloadUrl).get()
-            .addOnSuccessListener(documentSnapshot -> {
-                // Get the filename from the document
-                String fileName = documentSnapshot.getString("fileName");
-
-                // Extract the item ID from the filename
-                String itemId = fileName.split("_")[1];
+        // Extract the filename from the downloadUrl
+        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
     
-                // Create a reference to the file to delete
-                StorageReference imageRef = storageRef.child("images/" + fileName);
+        // Extract the itemId from the filename
+        String itemId = fileName.split("_")[1];
     
-                // Get the item document
-            db.collection("items").document(itemId).get()
+        // Create a reference to the file in Firebase Storage
+        StorageReference imageRef = storageRef.child("images/" + fileName);
+    
+        db.collection("items").document(itemId).get()
             .addOnSuccessListener(itemDocumentSnapshot -> {
                 // Get the ImageUris array from the item document
                 List<String> imageUris = (List<String>) itemDocumentSnapshot.get("ImageUris");
-
+    
                 // Remove the download URL from the ImageUris array
                 imageUris.remove(downloadUrl);
-
+    
                 // Update the item document
                 db.collection("items").document(itemId).update("ImageUris", imageUris)
                     .addOnSuccessListener(aVoid -> {
@@ -344,7 +340,7 @@ public class FirestoreRepository {
                         imageRef.delete()
                             .addOnSuccessListener(aVoid2 -> {
                                 // Delete the document from the imageData collection
-                                db.collection("imageData").document(downloadUrl).delete()
+                                db.collection("imageData").document(fileName).delete()
                                     .addOnSuccessListener(aVoid3 -> {
                                         // Notify the listener that the image has been deleted
                                         listener.onImageDeleted();
@@ -356,8 +352,6 @@ public class FirestoreRepository {
                     .addOnFailureListener(listener::onError);
             })
             .addOnFailureListener(listener::onError);
-    })
-    .addOnFailureListener(listener::onError);
     }
     
     public interface OnImageDeletedListener {

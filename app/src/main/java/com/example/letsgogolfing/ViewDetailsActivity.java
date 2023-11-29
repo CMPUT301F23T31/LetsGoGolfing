@@ -96,10 +96,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
-            item = (Item) getIntent().getSerializableExtra("ITEM");
+            item = (Item) getIntent().getSerializableExtra("item");
             Log.d(TAG, "Item ID: " + item.getId());
             intent.putExtra("username", username); //THIS IS IMPORTANT!!!!
-            intent.putExtra("ITEM", item);
+            intent.putExtra("item", item);
             startActivity(intent);
         });
 
@@ -132,7 +132,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     private void InitializeUI() {
         // Retrieve the item from the intent
         username = getIntent().getStringExtra("username");
-        item = (Item) getIntent().getSerializableExtra("ITEM");
+        item = (Item) getIntent().getSerializableExtra("item");
 
         // Instantiate TextViews
         TextView name = findViewById(R.id.name_view_text);

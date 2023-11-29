@@ -21,11 +21,15 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -41,6 +45,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,9 +64,9 @@ public class CameraActivity extends AppCompatActivity {
     private static final int MY_CAMERA_PERMISSION_CODE = 420;
     private static final int GALLERY_PERMISSION_CODE = 240;
     private Uri imageUri;
-    private SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-    private String currentUsername = sharedPref.getString("username", null);
-    private FirestoreRepository firebase = new FirestoreRepository(currentUsername);
+    private SharedPreferences sharedPref;
+    private String currentUsername;
+    private FirestoreRepository firebase;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     public String galleryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
     public static final int MODE_PHOTO_CAMERA = 1;
@@ -71,6 +76,10 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        currentUsername = sharedPref.getString("username", null);
+        firebase = new FirestoreRepository(currentUsername);
 
         int mode = getIntent().getIntExtra("mode", MODE_PHOTO_CAMERA);
         boolean BarcodeInfo = getIntent().getBooleanExtra("BarcodeInfo", false);
@@ -90,7 +99,8 @@ public class CameraActivity extends AppCompatActivity {
                     }
         
                     if (BarcodeInfo && uri != null) {
-                        processImageForBarcode(uri);
+                        //Change back to processImageForBarcode(uri) when we have the barcode API working
+                        processImageForBarcodeMock();
                     } else if (uri != null) {
                         Log.d("Image URI", uri.toString());
         
@@ -142,6 +152,37 @@ public class CameraActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e("CameraActivity", "Error processing barcode image", e);
         }
+    }
+
+    private void processImageForBarcodeMock() {
+        // Get a reference to the image file in Firebase Storage
+        StorageReference imageRef = FirebaseStorage.getInstance().getReference("images/testImages/barcode.jpg");
+    
+        // Create a local file to store the image
+        File localFile;
+        try {
+            localFile = File.createTempFile("barcode", "jpg");
+        } catch (IOException e) {
+            Log.e("CameraActivity", "Error creating local file", e);
+            return;
+        }
+    
+        // Download the image to the local file
+        imageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                // The image has been downloaded to the local file
+                // Now process the image
+                Bitmap bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                processImageWithMLKit(CameraActivity.this, bitmap);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+                Log.e("CameraActivity", "Error downloading image", exception);
+            }
+        });
     }
 
 

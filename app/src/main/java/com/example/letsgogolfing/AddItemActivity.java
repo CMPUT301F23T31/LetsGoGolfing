@@ -368,7 +368,18 @@ public class AddItemActivity extends AppCompatActivity {
                             @Override
                             public void onImageUploaded(String downloadUrl) {
                                 Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
-                                navigateToMainActivity();
+                                firestoreRepository.updateItem(itemId, fetchedItem, new FirestoreRepository.OnItemUpdatedListener() {
+                                    @Override
+                                    public void onItemUpdated() {
+                                        // Navigate to MainActivity after the item has been updated
+                                        navigateToMainActivity();
+                                    }
+        
+                                    @Override
+                                    public void onError(Exception e) {
+                                        Log.e("AddItemActivity", "Error updating item", e);
+                                    }
+                                });
                             }
 
                             @Override
@@ -412,38 +423,6 @@ public class AddItemActivity extends AppCompatActivity {
         tagList.addAll(newTags);
         // If needed, update the UI or other elements that depend on the tagList
     }
-
-    private void uploadImage(Uri imageUri) {
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] imageData = baos.toByteArray();
-
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
-            StorageReference imagesRef = storageRef.child("images/" + photoFileName);
-
-            UploadTask uploadTask = imagesRef.putBytes(imageData);
-            uploadTask.addOnFailureListener(exception -> {
-                Log.e("Firebase Upload", "Upload failed", exception);
-                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                // Get the download URL
-                imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    tempUris.add(downloadUri.toString());
-                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
-                });
-            });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
 
 
     /**
