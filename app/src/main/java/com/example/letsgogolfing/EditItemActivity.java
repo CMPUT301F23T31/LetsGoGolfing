@@ -56,8 +56,6 @@ public class EditItemActivity extends AppCompatActivity {
     private Item item;
     private FirestoreRepository db;
     private String username;
-    private Uri imageUri;
-
     private List<String> tempUris = new ArrayList<>();
     private static final String TAG = "EditItemActivity";
 
