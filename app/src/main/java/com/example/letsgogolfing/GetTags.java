@@ -19,30 +19,29 @@ interface TagOkFunction{
     void apply(List<String> tags);
 }
 public class GetTags {
-    private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
     private static final String TAG = "EditItemActivity";
     private Activity activity;
+    private FirestoreRepository repository;
     public GetTags(Activity activity){
         this.activity = activity;
-
     }
-    public void fetchTagsFromFirestore() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Fetch the tags from Firestore
-        db.collection("tags").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                tagList.clear();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    tagList.add(document.getString("name"));
-                }
-                // Now that the tags are fetched, you can enable the 'Add Tags' button
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
-            }
-        });
-    }
+//    public void fetchTagsFromFirestore() {
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//        // Fetch the tags from Firestore
+//        db.collection("tags").get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                tagList.clear();
+//                for (QueryDocumentSnapshot document : task.getResult()) {
+//                    tagList.add(document.getString("name"));
+//                }
+//                // Now that the tags are fetched, you can enable the 'Add Tags' button
+//            } else {
+//                Log.w(TAG, "Error getting documents: ", task.getException());
+//            }
+//        });
+//    }
 
 
     /**
@@ -55,10 +54,7 @@ public class GetTags {
     // You might need to pass the tags from MainActivity to here or retrieve them from persistent storage.
 
 
-    public void showTagSelectionDialog(TagOkFunction tagOkFunction) {
-        fetchTagsFromFirestore(); // Originally, this would only be called on the creation of the AddItemActivity class...
-        // and not on every call of showTagSelectionDialog
-
+    public void showTagSelectionDialog(TagOkFunction tagOkFunction, ArrayList<String> tagList) {
         // Convert List to array for AlertDialog
         tagList.removeAll(Collections.singleton(null));
         String[] tagsArray = tagList.toArray(new String[0]);

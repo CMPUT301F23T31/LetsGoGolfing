@@ -42,6 +42,7 @@ import java.util.Set;
  */
 public class MainActivity extends AppCompatActivity {
 
+    // itemsFetched used for UI test to check if items are fetched from FireStore;
     public static boolean itemsFetched;
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
-
+    private ArrayList<String>tagList;
 
 
     /**
@@ -69,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         GetTags getTags = new GetTags(this);
-        getTags.fetchTagsFromFirestore();
         // Retrieve current username from SharedPreferences
         SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         String currentUsername = sharedPref.getString("username", null);
@@ -96,7 +96,17 @@ public class MainActivity extends AppCompatActivity {
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
             if (item != null && item.getId() != null) {
-                getTags.fetchTagsFromFirestore(); // this is necessary for the tags menu to not be empty...
+                firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
+                    @Override
+                    public void onTagsFetched(List<String> tags) {
+                        tagList = (ArrayList<String>) tags;
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                }); // this is necessary for the tags menu to not be empty...
                 if(isSelectMode == false){
                     isSelectMode = true;
                     deleteButton.setVisibility(View.VISIBLE);
@@ -149,11 +159,19 @@ public class MainActivity extends AppCompatActivity {
                     Map<String, Object> update = new HashMap<>();
                     for(Item item : itemAdapter.getSelectedItems()) {
                         item.addTags(selectedTags);
-                        db.collection("items").document(item.getId()).update("tags", item.getTags());
+                        firestoreRepository.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+                                    @Override
+                                    public void onItemUpdated() {
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                    }
+                                }
+                        );
                     }
                     clearSelection();
-                });
-
+                }, tagList);
                 return;
             }
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
@@ -203,9 +221,6 @@ public class MainActivity extends AppCompatActivity {
 
         TextView totalValueTextView = findViewById(R.id.totalValue);
         totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
-    }
-    boolean getItemsFetched(){
-        return itemsFetched;
     }
 
     /**
@@ -279,123 +294,6 @@ public class MainActivity extends AppCompatActivity {
      *                           being shut down, this Bundle contains the most recent data,
      *                           or null if it is the first time.
      */
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        firestoreRepository = new FirestoreRepository();
-
-        itemGrid = findViewById(R.id.itemGrid);
-        itemAdapter = new ItemAdapter(this, new ArrayList<>());
-        itemGrid.setAdapter(itemAdapter);
-        GetTags getTags = new GetTags(this);
-        getTags.fetchTagsFromFirestore();
-
-        fetchItemsAndRefreshAdapter();
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<Item> items = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Item item = document.toObject(Item.class);
-                    item.setId(document.getId()); // Make sure to set the document ID
-                    items.add(item);
-                }
-                itemAdapter.updateItems(items); // Update your adapter with this list
-            } else {
-                Log.w(TAG, "Error getting documents.", task.getException());
-            }
-        });
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
-        itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
-            Item item = itemAdapter.getItem(position);
-            if (item != null && item.getId() != null) {
-                getTags.fetchTagsFromFirestore(); // this is necessary for the tags menu to not be empty...
-                if(isSelectMode == false){
-                    isSelectMode = true;
-                    deleteButton.setVisibility(View.VISIBLE);
-                    itemAdapter.toggleSelection(position);
-                    selectTextCancel.setVisibility(View.VISIBLE);
-                    selectButton.setVisibility(View.VISIBLE);
-                }
-            } else {
-                // Document ID is null, handle this case
-                Toast.makeText(MainActivity.this, "Cannot select item without an ID", Toast.LENGTH_SHORT).show();
-            }
-
-            return true; // True to indicate the long click was consumed
-        });
-
-        itemGrid.setOnItemClickListener((parent, view, position, id) -> {
-            if (isSelectMode) {
-                itemAdapter.toggleSelection(position); // Toggle item selection
-                if(itemAdapter.isSelectionEmpty()) {
-                    clearSelection();
-                }
-            } else {
-                // Existing code to show item details...
-                Item item = itemAdapter.getItem(position);
-                if( item != null && item.getId() != null) {
-                    db.collection("items").document(item.getId()).get()
-                        .addOnSuccessListener(aVoid -> {
-                            Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-                            intent.putExtra("ITEM", item); // Make sure your Item class implements Serializable or Parcelable
-                            startActivity(intent);
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(MainActivity.this, "Error fetching item from database", Toast.LENGTH_SHORT).show();
-                        });
-
-                }
-            }
-        });
-
-
-        ImageView addItemButton = findViewById(R.id.addItemButton);
-        addItemButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
-            editItemActivityLauncher.launch(intent); // Use the launcher to start for result
-        });
-
-        Button manageTagsButton = findViewById(R.id.manage_tags_button);
-        manageTagsButton.setOnClickListener(v -> {
-            if (isSelectMode) {
-                getTags.showTagSelectionDialog(selectedTags -> {
-                    Map<String, Object> update = new HashMap<>();
-                    for(Item item : itemAdapter.getSelectedItems()) {
-                        item.addTags(selectedTags);
-                        db.collection("items").document(item.getId()).update("tags", item.getTags());
-                    }
-                    clearSelection();
-                });
-
-                return;
-            }
-            Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
-            startActivity(intent);
-        });
-
-
-
-        deleteButton = findViewById(R.id.delete_button);
-
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
-
-        selectButton.setOnClickListener(v -> {
-            clearSelection();
-        });
-
-        deleteButton.setOnClickListener(v -> deleteSelectedItems());
-        // Clicking the profile button
-        ImageView profileButton = findViewById(R.id.profileButton);
-        profileButton.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
-            startActivity(intent);
-        });
-    }
-
 
     /**
      * Clears the relevant buttons whenever the selection needs to be cleared
