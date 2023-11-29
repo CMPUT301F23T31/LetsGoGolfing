@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="center_horizontal"
+    android:background="@drawable/rounded_image_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Sort Option"
+        android:textSize="20sp"
+        android:paddingBottom="24dp"
+    android:drawablePadding="10dp"
+    android:gravity="center_vertical"
+    android:paddingTop="24dp"/>
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"> <!-- Match parent width and add padding -->
+
+        <RadioButton
+            android:id="@+id/radio_button1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="By Tags"
+            android:textColor="@color/black"
+            android:padding="20dp"/> <!-- Increase padding for better tap targets -->
+
+        <RadioButton
+            android:id="@+id/radio_button2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="By Make"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:padding="20dp"/>
+
+        <RadioButton
+            android:id="@+id/radio_button3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="By date"
+            android:textColor="@color/black"
+            android:padding="20dp"/>
+    </RadioGroup>
+
+</LinearLayout>

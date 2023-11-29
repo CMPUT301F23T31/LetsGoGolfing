@@ -5,7 +5,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,7 +33,7 @@ import java.util.Set;
  * It handles the display and interaction with a grid of items, allowing the user to
  * select and delete items, as well as adding new ones and viewing their details.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FilterDialogFragment.FilterDialogListener {
 
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
@@ -44,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
+
+    private ImageButton filterButton;
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -60,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param items The list of items whose values are to be summed.
      */
+
+    public void showDialog() {
+        FilterDialogFragment dialogFragment = new FilterDialogFragment();
+        dialogFragment.show(getSupportFragmentManager(), "FilterDialogFragment");
+    }
+
     private void updateTotalValue(List<Item> items) {
         double totalValue = 0;
         for (Item item : items) {
@@ -149,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
         itemGrid.setAdapter(itemAdapter);
 
+        ImageView filterButton = findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(v -> showDialog());
+
         fetchItemsAndRefreshAdapter();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -165,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error getting documents.", task.getException());
             }
         });
+
+        // Initialize the filter button and set up its click listener
+
+
 
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
@@ -225,27 +239,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
-        deleteButton = findViewById(R.id.delete_button);
 
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
-
-        selectButton.setOnClickListener(v -> {
-            isSelectMode = !isSelectMode; // Toggle select mode
-            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
-            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
-        });
-
-        deleteButton.setOnClickListener(v -> deleteSelectedItems());
-        // Clicking the profile button
-        ImageView profileButton = findViewById(R.id.profileButton);
-        profileButton.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
-            startActivity(intent);
-        });
     }
 
+    @Override
+    public void onFilterSelected(boolean option1, boolean option2, boolean option3) {
 
+    }
 }
