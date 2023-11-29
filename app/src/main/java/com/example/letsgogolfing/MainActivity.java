@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
 import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_GALLERY;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import java.util.Set;

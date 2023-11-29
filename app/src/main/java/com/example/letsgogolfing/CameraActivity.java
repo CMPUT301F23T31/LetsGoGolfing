@@ -12,19 +12,24 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -61,11 +66,10 @@ public class CameraActivity extends AppCompatActivity {
     private static final int GALLERY_PERMISSION_CODE = 911;
     private ImageView imageView;
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
-    private ActivityResultLauncher<String> galleryActivityResultLauncher;
+    private ActivityResultLauncher<String[]> galleryActivityResultLauncher;
     private Uri imageUri;
     public boolean BarcodeInfo = false;
-
-    public static final String MODE_KEY = "CameraMode";
+    public String galleryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
     public static final int MODE_PHOTO_CAMERA = 1;
     public static final int MODE_PHOTO_GALLERY = 2;
     
@@ -107,19 +111,24 @@ public class CameraActivity extends AppCompatActivity {
         );
     
         galleryActivityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        if (BarcodeInfo) {
-                            processImageForBarcode(uri);
-                        } else {
-                            imageView.setImageURI(uri);
-                            Log.d("Image URI: FROM GALLERY", uri.toString());
-
-                            Intent resultIntent = new Intent();
-                            resultIntent.putExtra("imageUri", uri.toString());
-                            setResult(Activity.RESULT_OK, resultIntent);
-                            finish();
+                new ActivityResultContracts.OpenMultipleDocuments(),
+                new ActivityResultCallback<List<Uri>>() {
+                    @Override
+                    public void onActivityResult(List<Uri> uris) {
+                        if (uris != null && !uris.isEmpty()) {
+                            for (Uri uri : uris) {
+                                if (BarcodeInfo) {
+                                    processImageForBarcode(uri);
+                                } else {
+                                    imageView.setImageURI(uri);
+                                    Log.d("Image URI: FROM GALLERY", uri.toString());
+            
+                                    Intent resultIntent = new Intent();
+                                    resultIntent.putExtra("imageUri", uri.toString());
+                                    setResult(Activity.RESULT_OK, resultIntent);
+                                    finish();
+                                }
+                            }
                         }
                     }
                 }
@@ -148,11 +157,8 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, GALLERY_PERMISSION_CODE);
-        } else {
-            galleryActivityResultLauncher.launch(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath());
-        }
+        // Open the directory picker
+        galleryActivityResultLauncher.launch(new String[]{"image/*"});
     }
 
     private void processImageForBarcode(Uri imageUri) {
@@ -224,14 +230,8 @@ public class CameraActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if (requestCode == GALLERY_REQUEST && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            // Use the Uri object to do whatever you need to do
-            Glide.with(this)
-                    .load(selectedImageUri)
-                    .into(imageView);
         }
-    }
+}
 
     private Uri createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
