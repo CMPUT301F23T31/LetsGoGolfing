@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -16,12 +17,18 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
+    public interface OnDeleteClickListener {
+        void onDeleteClick(int position);
+    }
+
     private List<Uri> imageUris;
     private Context context;
+    private OnDeleteClickListener onDeleteClickListener;
 
-    public ImageAdapter(List<Uri> imageUris, Context context) {
+    public ImageAdapter(List<Uri> imageUris, Context context, OnDeleteClickListener onDeleteClickListener) {
         this.imageUris = imageUris;
         this.context = context;
+        this.onDeleteClickListener = onDeleteClickListener;
     }
 
     public void setImageUris(List<Uri> imageUris) {
@@ -42,6 +49,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         Uri imageUri = imageUris.get(position);
         Log.d("ImageAdapter", "Binding view holder for item " + position + ": " + imageUri.toString());
         Glide.with(context).load(imageUri).into(holder.imageView);
+
+        holder.deleteButton.setOnClickListener(v -> {
+            onDeleteClickListener.onDeleteClick(position);
+        });
     }
 
     @Override
@@ -49,12 +60,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         return imageUris.size();
     }
 
-    static class ImageViewHolder extends RecyclerView.ViewHolder {
+    public class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        ImageButton deleteButton;
 
-    public ImageViewHolder(@NonNull View itemView) {
-        super(itemView);
-        imageView = itemView.findViewById(R.id.image_view);
-    }
+        public ImageViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageView = itemView.findViewById(R.id.image_view);
+            deleteButton = itemView.findViewById(R.id.delete_button);
+        }
     }
 }

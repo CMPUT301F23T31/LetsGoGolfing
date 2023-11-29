@@ -328,7 +328,7 @@ public class FirestoreRepository {
         db.collection("items").document(itemId).get()
             .addOnSuccessListener(itemDocumentSnapshot -> {
                 // Get the ImageUris array from the item document
-                List<String> imageUris = (List<String>) itemDocumentSnapshot.get("ImageUris");
+                ArrayList<String> imageUris = (ArrayList<String>) itemDocumentSnapshot.get("ImageUris");
     
                 // Remove the download URL from the ImageUris array
                 imageUris.remove(downloadUrl);

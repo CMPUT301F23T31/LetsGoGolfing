@@ -1,5 +1,9 @@
 package com.example.letsgogolfing;
 
+import static com.google.android.gms.vision.L.TAG;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,21 +25,53 @@ import java.util.List;
 public class ViewPhotoActivity extends AppCompatActivity {
     private ImageAdapter imageAdapter;
 
+    private List<String> imageUris;
 
+    private SharedPreferences sharedPref;
+    private String currentUsername;
+    private FirestoreRepository firebase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_photo);
 
+        sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        currentUsername = sharedPref.getString("username", null);
+        firebase = new FirestoreRepository(currentUsername);
+
         // Initialize the RecyclerView
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        imageAdapter = new ImageAdapter(new ArrayList<>(), this);
+        imageAdapter = new ImageAdapter(new ArrayList<>(), this, new ImageAdapter.OnDeleteClickListener() {
+            @Override
+            public void onDeleteClick(int position) {
+                // Get the downloadUrl of the image
+                String downloadUrl = imageUris.get(position);
+
+                // Delete the image from Firestore
+                firebase.deleteImage(downloadUrl, new FirestoreRepository.OnImageDeletedListener() {
+                    @Override
+                    public void onImageDeleted() {
+                        // Remove the downloadUrl from the list
+                        imageUris.remove(position);
+                        // Notify the adapter
+                        imageAdapter.notifyItemRemoved(position);
+                        imageAdapter.notifyItemRangeChanged(position, imageUris.size());
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        // Handle any errors
+                        Log.e(TAG, "onError: failed to delete image " + downloadUrl, e);
+                    }
+                });
+            }
+        });
         recyclerView.setAdapter(imageAdapter);
 
         // Retrieve the list of image URIs passed from ViewDetailsActivity
-        List<String> imageUris = getIntent().getStringArrayListExtra("imageUris");
+        imageUris = getIntent().getStringArrayListExtra("imageUris");
         if (imageUris != null) {
             // Convert String URIs to Uri objects
             List<Uri> uriList = new ArrayList<>();
@@ -56,44 +92,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
             finish();
         });
 
-
-
     }
 
 
-    public void displayImagesFromFirebase() {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-        StorageReference imagesRef = storageRef.child("images/testImages/");
-    
-        imagesRef.listAll()
-            .addOnSuccessListener(listResult -> {
-                Log.d("Firebase Storage", "Number of items: " + listResult.getItems().size());
-                List<Task<Uri>> tasks = new ArrayList<>();
-                for (StorageReference item : listResult.getItems()) {
-                    Task<Uri> task = item.getDownloadUrl();
-                    task.addOnFailureListener(exception -> {
-                        Log.e("Firebase Storage", "Failed to get download URL", exception);
-                    });
-                    tasks.add(task);
-                }
-    
-                Tasks.whenAllSuccess(tasks).addOnSuccessListener(objects -> {
-                    List<Uri> imageUris = new ArrayList<>();
-                    for (Object object : objects) {
-                        Uri uri = (Uri) object;
-                        Log.d("Firebase Storage", "Image URI: " + uri.toString());
-                        imageUris.add(uri);
-                    }
-    
-                    // Update the adapter with the image URIs
-                    imageAdapter.setImageUris(imageUris);
-                    imageAdapter.notifyDataSetChanged();
-                    Log.d("ImageAdapter", "Item count: " + imageAdapter.getItemCount());
-                });
-            })
-            .addOnFailureListener(exception -> {
-                // Handle any errors
-                Log.e("Firebase Storage", "Failed to list files", exception);
-            });
-    }
 }

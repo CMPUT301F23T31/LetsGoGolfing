@@ -1,6 +1,7 @@
 package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
+import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_GALLERY;
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 import android.Manifest;
