@@ -290,7 +290,9 @@ public class CameraActivity extends AppCompatActivity {
                 }
                 intent.putExtra("item", item);
                 intent.putExtra("uri", uri.toString());
-                startActivity(intent);
+                // Use setResult to send the result back to the calling activity
+                setResult(Activity.RESULT_OK, intent);
+                finish(); // Finish CameraActivity to return to the calling activity
             }
         }
     }

@@ -59,6 +59,7 @@ public class EditItemActivity extends AppCompatActivity {
     private FirestoreRepository db;
     private String username;
     private ArrayList<String> tempUri;
+    private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private static final String TAG = "EditItemActivity";
 
 
@@ -80,16 +81,52 @@ public class EditItemActivity extends AppCompatActivity {
         db = new FirestoreRepository(username);
 
 
+        // Retrieve the item and its image URIs from the intent
         item = (Item) getIntent().getSerializableExtra("item");
-
-
-        // Retrieve the item from the intent
-        if (item == null) {
+        if (item != null) {
+            // Check if getImageUris() is not null before using it
+            if (item.getImageUris() != null) {
+                tempUri = new ArrayList<>(item.getImageUris()); // Make a copy of the image URIs
+            } else {
+                tempUri = new ArrayList<>(); // Initialize to an empty list if getImageUris() is null
+            }
+        }else {
             // If the Item object is null, log an error and finish the activity
             Log.e("EditItemActivity", "Item is null");
             finish();
             return;
         }
+
+        // Initialize ActivityResultLauncher
+        cameraActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        String newImageUriString = result.getData().getStringExtra("uri");
+                        Log.d("ActivityResult", "URI received: " + newImageUriString);
+
+                        if (newImageUriString != null && item != null) {
+                            Uri newImageUri = Uri.parse(newImageUriString);
+
+                            // Ensure tempUri and item's image URIs are initialized
+                            if (tempUri == null) {
+                                tempUri = new ArrayList<>();
+                            }
+                            if (item.getImageUris() == null) {
+                                item.setImageUris(new ArrayList<>());
+                            }
+
+                            // Update the tempUri and item's image URIs
+                            tempUri.add(newImageUriString);
+                            item.getImageUris().add(newImageUriString);
+
+                            // You may want to update your UI here
+                            // For example, displaying the new image or updating a list
+                        }
+                    }
+                }
+        );
+
 
         InitializeUI(item);
 
@@ -113,7 +150,7 @@ public class EditItemActivity extends AppCompatActivity {
             photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
             photoIntent.putExtra("BarcodeInfo", false);
             photoIntent.putExtra("item", item);
-            startActivity(photoIntent);
+            cameraActivityResultLauncher.launch(photoIntent); // Use the launcher to start CameraActivity
         });
 
         saveButton.setOnClickListener(v -> {
