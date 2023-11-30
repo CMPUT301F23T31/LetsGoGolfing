@@ -285,29 +285,18 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     private void updateItem() {
-        try {
-            // Convert the date string back to a Date object
-            item.setDateOfPurchase(dateFormat.parse(date.getText().toString()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Toast.makeText(EditItemActivity.this, "Invalid date format", Toast.LENGTH_SHORT).show();
-        }
-
-        // Convert the value string to a double
-        try {
-            item.setEstimatedValue(Double.parseDouble(value.getText().toString()));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            Toast.makeText(EditItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
-            item.setEstimatedValue(0);
-        }
-        item.setName(name.getText().toString());
-        item.setDescription(description.getText().toString());
-        item.setModel(model.getText().toString());
-        item.setMake(make.getText().toString());
-        item.setSerialNumber(serial.getText().toString());
-        item.setComment(comment.getText().toString());
-        item.setTags(selectedTags);
-        item.setImageUris(tempUri);
+        item.setItemProperties(
+                EditItemActivity.this,
+                date.getText().toString(),
+                value.getText().toString(),
+                name.getText().toString(),
+                description.getText().toString(),
+                model.getText().toString(),
+                make.getText().toString(),
+                serial.getText().toString(),
+                comment.getText().toString(),
+                selectedTags,
+                tempUri
+        );
     }
 }

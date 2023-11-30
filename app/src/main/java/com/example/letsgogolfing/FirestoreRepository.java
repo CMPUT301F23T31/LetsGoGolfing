@@ -3,6 +3,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -21,6 +22,7 @@ public class FirestoreRepository {
     private final String currentUserId;
 
     private final StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+    private DocumentReference newDocRef;
 
     public FirestoreRepository(String userId) {
         this.currentUserId = userId;
@@ -358,6 +360,39 @@ public class FirestoreRepository {
 
     public interface OnImageDeletedListener {
         void onImageDeleted();
+        void onError(Exception e);
+    }
+
+    public void generateID(String collectionType, OnIDGeneratedListener listener) {
+        switch (collectionType.toLowerCase()) {
+            case "users":
+                newDocRef = db.collection("users").document();
+                break;
+            case "items":
+                newDocRef = db.collection("users").document(currentUserId).collection("items").document();
+                break;
+            case "tags":
+                newDocRef = db.collection("tags").document();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid collection type");
+        }
+        // Check if the "items" collection exists
+        newDocRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // The collection exists, generate the ID
+                String id = newDocRef.getId();
+                Log.d("FirestoreRepository", "Generated ID: " + id);
+                listener.onIDGenerated(id);
+            } else {
+                // The collection doesn't exist, notify the listener
+                listener.onError(new Exception("The '" + collectionType + "' collection doesn't exist"));
+            }
+        });
+    }
+
+    public interface OnIDGeneratedListener {
+        void onIDGenerated(String id);
         void onError(Exception e);
     }
 }
