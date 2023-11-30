@@ -341,7 +341,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
     private void processImageWithMLKit(Context context, Bitmap bitmap) {
-        BarcodeScannerActivity barcodeScannerActivity = new BarcodeScannerActivity();
         BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
         try {
             InputImage image = InputImage.fromBitmap(bitmap, 0);

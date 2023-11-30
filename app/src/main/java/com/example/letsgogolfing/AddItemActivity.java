@@ -383,6 +383,7 @@ public class AddItemActivity extends AppCompatActivity {
         } catch (NumberFormatException e) {
             Toast.makeText(AddItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
             double estimatedValue = 0;
+            newItem.setEstimatedValue(estimatedValue);
         }
 
         // Parse and set the tags

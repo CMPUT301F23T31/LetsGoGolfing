@@ -56,19 +56,19 @@
 
     <GridView
         android:id="@+id/itemGrid"
-        android:layout_width="406dp"
-        android:layout_height="514dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:columnWidth="90dp"
         android:horizontalSpacing="10dp"
         android:numColumns="1"
         android:verticalSpacing="10dp"
-        app:layout_constraintBottom_toTopOf="@id/totalValue"
+        app:layout_constraintBottom_toTopOf="@id/manage_tags_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchEditText"
-        app:layout_constraintVertical_bias="0.327"
         tools:listitem="@layout/grid_item" />
+
 
     <TextView
         android:id="@+id/totalValue"
@@ -148,6 +148,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:text="Add Tags"
         app:layout_constraintBottom_toTopOf="@+id/totalValue"
         app:layout_constraintStart_toStartOf="parent"

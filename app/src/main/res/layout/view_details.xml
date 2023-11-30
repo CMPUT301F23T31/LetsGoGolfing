@@ -206,10 +206,8 @@
         android:id="@+id/edit_item_button"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         android:text="Edit Item"
-        android:textColor="#FFFFFF"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
