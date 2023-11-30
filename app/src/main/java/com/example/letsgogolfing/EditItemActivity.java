@@ -1,12 +1,15 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -55,13 +58,8 @@ public class EditItemActivity extends AppCompatActivity {
     private Item item;
     private FirestoreRepository db;
     private String username;
-    private Uri imageUri;
-
-    private List<String> tempUris = new ArrayList<>();
-
-    private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
+    private ArrayList<String> tempUri;
     private static final String TAG = "EditItemActivity";
-    private static final int MY_CAMERA_PERMISSION_CODE = 100;
 
 
 
@@ -77,11 +75,21 @@ public class EditItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_item);
 
-        // Retrieve the item from the intent
-        username = getIntent().getStringExtra("username");
+        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        username = sharedPref.getString("username", null);
         db = new FirestoreRepository(username);
-        item = (Item) getIntent().getSerializableExtra("ITEM");
 
+
+        item = (Item) getIntent().getSerializableExtra("item");
+
+
+        // Retrieve the item from the intent
+        if (item == null) {
+            // If the Item object is null, log an error and finish the activity
+            Log.e("EditItemActivity", "Item is null");
+            finish();
+            return;
+        }
 
         InitializeUI(item);
 
@@ -93,45 +101,62 @@ public class EditItemActivity extends AppCompatActivity {
 
         cancelButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ViewDetailsActivity.class);
-            intent.putExtra("ITEM", item);
+            intent.putExtra("item", item);
             startActivity(intent);
         });
 
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
 
         addPhotoButton.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-            } else {
-                launchCamera();
-            }
+            updateItem(); // not working properly
+            Intent photoIntent = new Intent(this, CameraActivity.class);
+            photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
+            photoIntent.putExtra("BarcodeInfo", false);
+            photoIntent.putExtra("item", item);
+            startActivity(photoIntent);
         });
 
         saveButton.setOnClickListener(v -> {
-            updateItem();
-            db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
-                @Override
-                public void onItemUpdated() {
-                    Toast.makeText(EditItemActivity.this, "Successfully updated item", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
-                    intent.putExtra("username", username);
-                    intent.putExtra("ITEM", item);
-                    startActivity(intent);
-                }
+            if (item != null && item.getId() != null) {
+                updateItem();
+                Log.d("EditItemActivity", "Item ID before update: " + item.getId());
+                db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+                    @Override
+                    public void onItemUpdated() {
+                        Log.d("EditItemActivity", "Item ID after update: " + item.getId());
+                        // Get the URI passed through the intent from CameraActivity
+                        String uriString = getIntent().getStringExtra("uri");
+                        Uri uri = Uri.parse(uriString);
 
-                @Override
-                public void onError(Exception e) {
-                    Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
+                        // Upload the image with the updated item and the URI
+                        db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
+                            @Override
+                            public void onImageUploaded(String downloadUrl) {
+                                Log.d("EditItemActivity", "Item ID after image upload: " + item.getId());
+                                Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
 
-        cameraActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                        result -> {
-                            if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
-                                uploadImage(imageUri); // This will start the upload and then update the item
+                                // Move to ViewDetailsActivity
+                                Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
+                                intent.putExtra("item", item);
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("EditItemActivity", "Error uploading image", e);
                             }
                         });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Log.e("EditItemActivity", "Item or item ID is null");
+            }
+        });
     }
 
 
@@ -152,6 +177,7 @@ public class EditItemActivity extends AppCompatActivity {
         date = findViewById(R.id.date_edit_text);
         value = findViewById(R.id.value_edit_text);
         tagsContainerView = findViewById(R.id.tags_linear_layout);
+        tempUri = item.getImageUris();
         // Initialize Buttons
         addTagsButton = findViewById(R.id.add_tags_button_view);
         saveButton = findViewById(R.id.save_button);
@@ -167,78 +193,7 @@ public class EditItemActivity extends AppCompatActivity {
         comment.setText(item.getComment());
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
-        tempUris = item.getImageUris();
         loadTags();
-    }
-
-
-
-
-
-    private void launchCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        imageUri = createImageFile();
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        cameraActivityResultLauncher.launch(cameraIntent);
-    }
-
-    // Implement the createImageFile method
-    private Uri createImageFile(){
-        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        String imageFileName = "Cliche" + timeStamp;
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        return imageUri;
-    }
-
-    // Implement the uploadImage method
-    // After capturing the image, upload it
-    private void uploadImage(Uri imageUri) {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-        String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
-        StorageReference imagesRef = storageRef.child("images/" + photoFileName);
-
-        UploadTask uploadTask = imagesRef.putFile(imageUri);
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                // Update the item's image URI list
-                ArrayList<String> imageUris = item.getImageUris();
-                if (imageUris == null) {
-                    imageUris = new ArrayList<>();
-                }
-                imageUris.add(downloadUri.toString());
-                item.setImageUris(imageUris);
-
-                // Update the item in Firestore
-                updateItemInFirestore();
-            });
-        }).addOnFailureListener(exception -> {
-            // Handle unsuccessful uploads
-            Log.e("Firebase Upload", "Upload failed", exception);
-            Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    /**
-     * This is a new thing i added to handle updating items with new images
-     */
-// Call this method after the image URI list is updated
-    private void updateItemInFirestore() {
-        db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
-            @Override
-            public void onItemUpdated() {
-                // Notify user of success
-                Toast.makeText(EditItemActivity.this, "Item updated with new image", Toast.LENGTH_SHORT).show();
-                // Refresh the UI here if necessary
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(EditItemActivity.this, "Error updating item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 
@@ -347,17 +302,6 @@ public class EditItemActivity extends AppCompatActivity {
         item.setSerialNumber(serial.getText().toString());
         item.setComment(comment.getText().toString());
         item.setTags(selectedTags);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera();
-            } else {
-                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
-            }
-        }
+        item.setImageUris(tempUri);
     }
 }

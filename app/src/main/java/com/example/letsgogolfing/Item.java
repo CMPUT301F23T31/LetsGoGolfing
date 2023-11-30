@@ -55,7 +55,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      */
     public Item(String name, String description, Date dateOfPurchase, String make,
                 String model, String serialNumber, double estimatedValue,
-                String comment, List<String> tags) {
+                String comment, List<String> tags, ArrayList<String> imageUris) {
         this.name = name;
         this.description = description;
         this.dateOfPurchase = dateOfPurchase;
@@ -65,6 +65,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         this.estimatedValue = estimatedValue;
         this.comment = comment;
         this.tags = tags;
+        this.imageUris = imageUris;
     }
 
     public String getUsername() {

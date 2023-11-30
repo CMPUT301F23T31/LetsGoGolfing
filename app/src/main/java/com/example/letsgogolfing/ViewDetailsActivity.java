@@ -25,6 +25,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -87,6 +91,11 @@ public class ViewDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_details);
 
+        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        username = sharedPref.getString("username", null);
+        db = new FirestoreRepository(username);
+        item = (Item) getIntent().getSerializableExtra("item");
+
         InitializeUI();
 
         backButton.setOnClickListener(v -> {
@@ -97,10 +106,8 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
-            item = (Item) getIntent().getSerializableExtra("ITEM");
             Log.d(TAG, "Item ID: " + item.getId());
-            intent.putExtra("username", username); //THIS IS IMPORTANT!!!!
-            intent.putExtra("ITEM", item);
+            intent.putExtra("item", item);
             startActivity(intent);
         });
 
@@ -131,9 +138,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
      * buttons, and tag container view. It also populates the views with the item's data.
      */
     private void InitializeUI() {
-        // Retrieve the item from the intent
-        username = getIntent().getStringExtra("username");
-        item = (Item) getIntent().getSerializableExtra("ITEM");
 
         // Instantiate TextViews
         TextView name = findViewById(R.id.name_view_text);
