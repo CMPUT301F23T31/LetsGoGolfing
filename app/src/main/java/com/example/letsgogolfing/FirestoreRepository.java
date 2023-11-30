@@ -1,12 +1,8 @@
 package com.example.letsgogolfing;
-import android.net.Uri;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +14,6 @@ public class FirestoreRepository {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final String currentUserId;
-
-    private final StorageReference storageRef = FirebaseStorage.getInstance().getReference();
 
     public FirestoreRepository(String userId) {
         this.currentUserId = userId;
@@ -274,88 +268,5 @@ public class FirestoreRepository {
         itemMap.put("tags", item.getTags());
         itemMap.put("imageUris", item.getImageUris());
         return itemMap;
-    }
-
-    public void uploadImage(Uri imageUri, Item item, OnImageUploadedListener listener) {
-        // Create a reference to the file in Firebase Storage
-        String photoFileName = currentUserId + "_" +item.getId() + "_" + System.currentTimeMillis() + ".jpg";
-        StorageReference imageRef = storageRef.child("images/" + photoFileName);
-    
-        // Upload the file to Firebase Storage
-        imageRef.putFile(imageUri)
-        .addOnSuccessListener(taskSnapshot -> {
-            // Get the download URL of the uploaded file
-            imageRef.getDownloadUrl()
-                .addOnSuccessListener(downloadUri -> {
-                    // Use the download URL as the document ID
-                    String documentId = downloadUri.toString();
-
-                    // Add the download URL to the item's ImageUri array list
-                    item.getImageUris().add(documentId);
-
-                    // Create a new document in the imageData collection with the ID set to the filename
-                    Map<String, Object> imageData = new HashMap<>();
-                    imageData.put("downloadUrl", documentId);
-                    imageData.put("fileName", photoFileName);
-
-                    db.collection("imageData").document(photoFileName).set(imageData)
-                        .addOnSuccessListener(aVoid -> {
-                            // Notify the listener that the image has been uploaded
-                            listener.onImageUploaded(documentId);
-                        })
-                        .addOnFailureListener(listener::onError);
-                })
-                .addOnFailureListener(listener::onError);
-        })
-        .addOnFailureListener(listener::onError);
-    }
-
-    public interface OnImageUploadedListener {
-        void onImageUploaded(String downloadUrl);
-        void onError(Exception e);
-    }
-
-    public void deleteImage(String downloadUrl, OnImageDeletedListener listener) {
-        // Extract the filename from the downloadUrl
-        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
-    
-        // Extract the itemId from the filename
-        String itemId = fileName.split("_")[1];
-    
-        // Create a reference to the file in Firebase Storage
-        StorageReference imageRef = storageRef.child("images/" + fileName);
-    
-        db.collection("items").document(itemId).get()
-            .addOnSuccessListener(itemDocumentSnapshot -> {
-                // Get the ImageUris array from the item document
-                List<String> imageUris = (List<String>) itemDocumentSnapshot.get("ImageUris");
-    
-                // Remove the download URL from the ImageUris array
-                imageUris.remove(downloadUrl);
-    
-                // Update the item document
-                db.collection("items").document(itemId).update("ImageUris", imageUris)
-                    .addOnSuccessListener(aVoid -> {
-                        // Delete the file
-                        imageRef.delete()
-                            .addOnSuccessListener(aVoid2 -> {
-                                // Delete the document from the imageData collection
-                                db.collection("imageData").document(fileName).delete()
-                                    .addOnSuccessListener(aVoid3 -> {
-                                        // Notify the listener that the image has been deleted
-                                        listener.onImageDeleted();
-                                    })
-                                    .addOnFailureListener(listener::onError);
-                            })
-                            .addOnFailureListener(listener::onError);
-                    })
-                    .addOnFailureListener(listener::onError);
-            })
-            .addOnFailureListener(listener::onError);
-    }
-    
-    public interface OnImageDeletedListener {
-        void onImageDeleted();
-        void onError(Exception e);
     }
 }

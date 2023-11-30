@@ -1,7 +1,7 @@
 package com.example.letsgogolfing;
 
-import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
-
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,9 +11,12 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +27,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +70,16 @@ public class AddItemActivity extends AppCompatActivity {
     private List<String> selectedTags = new ArrayList<>();
 
     private Uri imageUri;
+    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+
+    private ActivityResultLauncher<Intent> cameraActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
+                    // Handle the taken photo
+                    uploadImage(imageUri);
+                }
+            });
+
 
     /**
      * Called when the activity is starting. Responsible for initializing the activity.
@@ -79,7 +100,7 @@ public class AddItemActivity extends AppCompatActivity {
         // Initialize FirestoreRepository with the current username
         firestoreRepository = new FirestoreRepository(currentUsername);
 
-        item = (Item) getIntent().getSerializableExtra("item");
+        Item item = (Item) getIntent().getSerializableExtra("item");
         if (item != null) {
             ((EditText) findViewById(R.id.nameField)).setText(item.getName());
             ((EditText) findViewById(R.id.descriptionField)).setText(item.getDescription());
@@ -102,14 +123,7 @@ public class AddItemActivity extends AppCompatActivity {
 
         // confirm button listener
         Button confirmBtn = findViewById(R.id.confirmBtn);
-        confirmBtn.setOnClickListener(v -> {
-            saveItem();
-            if (item != null) {
-                addItemToFirestore();
-            } else {
-                Log.e("AddItemActivity", "Item is null");
-            }
-        });
+        confirmBtn.setOnClickListener(v -> saveItem());
 
         // cancel button listener
         Button cancel_button = findViewById(R.id.cancel_button_add_item);
@@ -137,14 +151,43 @@ public class AddItemActivity extends AppCompatActivity {
 
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> {
-                saveItem();
-                Intent photoIntent = new Intent(this, CameraActivity.class);
-                photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
-                photoIntent.putExtra("BarcodeInfo", false);
-                photoIntent.putExtra("item", item);
-                startActivity(photoIntent);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+            } else {
+                launchCamera();
+            }
         });
     }
+
+    private void launchCamera() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        imageUri = createImageFile();
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraActivityResultLauncher.launch(cameraIntent);
+    }
+
+    private Uri createImageFile(){
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String imageFileName = "Cliche" + timeStamp;
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, imageFileName);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        return imageUri;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
     /**
      * Displays a dialog for selecting tags.
@@ -295,115 +338,70 @@ public class AddItemActivity extends AppCompatActivity {
      * </p>
      */
 
-     private void saveItem() {
-    
-        // Set name, description, make, model, and comment directly on the Item object
-         item.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
-         item.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
-         item.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
-         item.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
-         item.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
-         item.setSerialNumber(((EditText) findViewById(R.id.serialField)).getText().toString());
-    
-        String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
-         item.setUsername(currentUsername); // Set the username before saving
+    private void saveItem() {
+        // Create a new Item object
+        Item newItem = new Item();
 
-         item.setImageUris(tempUris);
-    
+        // Set name, description, make, model, and comment directly on the Item object
+        newItem.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
+        newItem.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
+        newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
+        newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
+        newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
+
+        String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
+        newItem.setUsername(currentUsername); // Set the username before saving
+
+        newItem.setImageUris(tempUris);
+
         // Parse and set the date of purchase
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
 
-         if (!isValidDate(dateString)) {
-             Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-             return; // Exit the method if the date is not valid
-         }
+        if (!isValidDate(dateString)) {
+            Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+            return; // Exit the method if the date is not valid
+        }
 
-         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-         try {
-             Date date = sdf.parse(dateString);
-             if (date != null) {
-                 item.setDateOfPurchase(date);
-             } else {
-                 Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-                 return;
-             }
-         } catch (ParseException e) {
-             Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
-             return;
-         }
-    
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        try {
+            Date date = sdf.parse(dateString);
+            if (date != null) {
+                newItem.setDateOfPurchase(date);
+            } else {
+                Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+                return;
+            }
+        } catch (ParseException e) {
+            Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         // Parse and set the estimated value
         try {
             double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
-            item.setEstimatedValue(estimatedValue);
+            newItem.setEstimatedValue(estimatedValue);
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("No Value Entered. Defaulted to 0.");
+            Toast.makeText(AddItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
+            double estimatedValue = 0;
         }
-    
+
         // Parse and set the tags
-         item.setTags(selectedTags);
-    }
+        newItem.setTags(selectedTags);
 
-    private void addItemToFirestore() {
+
         // Use FirestoreRepository to add the new item
-        firestoreRepository.addItem(item, new FirestoreRepository.OnItemAddedListener() {
-                @Override
-                public void onItemAdded(String itemId) {
-                    Log.d("AddItemActivity", "Item added, ID: " + itemId);
-                    // Get the URI passed through the intent from CameraActivity
-                    String uriString = getIntent().getStringExtra("uri");
+        firestoreRepository.addItem(newItem, new FirestoreRepository.OnItemAddedListener() {
+            @Override
+            public void onItemAdded(String itemId) {
+                Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
+                navigateToMainActivity();
+            }
 
-                    if (uriString != null) {
-                        // Fetch the item again to get the item ID
-                        firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
-                            @Override
-                            public void onItemFetched(Item fetchedItem) {
-                                Log.d("AddItemActivity", "Item fetched, ID: " + fetchedItem.getId() + ", Name: " + fetchedItem.getName() + ", Estimated Value: " + fetchedItem.getEstimatedValue());
-                                Uri uri = Uri.parse(uriString);
-
-                                // Upload the image with the fetched item and the URI
-                                firestoreRepository.uploadImage(uri, fetchedItem, new FirestoreRepository.OnImageUploadedListener() {
-                                    @Override
-                                    public void onImageUploaded(String downloadUrl) {
-                                        Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
-                                        firestoreRepository.updateItem(itemId, fetchedItem, new FirestoreRepository.OnItemUpdatedListener() {
-                                            @Override
-                                            public void onItemUpdated() {
-                                                Log.d("AddItemActivity", "Item updated, ID: " + fetchedItem.getId() + ", Name: " + fetchedItem.getName() + ", Estimated Value: " + fetchedItem.getEstimatedValue());
-                                                // Navigate to MainActivity after the item has been updated
-                                                navigateToMainActivity();
-                                            }
-
-                                            @Override
-                                            public void onError(Exception e) {
-                                                Log.e("AddItemActivity", "Error updating item", e);
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onError(Exception e) {
-                                        Log.e("AddItemActivity", "Error uploading image", e);
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Log.e("AddItemActivity", "Error fetching item", e);
-                            }
-                        });
-                    } else {
-                        // If the URI is null, navigate to MainActivity after adding the item
-                        navigateToMainActivity();
-                    }
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateToMainActivity() {
@@ -426,6 +424,38 @@ public class AddItemActivity extends AppCompatActivity {
         tagList.addAll(newTags);
         // If needed, update the UI or other elements that depend on the tagList
     }
+
+    private void uploadImage(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageData = baos.toByteArray();
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+            String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
+            StorageReference imagesRef = storageRef.child("images/" + photoFileName);
+
+            UploadTask uploadTask = imagesRef.putBytes(imageData);
+            uploadTask.addOnFailureListener(exception -> {
+                Log.e("Firebase Upload", "Upload failed", exception);
+                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            }).addOnSuccessListener(taskSnapshot -> {
+                // Get the download URL
+                imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    tempUris.add(downloadUri.toString());
+                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                });
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
 
     /**
