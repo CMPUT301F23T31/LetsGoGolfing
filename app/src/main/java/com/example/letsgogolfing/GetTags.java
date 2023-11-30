@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -57,15 +58,17 @@ public class GetTags {
 
         try {
             // Pre-check the tags that have been previously selected
-            for(int i = 0; i < tagList.size(); i++) {
-                if(selectedTags.contains(tagList.get(i))) {
-                    checkedTags[i] = true;
-                }
-            }
-
+//            for(int i = 0; i < tagList.size(); i++) {
+//                if(selectedTags.contains(tagList.get(i))) {
+//                    checkedTags[i] = true;
+//                }
+//            }
+            LayoutInflater inflater = LayoutInflater.from(activity);
+            View customView = inflater.inflate(R.layout.dialog_custom_multi_choice_items, null);
+            ListView listView = customView.findViewById(R.id.listView);
+            listView.setAdapter(adapter);
             // Show the dialog (little pop-up screen) checkbox list of tags
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            View customView = createListView(adapter);
             builder.setView(customView);
             // Add OK and Cancel buttons
             builder.setPositiveButton("OK", (dialog, which) -> {
@@ -73,9 +76,28 @@ public class GetTags {
             });
 
             builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // Toggle the checked state
+                    //listView.setItemChecked(position, !listView.isItemChecked(position));
 
+                    // Handle your logic based on the checked state
+                    boolean isChecked = listView.isItemChecked(position);
+                    String item = adapter.getItem(position);
+                    if(isChecked){
+                        if(!selectedTags.contains(item))
+                            selectedTags.add(item);
+                    }else
+                        if(selectedTags.contains(item))
+                            selectedTags.remove(item);
+
+
+
+                }
+            });
             EditText editText = customView.findViewById(R.id.addTagText);
-            editText.setHint("Enter your text"); // Optional: Set a hint for the input
+            editText.setHint("Enter another tag"); // Optional: Set a hint for the input
             editText.setOnKeyListener((view, keyCode, keyEvent) -> {
                 if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                     Toast.makeText(activity, "test", Toast.LENGTH_SHORT).show();
@@ -85,6 +107,8 @@ public class GetTags {
                         public void onTagAdded() {
                             tagList.add(tagString);
                             adapter.notifyDataSetChanged();
+                            listView.setItemChecked(tagList.size()-1, true);
+                            selectedTags.add(tagString);
                         }
 
                         @Override
@@ -104,15 +128,6 @@ public class GetTags {
             e.printStackTrace();
             Toast.makeText(activity, "Error showing dialog: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-    }
-    private View createListView(ArrayAdapter<String> adapter) {
-        LayoutInflater inflater = LayoutInflater.from(activity);
-        View view = inflater.inflate(R.layout.dialog_custom_multi_choice_items, null);
-
-        ListView listView = view.findViewById(R.id.listView);
-        listView.setAdapter(adapter);
-
-        return view;
     }
 
 }
