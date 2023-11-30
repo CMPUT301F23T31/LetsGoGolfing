@@ -75,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="22dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_edittext"
         android:elevation="4dp"
         android:padding="8dp"
@@ -95,7 +95,9 @@
         android:src="@android:drawable/ic_menu_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/addItemButton"
-        app:layout_constraintHorizontal_chainStyle="packed" />
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintTop_toBottomOf="@+id/itemGrid"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/addItemButton"
@@ -107,7 +109,9 @@
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_add"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/itemGrid"
+        app:layout_constraintVertical_bias="1.0" />
 
 
     <ImageButton
@@ -143,10 +147,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="10dp"
         android:text="Add Tags"
         app:layout_constraintBottom_toTopOf="@+id/totalValue"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/itemGrid" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
