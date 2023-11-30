@@ -66,6 +66,9 @@ dependencies {
     // Can't get ML Kit to work, using Firebase Vision instead (deprecated)
     testImplementation ("org.robolectric:robolectric:4.11.1") // use the latest version
 
+    // ui automator - to disable animations for UI tests
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
+
     // AndroidX Test - Core library
     androidTestImplementation("androidx.test:core:1.5.0")
     // AndroidX Test - Assertions and runner

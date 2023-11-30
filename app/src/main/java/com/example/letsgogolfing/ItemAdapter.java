@@ -68,7 +68,9 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         selectedItems.clear(); // Clear selections when toggling mode
         notifyDataSetChanged();
     }
-
+    public boolean isSelectionEmpty(){
+        return selectedItems.isEmpty();
+    }
 
     // generate javadocs for toggleSelection
     /**
@@ -201,6 +203,12 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         }
     }
 
+    public ArrayList<Item> getSelectedItems(){
+        ArrayList<Item> itemList = new ArrayList<>();
+        for(Integer i : selectedItems)
+            itemList.add(getItem(i));
+        return itemList;
+    }
 
     // ViewHolder pattern to optimize performance
     private static class ViewHolder {

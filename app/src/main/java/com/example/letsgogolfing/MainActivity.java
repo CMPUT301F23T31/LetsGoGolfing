@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -46,8 +47,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
+
+import java.util.Map;
 import java.util.Set;
 
 
@@ -65,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private static final int CAMERA_REQUEST = 2104;
     private static final int MY_CAMERA_PERMISSION_CODE = 420;
 
+    // itemsFetched used for UI test to check if items are fetched from FireStore;
+    public static boolean itemsFetched;
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
@@ -75,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private ImageButton deleteButton;
     private ItemComparator comparator;
     private ImageView scanItemButton;
+    private ArrayList<String>tagList;
 
     private FirestoreRepository firestoreRepository;
 
@@ -138,34 +145,38 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
         initializeComponents();
 
+        GetTags getTags = new GetTags(this, firestoreRepository);
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
 
+
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
             if (item != null && item.getId() != null) {
-                // Proceed with deletion
-                List<String> itemIdsToDelete = Collections.singletonList(item.getId());
-                firestoreRepository.deleteItems(itemIdsToDelete, new FirestoreRepository.OnItemDeletedListener() {
+                firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
                     @Override
-                    public void OnItemsDeleted() {
-                        itemAdapter.removeItem(position);
-                        itemAdapter.notifyDataSetChanged();
-                        updateTotalValue(itemAdapter.getItems());
-                        Toast.makeText(MainActivity.this, "Item deleted", Toast.LENGTH_SHORT).show();
+                    public void onTagsFetched(List<String> tags) {
+                        tagList = (ArrayList<String>) tags;
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        Toast.makeText(MainActivity.this, "Error deleting item", Toast.LENGTH_SHORT).show();
+
                     }
-                });
+                }); // this is necessary for the tags menu to not be empty...
+                if(isSelectMode == false){
+                    isSelectMode = true;
+                    deleteButton.setVisibility(View.VISIBLE);
+                    itemAdapter.toggleSelection(position);
+                    selectTextCancel.setVisibility(View.VISIBLE);
+                    selectButton.setVisibility(View.VISIBLE);
+                }
             } else {
                 // Document ID is null, handle this case
-                Toast.makeText(MainActivity.this, "Cannot delete item without an ID", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Cannot select item without an ID", Toast.LENGTH_SHORT).show();
             }
 
             return true; // True to indicate the long click was consumed
@@ -190,13 +201,43 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
         Button manageTagsButton = findViewById(R.id.manage_tags_button);
         manageTagsButton.setOnClickListener(v -> {
+            if (isSelectMode) {
+                getTags.showTagSelectionDialog(selectedTags -> {
+                    Map<String, Object> update = new HashMap<>();
+                    for(Item item : itemAdapter.getSelectedItems()) {
+                        item.addTags(selectedTags);
+                        firestoreRepository.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+                                    @Override
+                                    public void onItemUpdated() {
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                    }
+                                }
+                        );
+                    }
+                    clearSelection();
+                }, tagList);
+                return;
+            }
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
+
         ImageButton sortButton = findViewById(R.id.sort_button);
         sortButton.setOnClickListener(v -> {
-            sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
+                    sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
+                });
 
+        selectTextCancel = findViewById(R.id.select_text_cancel);
+        selectButton = findViewById(R.id.select_button);
+        deleteButton = findViewById(R.id.delete_button);
+
+        deleteButton.setVisibility(View.GONE); // Hide delete button initially
+
+        selectButton.setOnClickListener(v -> {
+            clearSelection();
         });
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
@@ -303,7 +344,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         return BuildConfig.DEBUG;
     }
 
-
     /**
      * Fetches items from the Firestore database and updates the grid adapter.
      * It also updates the total value of all items displayed.
@@ -316,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 itemAdapter.updateItems(items);
                 sortArrayAdapter(comparator);
                 updateTotalValue(items);
+                itemsFetched = true;
             }
 
             @Override
@@ -346,26 +387,24 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 for (int position : positions) {
                     itemAdapter.removeItem(position);
                 }
-                itemAdapter.clearSelection();
+                clearSelection();
                 itemAdapter.notifyDataSetChanged();
                 updateTotalValue(itemAdapter.getItems());
                 Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
 
-                // Reset select mode
-                isSelectMode = false;
-                itemAdapter.setSelectModeEnabled(false);
-                deleteButton.setVisibility(View.GONE);
             }
 
             @Override
             public void onError(Exception e) {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
+            // Reset select mode
+//            isSelectMode = false;
+//            itemAdapter.setSelectModeEnabled(false);
+//            deleteButton.setVisibility(View.GONE);
+
         });
     }
-
-
-
 
     public void processImageForBarcode(Uri imageUri) {
         try {
@@ -455,5 +494,25 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     }
 
 
+    /**
+     * Initializes the activity with the required layout and sets up the item grid adapter.
+     * It also configures click listeners for the item grid and other UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     *                           being shut down, this Bundle contains the most recent data,
+     *                           or null if it is the first time.
+     */
+
+    /**
+     * Clears the relevant buttons whenever the selection needs to be cleared
+     * including when the user explicity presses "cancel" on the selection
+     */
+    private void clearSelection(){
+        isSelectMode = !isSelectMode; // Toggle select mode
+        itemAdapter.clearSelection(); // Inform the adapter
+        deleteButton.setVisibility(View.GONE);
+        selectTextCancel.setVisibility(View.GONE);
+        selectButton.setVisibility(View.GONE);
+    }
 
 }
