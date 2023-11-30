@@ -2,6 +2,7 @@ package com.example.letsgogolfing;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -46,8 +47,7 @@ public class ViewProfileActivity extends AppCompatActivity {
 
         ImageView homeButton = findViewById(R.id.homeButton);
         homeButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ViewProfileActivity.this, MainActivity.class);
-            startActivity(intent);
+            finish();
         });
 
         Button logout_button = findViewById(R.id.logout_button);
@@ -55,23 +55,21 @@ public class ViewProfileActivity extends AppCompatActivity {
         logout_button.setOnClickListener(v -> {
             logoutUser();
         });
-
-
-
     }
 
     private void logoutUser() {
-        // Clear the stored username
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+        clearUserData();
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+    private void clearUserData() {
+        SharedPreferences preferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
         editor.remove("username");
         editor.apply();
-
-        // Navigate back to the LoginActivity
-        Intent intent = new Intent(ViewProfileActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish(); // Close the current activity
     }
 
 
