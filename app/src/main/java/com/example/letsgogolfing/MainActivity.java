@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
-
+import androidx.fragment.app.DialogFragment;
 
 
 import android.app.Activity;
@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -43,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 import java.util.Set;
@@ -53,7 +55,7 @@ import java.util.Set;
  * It handles the display and interaction with a grid of items, allowing the user to
  * select and delete items, as well as adding new ones and viewing their details.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener {
 
     private Uri imageUri;
 
@@ -73,7 +75,27 @@ public class MainActivity extends AppCompatActivity {
     private FirestoreRepository firestoreRepository;
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
+    private DialogFragment sortDialog = new SortDialogFragment();
 
+    @Override
+    public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
+        ItemComparator comparator = new ItemComparator(selectedOption, sortDirection);
+        sortArrayAdapter(comparator);
+    }
+
+    private void sortArrayAdapter(Comparator<Item> comparator) {
+        if (itemAdapter != null) {
+            ArrayList<Item> itemList = new ArrayList<>();
+            for (int i = 0; i < itemAdapter.getCount(); i++) {
+                itemList.add(itemAdapter.getItem(i));
+            }
+
+            itemList.sort(comparator);
+            itemAdapter.clear();
+            itemAdapter.addAll(itemList);
+            itemAdapter.notifyDataSetChanged();
+        }
+    }
 
     /**
      * Initializes the activity with the required layout and sets up the item grid adapter.
@@ -159,22 +181,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
+        ImageButton sortButton = findViewById(R.id.sort_button);
+        sortButton.setOnClickListener(v -> {
+            sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
 
-
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
-        deleteButton = findViewById(R.id.delete_button);
-
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
-
-        selectButton.setOnClickListener(v -> {
-            isSelectMode = !isSelectMode; // Toggle select mode
-            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
-            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
         });
-
-        deleteButton.setOnClickListener(v -> deleteSelectedItems());
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
         profileButton.setOnClickListener(view -> {

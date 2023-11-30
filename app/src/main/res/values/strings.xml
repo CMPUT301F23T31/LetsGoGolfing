@@ -4,5 +4,16 @@
     <string name="item_value">Value: $%s</string>
 
     <string name="captured_image">Captured Image</string>
+
+    <string name="dialog_sort">Sort Items</string>
+
+    <string name="confirm">Confirm</string>
+
+    <string name="cancel">Cancel</string>
+
+    <string name="ascending">Ascending</string>
+
+    <string name="descending">Descending</string>
+
     <string name="cost_formatting">Total Cost: $%.2f</string>
 </resources>
