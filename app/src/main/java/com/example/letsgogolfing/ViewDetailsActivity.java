@@ -91,8 +91,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         backButton.setOnClickListener(v -> {
             // takes back to home page main_activity
-            Intent intent = new Intent(ViewDetailsActivity.this, MainActivity.class);
-            startActivity(intent);
+            finish();
         });
 
         editButton.setOnClickListener(v -> {
