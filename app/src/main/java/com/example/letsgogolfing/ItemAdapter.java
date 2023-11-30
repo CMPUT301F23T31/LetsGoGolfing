@@ -8,8 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,7 @@ public class ItemAdapter extends BaseAdapter {
     private List<Item> items;
     private LayoutInflater inflater;
 
+    private ItemFilter itemFilter;
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
 
@@ -188,5 +191,23 @@ public class ItemAdapter extends BaseAdapter {
         TextView descriptionTextView;
         TextView valueTextView;
         // Add more views as needed
+    }
+
+    public void clear() {
+        items.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(ArrayList<Item> newItems) {
+        items.addAll(newItems);
+        notifyDataSetChanged();
+    }
+
+    // Correct getFilter() method
+    public Filter getFilter() {
+        if (itemFilter == null) {
+            itemFilter = new ItemFilter(this, items);
+        }
+        return itemFilter;
     }
 }

@@ -1,9 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.LetsGoGolfing" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.LetsGoGolfing" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#000000</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">#000000</item>
     </style>
 
-    <style name="Theme.LetsGoGolfing" parent="Base.Theme.LetsGoGolfing" />
+    <style name="Theme.LetsGoGolfing" parent="Theme.AppCompat.Light.DarkActionBar" />
 </resources>

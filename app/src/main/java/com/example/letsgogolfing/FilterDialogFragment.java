@@ -1,14 +1,13 @@
 package com.example.letsgogolfing;
 
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.CalendarView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -17,10 +16,8 @@ import androidx.fragment.app.DialogFragment;
 
 public class FilterDialogFragment extends DialogFragment {
 
-
-
     public interface FilterDialogListener {
-        void onFilterSelected(/* parameters to pass back selected filter options */boolean option1, boolean option2, boolean option3);
+        void onFilterSelected(boolean option1, boolean option2, boolean option3, boolean option4);
     }
 
     private FilterDialogListener listener;
@@ -32,21 +29,36 @@ public class FilterDialogFragment extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.filter_dialog, null);
 
-        // You can now find your views by ID
         RadioGroup radioGroup = view.findViewById(R.id.radio_group);
+        final CalendarView calendarView = view.findViewById(R.id.calendarView);
         RadioButton radioButton1 = view.findViewById(R.id.radio_button1);
         RadioButton radioButton2 = view.findViewById(R.id.radio_button2);
         RadioButton radioButton3 = view.findViewById(R.id.radio_button3);
+        RadioButton radioButton4 = view.findViewById(R.id.radio_button4);
 
-        // ... rest of your code
+        // Initially hide the calendar view
+        calendarView.setVisibility(View.GONE);
+
+        // Add listener to RadioGroup to toggle CalendarView visibility
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            Log.d("FilterDialog", "Checked ID: " + checkedId);
+            if (checkedId == R.id.radio_button4) {
+                Log.d("FilterDialog", "Showing calendar view");
+                calendarView.setVisibility(View.VISIBLE);
+            } else {
+                Log.d("FilterDialog", "Hiding calendar view");
+                calendarView.setVisibility(View.GONE);
+            }
+        });
+
 
         builder.setView(view)
                 .setPositiveButton("Apply", (dialog, id) -> {
-                    // User clicked Apply button
                     boolean option1 = radioButton1.isChecked();
                     boolean option2 = radioButton2.isChecked();
                     boolean option3 = radioButton3.isChecked();
-                    listener.onFilterSelected(option1, option2, option3);
+                    boolean option4 = radioButton4.isChecked();
+                    listener.onFilterSelected(option1, option2, option3, option4);
                 })
                 .setNegativeButton("Cancel", (dialog, id) -> {
                     // User cancelled the dialog
@@ -54,8 +66,6 @@ public class FilterDialogFragment extends DialogFragment {
 
         return builder.create();
     }
-
-
 
     // Override the onAttach to ensure that the host activity implements the callback interface
     @Override
@@ -68,6 +78,4 @@ public class FilterDialogFragment extends DialogFragment {
         }
     }
 
-
 }
-

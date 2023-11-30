@@ -8,9 +8,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -178,7 +181,24 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
 
         // Initialize the filter button and set up its click listener
 
+        EditText searchEditText = findViewById(R.id.searchEditText);
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // You can leave this empty
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Filter as the user types
+                itemAdapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // You can leave this empty
+            }
+        });
 
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
@@ -243,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     }
 
     @Override
-    public void onFilterSelected(boolean option1, boolean option2, boolean option3) {
+    public void onFilterSelected(boolean option1, boolean option2, boolean option3, boolean option4) {
 
     }
 }
