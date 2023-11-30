@@ -5,5 +5,6 @@
         <item value="2">Make</item>
         <item value="3">Estimated Value</item>
         <item value="4">Name</item>
+        <item value="5">Tags</item>
     </string-array>
 </resources>

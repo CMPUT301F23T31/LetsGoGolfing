@@ -1,6 +1,7 @@
 package com.example.letsgogolfing;
 
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * A comparator for sorting instances of {@code Item} based on various fields.
@@ -57,9 +58,28 @@ public class ItemComparator implements Comparator<Item>{
             case "description":
                 comparisonResult = item1.getDescription().toLowerCase().compareTo(item2.getDescription().toLowerCase());
                 break;
-        }
 
+            case "tags":
+                comparisonResult = compareTags(item1, item2);
+        }
         return ascending ? comparisonResult : -comparisonResult;
+    }
+
+    public int compareTags(Item item1, Item item2) {
+        List<String> tags1 = item1.getTags();
+        List<String> tags2 = item2.getTags();
+
+        if ((tags1 == null || tags1.isEmpty()) && (tags2 == null || tags2.isEmpty())) {
+            return 0;
+        } else if (tags1 == null || tags1.isEmpty()) {
+            return 1;
+        } else if (tags2 == null || tags2.isEmpty()) {
+            return -1;
+        } else {
+            String firstTag1 = tags1.get(0).toLowerCase();
+            String firstTag2 = tags2.get(0).toLowerCase();
+            return firstTag1.compareTo(firstTag2);
+        }
 
     }
 }

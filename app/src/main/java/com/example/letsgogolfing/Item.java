@@ -2,6 +2,8 @@ package com.example.letsgogolfing;
 
 
 //import com.google.firebase.firestore.Exclude;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -237,7 +239,10 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      * @param tags The list of tags to set for the item.
      */
     public void setTags(List<String> tags) {
-        this.tags = tags;
+        if (tags != null && !tags.isEmpty()) {
+            Collections.sort(tags);
+            this.tags = tags;
+        }
     }
 
 
