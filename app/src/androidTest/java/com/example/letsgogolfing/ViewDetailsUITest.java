@@ -39,7 +39,7 @@ public class ViewDetailsUITest {
         activityRule.getScenario().onActivity(activity -> activity.setIntent(intent));
 
         // Click the edit button
-        onView(withId(R.id.editInfoBtn)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
 
         // Check if fields are enabled
         onView(withId(R.id.nameField)).check(matches(isEnabled()));
