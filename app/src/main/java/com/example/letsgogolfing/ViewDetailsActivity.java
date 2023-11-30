@@ -89,7 +89,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         // Retrieve the item from the intent
         username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
-        item = (Item) getIntent().getSerializableExtra("ITEM");
+        item = (Item) getIntent().getSerializableExtra("item");
 
         // Connect to database
         db = new FirestoreRepository(username);
@@ -104,7 +104,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
             Log.d(TAG, "Editing Item ID: " + item.getId());
-            intent.putExtra("ITEM", item);
+            intent.putExtra("item", item);
             startActivity(intent);
         });
 
@@ -188,10 +188,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
             tagsContainerView.addView(tagView); // Add the TextView to your container
                     }
     }
-
-
-
-
 
 
     /**

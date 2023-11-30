@@ -131,7 +131,7 @@ public class EditItemActivity extends AppCompatActivity {
      *
      */
     private void InitializeUI() {
-        item = (Item) getIntent().getSerializableExtra("ITEM");
+        item = (Item) getIntent().getSerializableExtra("item");
         // Initialize EditTexts
         name = findViewById(R.id.name_edit_text);
         description = findViewById(R.id.description_edit_text);

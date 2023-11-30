@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
             // Redirect to LoginActivity
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
-            Toast.makeText(MainActivity.this, "FUCKKKK", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "beta", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Item item = itemAdapter.getItem(position);
                 Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-                intent.putExtra("ITEM", item);
+                intent.putExtra("item", item);
                 startActivity(intent);
             }
         });
