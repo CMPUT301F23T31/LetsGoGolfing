@@ -142,29 +142,16 @@ public class MainActivity extends AppCompatActivity {
                 itemAdapter.toggleSelection(position); // Toggle item selection
             } else {
                 Item item = itemAdapter.getItem(position);
-                if (item != null && item.getId() != null) {
-                    firestoreRepository.fetchItemById(item.getId(), new FirestoreRepository.OnItemFetchedListener() {
-                        @Override
-                        public void onItemFetched(Item fetchedItem) {
-                            Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
-                            intent.putExtra("username", currentUsername); // currentUsername retrieved from SharedPreferences
-                            intent.putExtra("ITEM", fetchedItem); // Pass the fetched item
-                            startActivity(intent);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Toast.makeText(MainActivity.this, "Error fetching item from database", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+                Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
+                intent.putExtra("ITEM", item);
+                startActivity(intent);
             }
         });
 
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
-            editItemActivityLauncher.launch(intent); // Use the launcher to start for result
+            startActivity(intent);
         });
 
         Button manageTagsButton = findViewById(R.id.manage_tags_button);
@@ -221,9 +208,12 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
             }
         });
+    }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchItemsAndRefreshAdapter();
     }
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
