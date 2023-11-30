@@ -135,6 +135,21 @@ public class ViewDetailsActivity extends AppCompatActivity {
         username = getIntent().getStringExtra("username");
         item = (Item) getIntent().getSerializableExtra("ITEM");
 
+        // Connect to database
+        db = new FirestoreRepository(username);
+
+       db.fetchItemById(item.getId(), new FirestoreRepository.OnItemFetchedListener() {
+           @Override
+           public void onItemFetched(Item item2) {
+               item = item2;
+           }
+
+           @Override
+           public void onError(Exception e) {
+               Toast.makeText(ViewDetailsActivity.this, "Failed to update item from database", Toast.LENGTH_SHORT).show();
+           }
+       });
+
         // Instantiate TextViews
         TextView name = findViewById(R.id.name_view_text);
         TextView description = findViewById(R.id.description_view_text);
@@ -167,8 +182,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
 
-        // Connect to database
-        db = new FirestoreRepository(username);
 
 
 
