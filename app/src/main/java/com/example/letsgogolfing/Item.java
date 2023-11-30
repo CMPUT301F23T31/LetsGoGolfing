@@ -263,6 +263,9 @@ public class Item implements Comparable<Item>, java.io.Serializable {
             Collections.sort(tags);
             this.tags = tags;
         }
+        else {
+            this.tags = new ArrayList<>();
+        }
     }
 
 

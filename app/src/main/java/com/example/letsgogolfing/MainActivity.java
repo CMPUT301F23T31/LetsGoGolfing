@@ -30,9 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -70,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
+    private ItemComparator comparator;
     private ImageView scanItemButton;
 
     private FirestoreRepository firestoreRepository;
@@ -79,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
     @Override
     public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
-        ItemComparator comparator = new ItemComparator(selectedOption, sortDirection);
+        comparator = new ItemComparator(selectedOption, sortDirection);
         sortArrayAdapter(comparator);
     }
 
@@ -262,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             @Override
             public void onItemsFetched(List<Item> items) {
                 itemAdapter.updateItems(items);
+                sortArrayAdapter(comparator);
                 updateTotalValue(items);
             }
 
