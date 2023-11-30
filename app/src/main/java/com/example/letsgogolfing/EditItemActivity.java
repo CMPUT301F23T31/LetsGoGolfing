@@ -49,7 +49,6 @@ public class EditItemActivity extends AppCompatActivity {
     private EditText name, description, value, make, model, serial, comment, date;
     private LinearLayout tagsContainerView;
     private Button saveButton, cancelButton, addPhotoButton, addTagsButton;
-    private ImageButton backButton;
     private final List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
@@ -75,26 +74,20 @@ public class EditItemActivity extends AppCompatActivity {
      */    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set Layout
         setContentView(R.layout.edit_item);
 
         // Retrieve the item from the intent
-        username = getIntent().getStringExtra("username");
+        username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
+
+        // Get repository for user
         db = new FirestoreRepository(username);
-        item = (Item) getIntent().getSerializableExtra("ITEM");
 
-
-        InitializeUI(item);
-
-        backButton.setOnClickListener(v -> {
-            // takes back to home page main_activity
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        });
+        InitializeUI();
 
         cancelButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ViewDetailsActivity.class);
-            intent.putExtra("ITEM", item);
-            startActivity(intent);
+            finish();
         });
 
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
@@ -113,10 +106,7 @@ public class EditItemActivity extends AppCompatActivity {
                 @Override
                 public void onItemUpdated() {
                     Toast.makeText(EditItemActivity.this, "Successfully updated item", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
-                    intent.putExtra("username", username);
-                    intent.putExtra("ITEM", item);
-                    startActivity(intent);
+                    finish();
                 }
 
                 @Override
@@ -139,9 +129,9 @@ public class EditItemActivity extends AppCompatActivity {
      * Initializes EditText fields and buttons with item data.
      * Retrieves the item details passed via Intent and sets up the user interface components.
      *
-     * @param item The item to be edited, passed through the Intent.
      */
-    private void InitializeUI(Item item) {
+    private void InitializeUI() {
+        item = (Item) getIntent().getSerializableExtra("ITEM");
         // Initialize EditTexts
         name = findViewById(R.id.name_edit_text);
         description = findViewById(R.id.description_edit_text);
@@ -157,7 +147,6 @@ public class EditItemActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.save_button);
         cancelButton = findViewById(R.id.cancel_edit_button);
         addPhotoButton = findViewById(R.id.add_photo_button);
-        backButton = findViewById(R.id.back_button);
         // Set the EditTexts with the original values
         name.setText(item.getName());
         description.setText(item.getDescription());
@@ -170,10 +159,6 @@ public class EditItemActivity extends AppCompatActivity {
         tempUris = item.getImageUris();
         loadTags();
     }
-
-
-
-
 
     private void launchCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
