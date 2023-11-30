@@ -87,6 +87,13 @@ public class ViewDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_details);
 
+        // Retrieve the item from the intent
+        username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
+        item = (Item) getIntent().getSerializableExtra("ITEM");
+
+        // Connect to database
+        db = new FirestoreRepository(username);
+
         InitializeUI();
 
         backButton.setOnClickListener(v -> {
@@ -96,18 +103,11 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
-            item = (Item) getIntent().getSerializableExtra("ITEM");
-            Log.d(TAG, "Item ID: " + item.getId());
-            intent.putExtra("username", username); //THIS IS IMPORTANT!!!!
+            Log.d(TAG, "Editing Item ID: " + item.getId());
             intent.putExtra("ITEM", item);
             startActivity(intent);
         });
 
-
-
-        Button viewPhotoButton = findViewById(R.id.view_photo_button);
-
-        // Set an OnClickListener on the button
         viewPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,7 +121,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     /**
@@ -130,24 +129,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
      * buttons, and tag container view. It also populates the views with the item's data.
      */
     private void InitializeUI() {
-        // Retrieve the item from the intent
-        username = getIntent().getStringExtra("username");
-        item = (Item) getIntent().getSerializableExtra("ITEM");
-
-        // Connect to database
-        db = new FirestoreRepository(username);
-
-       db.fetchItemById(item.getId(), new FirestoreRepository.OnItemFetchedListener() {
-           @Override
-           public void onItemFetched(Item item2) {
-               item = item2;
-           }
-
-           @Override
-           public void onError(Exception e) {
-               Toast.makeText(ViewDetailsActivity.this, "Failed to update item from database", Toast.LENGTH_SHORT).show();
-           }
-       });
 
         // Instantiate TextViews
         TextView name = findViewById(R.id.name_view_text);
@@ -180,10 +161,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         comment.setText(item.getComment());
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
-
-
-
-
 
         // Set content of Tag Container
         loadTags();
@@ -237,6 +214,23 @@ public class ViewDetailsActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Toast.makeText(ViewDetailsActivity.this, "Failed to fetch tags", Toast.LENGTH_SHORT).show();
                 Log.w(TAG, "Error getting documents: ", e);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        db.fetchItemById(item.getId(), new FirestoreRepository.OnItemFetchedListener() {
+            @Override
+            public void onItemFetched(Item item2) {
+                item = item2;
+                InitializeUI();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(ViewDetailsActivity.this, "Failed to update item from database", Toast.LENGTH_SHORT).show();
             }
         });
     }
