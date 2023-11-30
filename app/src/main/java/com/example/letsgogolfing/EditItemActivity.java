@@ -80,7 +80,7 @@ public class EditItemActivity extends AppCompatActivity {
         // Retrieve the item from the intent
         username = getIntent().getStringExtra("username");
         db = new FirestoreRepository(username);
-        item = (Item) getIntent().getSerializableExtra("ITEM");
+        item = (Item) getIntent().getSerializableExtra("item");
 
 
         InitializeUI(item);
@@ -93,7 +93,7 @@ public class EditItemActivity extends AppCompatActivity {
 
         cancelButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ViewDetailsActivity.class);
-            intent.putExtra("ITEM", item);
+            intent.putExtra("item", item);
             startActivity(intent);
         });
 
@@ -115,7 +115,7 @@ public class EditItemActivity extends AppCompatActivity {
                     Toast.makeText(EditItemActivity.this, "Successfully updated item", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
                     intent.putExtra("username", username);
-                    intent.putExtra("ITEM", item);
+                    intent.putExtra("item", item);
                     startActivity(intent);
                 }
 
