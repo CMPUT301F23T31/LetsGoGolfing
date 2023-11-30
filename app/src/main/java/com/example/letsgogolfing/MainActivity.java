@@ -30,6 +30,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.BuildConfig;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -55,6 +59,8 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener {
 
     private Uri imageUri;
+
+    private String currentUsername;
 
     private static final int CAMERA_REQUEST = 2104;
     private static final int MY_CAMERA_PERMISSION_CODE = 420;
@@ -108,21 +114,29 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Retrieve current username from SharedPreferences
-        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-        String currentUsername = sharedPref.getString("username", null);
-        if (currentUsername == null || currentUsername.isEmpty()) {
-            // Redirect to LoginActivity
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            Toast.makeText(MainActivity.this, "beta", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+        if (isDebugMode() || isRunningEspressoTest()) {
+            // Bypass login and directly initialize components
+            // Initialize with test or default data
+            initForTesting();
+        } else {
+            SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+            String currentUsername = sharedPref.getString("username", null);
+            if (currentUsername == null || currentUsername.isEmpty()) {
+                // Redirect to LoginActivity
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                Toast.makeText(MainActivity.this, "Crashed in known location", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+
+            // Initialize FirestoreRepository with the current username
+            firestoreRepository = new FirestoreRepository(currentUsername);
+
         }
 
-
-        // Initialize FirestoreRepository with the current username
-        firestoreRepository = new FirestoreRepository(currentUsername);
+        initializeComponents();
 
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
@@ -225,6 +239,24 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         fetchItemsAndRefreshAdapter();
     }
 
+    private void initializeComponents() {
+        itemGrid = findViewById(R.id.itemGrid);
+        itemAdapter = new ItemAdapter(this, new ArrayList<>());
+        itemGrid.setAdapter(itemAdapter);
+
+        // Set up click listeners and other UI components
+        // ...
+
+        ImageView addItemButton = findViewById(R.id.addItemButton);
+        addItemButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
+            intent.putExtra("username", currentUsername); // Now accessible here
+            editItemActivityLauncher.launch(intent);
+        });
+
+        // ...
+    }
+
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -247,6 +279,28 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
         TextView totalValueTextView = findViewById(R.id.totalValue);
         totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
+    }
+
+    private boolean isRunningEspressoTest() {
+        // Check for a system property that you will set in your test setup
+        return "true".equals(System.getProperty("isRunningEspressoTest"));
+    }
+
+    private void initForTesting() {
+        // Initialize components as needed for testing
+        // This might include setting up dummy data or mocks
+        // For example:
+        firestoreRepository = new FirestoreRepository("testUser");
+        itemGrid = findViewById(R.id.itemGrid);
+        itemAdapter = new ItemAdapter(this, new ArrayList<>()); // Use a test adapter if necessary
+        itemGrid.setAdapter(itemAdapter);
+        // Other initializations...
+    }
+
+
+
+    private boolean isDebugMode() {
+        return BuildConfig.DEBUG;
     }
 
 

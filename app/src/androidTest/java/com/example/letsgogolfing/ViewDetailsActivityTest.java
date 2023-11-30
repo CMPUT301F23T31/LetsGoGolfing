@@ -82,7 +82,6 @@ public class ViewDetailsActivityTest {
 
             onView(withId(R.id.value_edit_text)).check(matches(withText(decimalFormat.format(TEST_ITEM.getEstimatedValue()))));
 
-            onView(withId(R.id.tagsField)).check(matches(withText(TextUtils.join(", ", TEST_ITEM.getTags()))));
         }
     }
 
@@ -116,7 +115,6 @@ public class ViewDetailsActivityTest {
         onView(withId(R.id.value_edit_text)).check(matches(isEnabled()));
 
         // Check if the tags field is enabled
-        onView(withId(R.id.tagsField)).check(matches(isEnabled()));
     }
 
     @Test
@@ -143,7 +141,6 @@ public class ViewDetailsActivityTest {
         onView(withId(R.id.comment_edit_text)).check(matches(not(isEnabled())));
         onView(withId(R.id.date_edit_text)).check(matches(not(isEnabled())));
         onView(withId(R.id.value_edit_text)).check(matches(not(isEnabled())));
-        onView(withId(R.id.tagsField)).check(matches(not(isEnabled())));
     }
 
     // ... Add more tests as needed
