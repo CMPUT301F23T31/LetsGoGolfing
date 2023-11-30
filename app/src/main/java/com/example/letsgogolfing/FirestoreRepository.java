@@ -1,5 +1,6 @@
 package com.example.letsgogolfing;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -153,6 +154,7 @@ public class FirestoreRepository {
 
     public void updateItem(String itemId, Item item, OnItemUpdatedListener listener) {
         Map<String, Object> itemMap = convertItemToMap(item);
+        Log.d("FirestoreRepository", "itemMap: " + itemMap.toString());
         db.collection("users").document(currentUserId).collection("items").document(itemId).set(itemMap)
                 .addOnSuccessListener(aVoid -> listener.onItemUpdated())
                 .addOnFailureListener(listener::onError);
@@ -289,11 +291,6 @@ public class FirestoreRepository {
                 .addOnSuccessListener(downloadUri -> {
                     // Use the download URL as the document ID
                     String documentId = downloadUri.toString();
-
-                    // Ensure imageUris is initialized
-                    if (item.getImageUris() == null) {
-                        item.setImageUris(new ArrayList<>());
-                    }
 
                     // Add the download URL to the item's ImageUri array list
                     item.getImageUris().add(documentId);

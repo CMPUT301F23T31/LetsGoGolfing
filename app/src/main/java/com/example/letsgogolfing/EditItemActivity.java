@@ -120,37 +120,44 @@ public class EditItemActivity extends AppCompatActivity {
             if (item != null && item.getId() != null) {
                 updateItem();
                 Log.d("EditItemActivity", "Item ID before update: " + item.getId());
-                db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+        
+                // Get the URI passed through the intent from CameraActivity
+                String uriString = getIntent().getStringExtra("uri");
+                Uri uri = Uri.parse(uriString);
+        
+                // Upload the image first
+                db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
                     @Override
-                    public void onItemUpdated() {
-                        Log.d("EditItemActivity", "Item ID after update: " + item.getId());
-                        // Get the URI passed through the intent from CameraActivity
-                        String uriString = getIntent().getStringExtra("uri");
-                        Uri uri = Uri.parse(uriString);
-
-                        // Upload the image with the updated item and the URI
-                        db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
+                    public void onImageUploaded(String downloadUrl) {
+                        Log.d("EditItemActivity", "Item ID after image upload: " + item.getId());
+                        Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
+        
+                        // Add the download URL to the item's ImageUris field
+                        if (item.getImageUris() == null) {
+                            item.setImageUris(new ArrayList<>());
+                        }
+                        // Then update the item
+                        db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
                             @Override
-                            public void onImageUploaded(String downloadUrl) {
-                                Log.d("EditItemActivity", "Item ID after image upload: " + item.getId());
-                                Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
-
+                            public void onItemUpdated() {
+                                Log.d("EditItemActivity", "Item ID after update: " + item.getId());
+        
                                 // Move to ViewDetailsActivity
                                 Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
                                 intent.putExtra("item", item);
                                 startActivity(intent);
                             }
-
+        
                             @Override
                             public void onError(Exception e) {
-                                Log.e("EditItemActivity", "Error uploading image", e);
+                                Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
-
+        
                     @Override
                     public void onError(Exception e) {
-                        Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
+                        Log.e("EditItemActivity", "Error uploading image", e);
                     }
                 });
             } else {
@@ -158,7 +165,6 @@ public class EditItemActivity extends AppCompatActivity {
             }
         });
     }
-
 
     /**
      * Initializes EditText fields and buttons with item data.
@@ -177,7 +183,7 @@ public class EditItemActivity extends AppCompatActivity {
         date = findViewById(R.id.date_edit_text);
         value = findViewById(R.id.value_edit_text);
         tagsContainerView = findViewById(R.id.tags_linear_layout);
-        tempUri = item.getImageUris();
+        tempUri = item.getImageUris() != null ? item.getImageUris() : new ArrayList<>();
         // Initialize Buttons
         addTagsButton = findViewById(R.id.add_tags_button_view);
         saveButton = findViewById(R.id.save_button);
