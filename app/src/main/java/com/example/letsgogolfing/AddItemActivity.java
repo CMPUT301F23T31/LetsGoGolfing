@@ -394,7 +394,7 @@ public class AddItemActivity extends AppCompatActivity {
             @Override
             public void onItemAdded(String itemId) {
                 Toast.makeText(AddItemActivity.this, "Item added", Toast.LENGTH_SHORT).show();
-                navigateToMainActivity();
+                finish();
             }
 
             @Override
@@ -402,13 +402,6 @@ public class AddItemActivity extends AppCompatActivity {
                 Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void navigateToMainActivity() {
-        Intent intent = new Intent(AddItemActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish(); // Close the current activity
     }
 
     /**
