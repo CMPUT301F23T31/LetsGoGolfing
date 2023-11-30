@@ -1,13 +1,18 @@
 package com.example.letsgogolfing;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +25,7 @@ public class FirestoreRepository {
     private final String currentUserId;
 
     private final StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+    private DocumentReference newDocRef;
 
     public FirestoreRepository(String userId) {
         this.currentUserId = userId;
@@ -112,9 +118,18 @@ public class FirestoreRepository {
         Map<String, Object> itemMap = convertItemToMap(item);
         // Ensure image URIs are included
         itemMap.put("imageUris", item.getImageUris());
-        db.collection("users").document(currentUserId).collection("items").add(itemMap)
+    
+        if (item.getId() != null) {
+            // If the item has an itemId, use set to maintain the itemId
+            db.collection("users").document(currentUserId).collection("items").document(item.getId()).set(itemMap)
+                .addOnSuccessListener(aVoid -> listener.onItemAdded(item.getId()))
+                .addOnFailureListener(listener::onError);
+        } else {
+            // If the item doesn't have an itemId, use add to generate a new itemId
+            db.collection("users").document(currentUserId).collection("items").add(itemMap)
                 .addOnSuccessListener(documentReference -> listener.onItemAdded(documentReference.getId()))
                 .addOnFailureListener(listener::onError);
+        }
     }
 
     /**
@@ -280,7 +295,7 @@ public class FirestoreRepository {
         // Create a reference to the file in Firebase Storage
         String photoFileName = currentUserId + "_" +item.getId() + "_" + System.currentTimeMillis() + ".jpg";
         StorageReference imageRef = storageRef.child("images/" + photoFileName);
-    
+
         // Upload the file to Firebase Storage
         imageRef.putFile(imageUri)
         .addOnSuccessListener(taskSnapshot -> {
@@ -317,30 +332,56 @@ public class FirestoreRepository {
 
     public void deleteImage(String downloadUrl, OnImageDeletedListener listener) {
         // Extract the filename from the downloadUrl
-        String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
-    
+        String encodedFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
+        String fileName;
+
+        // Check if the filename is URL encoded
+        if (encodedFileName.contains("%2F")) {
+            try {
+                fileName = URLDecoder.decode(encodedFileName, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return;
+            }
+        } else {
+            fileName = encodedFileName;
+        }
+
+        // Remove the "images/" prefix from the filename
+        if (fileName.startsWith("images/")) {
+            fileName = fileName.substring(7);
+        }
+
+        Log.d("FirestoreRepository", "Filename: " + fileName);
+
         // Extract the itemId from the filename
         String itemId = fileName.split("_")[1];
-    
+        Log.d("FirestoreRepository", "Item ID: " + itemId);
+
         // Create a reference to the file in Firebase Storage
         StorageReference imageRef = storageRef.child("images/" + fileName);
-    
-        db.collection("items").document(itemId).get()
+        Log.d("FirestoreRepository", "image path: " + imageRef);
+
+        //variables in lambda can't be changed during methods, finalFileName effectively static
+        String finalFileName = fileName;
+        db.collection("users").document(currentUserId).collection("items").document(itemId).get()
             .addOnSuccessListener(itemDocumentSnapshot -> {
                 // Get the ImageUris array from the item document
-                ArrayList<String> imageUris = (ArrayList<String>) itemDocumentSnapshot.get("ImageUris");
-    
+                List<String> imageUris = (List<String>) itemDocumentSnapshot.get("imageUris");
+                Log.d("FirestoreRepository", "Image URIs: " + imageUris);
+
                 // Remove the download URL from the ImageUris array
                 imageUris.remove(downloadUrl);
-    
+                Log.d("FirestoreRepository", "Download URL: " + downloadUrl);
+
                 // Update the item document
-                db.collection("items").document(itemId).update("ImageUris", imageUris)
+                db.collection("users").document(currentUserId).collection("items").document(itemId).update("imageUris", imageUris)
                     .addOnSuccessListener(aVoid -> {
                         // Delete the file
                         imageRef.delete()
                             .addOnSuccessListener(aVoid2 -> {
                                 // Delete the document from the imageData collection
-                                db.collection("imageData").document(fileName).delete()
+                                db.collection("imageData").document(finalFileName).delete()
                                     .addOnSuccessListener(aVoid3 -> {
                                         // Notify the listener that the image has been deleted
                                         listener.onImageDeleted();
@@ -353,9 +394,42 @@ public class FirestoreRepository {
             })
             .addOnFailureListener(listener::onError);
     }
-    
+
     public interface OnImageDeletedListener {
         void onImageDeleted();
+        void onError(Exception e);
+    }
+
+    public void generateID(String collectionType, OnIDGeneratedListener listener) {
+        switch (collectionType.toLowerCase()) {
+            case "users":
+                newDocRef = db.collection("users").document();
+                break;
+            case "items":
+                newDocRef = db.collection("users").document(currentUserId).collection("items").document();
+                break;
+            case "tags":
+                newDocRef = db.collection("tags").document();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid collection type");
+        }
+        // Check if the "items" collection exists
+        newDocRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // The collection exists, generate the ID
+                String id = newDocRef.getId();
+                Log.d("FirestoreRepository", "Generated ID: " + id);
+                listener.onIDGenerated(id);
+            } else {
+                // The collection doesn't exist, notify the listener
+                listener.onError(new Exception("The '" + collectionType + "' collection doesn't exist"));
+            }
+        });
+    }
+
+    public interface OnIDGeneratedListener {
+        void onIDGenerated(String id);
         void onError(Exception e);
     }
 }

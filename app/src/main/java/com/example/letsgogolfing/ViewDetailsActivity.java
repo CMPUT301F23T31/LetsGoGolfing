@@ -2,22 +2,16 @@ package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
-import com.example.letsgogolfing.utils.ImageFragment;
-import com.example.letsgogolfing.utils.PhotoStorageManager;
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
+
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,34 +19,21 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import android.Manifest;
+
 
 // generate javadocs for ViewDetailsActivity
 /**
@@ -102,7 +83,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
-            item = (Item) getIntent().getSerializableExtra("item");
             Log.d(TAG, "Item ID: " + item.getId());
             intent.putExtra("item", item);
             startActivity(intent);
@@ -118,10 +98,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Create an Intent to start ViewPhotoActivity
                 Intent intent = new Intent(ViewDetailsActivity.this, ViewPhotoActivity.class);
-
-                // Pass the list of image URIs to ViewPhotoActivity
-                intent.putStringArrayListExtra("imageUris", new ArrayList<>(item.getImageUris()));
-
+        
+                // Pass the entire item to ViewPhotoActivity
+                intent.putExtra("item", item);
+        
                 // Start ViewPhotoActivity
                 startActivity(intent);
             }
@@ -145,6 +125,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
         TextView comment = findViewById(R.id.comment_view_text);
         TextView date = findViewById(R.id.date_view_text);
         TextView value = findViewById(R.id.value_view_text);
+
+        // the following is to make sure long descriptions can fit into the description box and comments box
+        description.setMovementMethod(new ScrollingMovementMethod());
+        comment.setMovementMethod(new ScrollingMovementMethod());
 
         // Instantiate Buttons
         editButton = findViewById(R.id.edit_item_button);

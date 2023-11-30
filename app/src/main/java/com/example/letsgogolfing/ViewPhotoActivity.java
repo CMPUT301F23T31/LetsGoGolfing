@@ -3,6 +3,7 @@ package com.example.letsgogolfing;
 import static com.google.android.gms.vision.L.TAG;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,18 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import com.example.letsgogolfing.utils.ImageAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ViewPhotoActivity extends AppCompatActivity {
     private ImageAdapter imageAdapter;
-
+    private Item item;
     private List<String> imageUris;
 
     private SharedPreferences sharedPref;
@@ -48,6 +45,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
             public void onDeleteClick(int position) {
                 // Get the downloadUrl of the image
                 String downloadUrl = imageUris.get(position);
+                Log.d("ViewPhotoActivity", "onDeleteClick: " + downloadUrl);
 
                 // Delete the image from Firestore
                 firebase.deleteImage(downloadUrl, new FirestoreRepository.OnImageDeletedListener() {
@@ -55,6 +53,8 @@ public class ViewPhotoActivity extends AppCompatActivity {
                     public void onImageDeleted() {
                         // Remove the downloadUrl from the list
                         imageUris.remove(position);
+                        // Update the list in the ImageAdapter
+                        imageAdapter.updateImageUris(imageUris);
                         // Notify the adapter
                         imageAdapter.notifyItemRemoved(position);
                         imageAdapter.notifyItemRangeChanged(position, imageUris.size());
@@ -68,10 +68,16 @@ public class ViewPhotoActivity extends AppCompatActivity {
                 });
             }
         });
+
         recyclerView.setAdapter(imageAdapter);
 
-        // Retrieve the list of image URIs passed from ViewDetailsActivity
-        imageUris = getIntent().getStringArrayListExtra("imageUris");
+        // Get the item from the Intent
+        Intent intent = getIntent();
+        item = (Item) intent.getSerializableExtra("item");
+
+        // Initialize imageUris with the image URIs from the item
+        imageUris = item.getImageUris();
+
         if (imageUris != null) {
             // Convert String URIs to Uri objects
             List<Uri> uriList = new ArrayList<>();
@@ -94,5 +100,32 @@ public class ViewPhotoActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the data
+        refreshData();
+    }
+
+    private void refreshData() {
+        // Get the updated item from the database
+        firebase.fetchItemById(item.getId(), new FirestoreRepository.OnItemFetchedListener() {
+            @Override
+            public void onItemFetched(Item item) {
+                // Update the imageUris list
+                imageUris = item.getImageUris();
+                // Update the list in the ImageAdapter
+                imageAdapter.updateImageUris(imageUris);
+                // Notify the adapter
+                imageAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Handle any errors
+                Log.e(TAG, "onError: failed to load item " + item.getId(), e);
+            }
+        });
+    }
 
 }

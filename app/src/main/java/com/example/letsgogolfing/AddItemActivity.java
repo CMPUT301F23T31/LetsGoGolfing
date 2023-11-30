@@ -4,19 +4,12 @@ import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -25,18 +18,14 @@ import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import android.Manifest;
 
 /**
  * Activity for adding a new item to the inventory.
@@ -47,9 +36,11 @@ import android.Manifest;
  */
 public class AddItemActivity extends AppCompatActivity {
 
+    private EditText name, description, value, make, model, serial, comment, date;
     private Item item;
     private static final String TAG = "EditItemActivity";
 
+    // IS THE FOLLOWING ARRAYLIST EVEN BEING USED? idk
     private ArrayList<String> tempUris = new ArrayList<>();
 
     private FirestoreRepository firestoreRepository;
@@ -64,7 +55,7 @@ public class AddItemActivity extends AppCompatActivity {
      * Called when the activity is starting. Responsible for initializing the activity.
      * <p>
      * This method sets up the UI components and initializes button click listeners.
-     * The "Confirm" button triggers the {@link #saveItem()} method, and the "Cancel" button
+     * The "Confirm" button triggers the {@link #updateItem()} method, and the "Cancel" button
      * finishes the activity. The "Add Tags" button invokes the {@link #showTagSelectionDialog()} method.
      */
     @Override
@@ -80,32 +71,29 @@ public class AddItemActivity extends AppCompatActivity {
         firestoreRepository = new FirestoreRepository(currentUsername);
 
         item = (Item) getIntent().getSerializableExtra("item");
-        if (item != null) {
-            ((EditText) findViewById(R.id.nameField)).setText(item.getName());
-            ((EditText) findViewById(R.id.descriptionField)).setText(item.getDescription());
-            ((EditText) findViewById(R.id.makeField)).setText(item.getMake());
-            ((EditText) findViewById(R.id.modelField)).setText(item.getModel());
-            ((EditText) findViewById(R.id.commentField)).setText(item.getComment());
-            ((EditText) findViewById(R.id.serialField)).setText(item.getSerialNumber());
-
-            // limit the number of decimals in the value field to 2
-            double value = item.getEstimatedValue();
-            String valueString = String.format("%.2f", value);
-
-
-            ((EditText) findViewById(R.id.valueField)).setText(valueString);
-
-            // set the date as todays current date in 'yyyy-mm-dd' format
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            ((EditText) findViewById(R.id.dateField)).setText(sdf.format(new Date()));
+        if (item == null) {
+            item = new Item("", "", new Date(), "", "", "", 0.0, "", new ArrayList<>(), new ArrayList<>());
         }
+        InitializeUI(item);
 
-        // confirm button listener
+        // confirm button listener - ISSUE?
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> {
-            saveItem();
+            updateItem(); // THIS COULD BE COOKED
             if (item != null) {
-                addItemToFirestore();
+                // Generate the item ID
+                firestoreRepository.generateID("items", new FirestoreRepository.OnIDGeneratedListener() {
+                    @Override
+                    public void onIDGenerated(String itemId) {
+                        // Set the item ID
+                        item.setId(itemId);
+                        addItemToFirestore();
+                    }
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(AddItemActivity.this, "Error generating item ID: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             } else {
                 Log.e("AddItemActivity", "Item is null");
             }
@@ -136,14 +124,51 @@ public class AddItemActivity extends AppCompatActivity {
 
 
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
+        //COULD BE ISSUE - (saveitem();)
         add_photo_button.setOnClickListener(v -> {
-                saveItem();
+                updateItem();
                 Intent photoIntent = new Intent(this, CameraActivity.class);
                 photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
                 photoIntent.putExtra("BarcodeInfo", false);
                 photoIntent.putExtra("item", item);
                 startActivity(photoIntent);
         });
+    }
+
+    /**
+     * Initializes EditText fields and buttons with item data.
+     * Retrieves the item details passed via Intent and sets up the user interface components.
+     *
+     * @param item The item to be edited, passed through the Intent.
+     */
+    private void InitializeUI(Item item) {
+        // Initialize EditTexts
+        name = findViewById(R.id.nameField);
+        description = findViewById(R.id.descriptionField);
+        make = findViewById(R.id.makeField);
+        model = findViewById(R.id.modelField);
+        comment = findViewById(R.id.commentField);
+        serial = findViewById(R.id.serialField);
+        value = findViewById(R.id.valueField);
+        date = findViewById(R.id.dateField);
+
+        // If the item is not null, set the values
+        if (item != null) {
+            name.setText(item.getName());
+            description.setText(item.getDescription());
+            make.setText(item.getMake());
+            model.setText(item.getModel());
+            comment.setText(item.getComment());
+            serial.setText(item.getSerialNumber());
+
+            // Limit the number of decimals in the value field to 2
+            String valueString = String.format("%.2f", item.getEstimatedValue());
+            value.setText(valueString);
+
+            // Set the date as today's current date in 'yyyy-MM-dd' format
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            date.setText(sdf.format(item.getDateOfPurchase()));
+        }
     }
 
     /**
@@ -208,75 +233,7 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isValidDate(String dateString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        sdf.setLenient(false); // This will make sure SimpleDateFormat doesn't adjust dates on its own
-        try {
-            Date date = sdf.parse(dateString);
-            if (date == null) {
-                return false;
-            }
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH is zero-based
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            if (year < 1900 || year > Calendar.getInstance().get(Calendar.YEAR)) {
-                return false; // Year is out of range
-            }
-
-            if (month < 1 || month > 12) {
-                return false; // Month is out of range
-            }
-
-            if (day < 1 || day > getDaysInMonth(month, year)) {
-                return false; // Day is out of range
-            }
-
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Returns the number of days in a given month and year.
-     *
-     * @param month The month (1-12).
-     * @param year The year.
-     * @return The number of days in the month.
-     */
-    private int getDaysInMonth(int month, int year) {
-        switch (month) {
-            case 2: // February
-                if (isLeapYear(year)) {
-                    return 29;
-                } else {
-                    return 28;
-                }
-            case 4: case 6: case 9: case 11: // April, June, September, November
-                return 30;
-            default:
-                return 31;
-        }
-    }
-
-    /**
-     * Checks if a given year is a leap year.
-     *
-     * @param year The year.
-     * @return True if it's a leap year, false otherwise.
-     */
-    private boolean isLeapYear(int year) {
-        if (year % 4 != 0) {
-            return false;
-        } else if (year % 100 != 0) {
-            return true;
-        } else return year % 400 == 0;
-    }
 
 
     /**
@@ -295,58 +252,26 @@ public class AddItemActivity extends AppCompatActivity {
      * </p>
      */
 
-     private void saveItem() {
-    
-        // Set name, description, make, model, and comment directly on the Item object
-         item.setName(((EditText) findViewById(R.id.nameField)).getText().toString());
-         item.setDescription(((EditText) findViewById(R.id.descriptionField)).getText().toString());
-         item.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
-         item.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
-         item.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
-         item.setSerialNumber(((EditText) findViewById(R.id.serialField)).getText().toString());
-    
-        String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
-         item.setUsername(currentUsername); // Set the username before saving
-
-         item.setImageUris(tempUris);
-    
-        // Parse and set the date of purchase
-        String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
-
-         if (!isValidDate(dateString)) {
-             Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-             return; // Exit the method if the date is not valid
-         }
-
-         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-         try {
-             Date date = sdf.parse(dateString);
-             if (date != null) {
-                 item.setDateOfPurchase(date);
-             } else {
-                 Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
-                 return;
-             }
-         } catch (ParseException e) {
-             Toast.makeText(this, "Failed to parse date", Toast.LENGTH_LONG).show();
-             return;
-         }
-    
-        // Parse and set the estimated value
-        try {
-            double estimatedValue = Double.parseDouble(((EditText) findViewById(R.id.valueField)).getText().toString());
-            item.setEstimatedValue(estimatedValue);
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("No Value Entered. Defaulted to 0.");
-        }
-    
-        // Parse and set the tags
-         item.setTags(selectedTags);
+    private void updateItem() {
+        item.setItemProperties(
+                AddItemActivity.this,
+                date.getText().toString(),
+                value.getText().toString(),
+                name.getText().toString(),
+                description.getText().toString(),
+                model.getText().toString(),
+                make.getText().toString(),
+                serial.getText().toString(),
+                comment.getText().toString(),
+                selectedTags,
+                tempUris
+        );
     }
 
-    private void addItemToFirestore() {
-        // Use FirestoreRepository to add the new item
-        firestoreRepository.addItem(item, new FirestoreRepository.OnItemAddedListener() {
+        // FIX THIS - DONT NESTTT
+        private void addItemToFirestore() {
+            // Add the item to Firestore
+            firestoreRepository.addItem(item, new FirestoreRepository.OnItemAddedListener() {
                 @Override
                 public void onItemAdded(String itemId) {
                     Log.d("AddItemActivity", "Item added, ID: " + itemId);
@@ -354,43 +279,31 @@ public class AddItemActivity extends AppCompatActivity {
                     String uriString = getIntent().getStringExtra("uri");
 
                     if (uriString != null) {
-                        // Fetch the item again to get the item ID
-                        firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
+                        Uri uri = Uri.parse(uriString);
+
+                        // Upload the image with the item and the URI
+                        firestoreRepository.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
                             @Override
-                            public void onItemFetched(Item fetchedItem) {
-                                Log.d("AddItemActivity", "Item fetched, ID: " + fetchedItem.getId() + ", Name: " + fetchedItem.getName() + ", Estimated Value: " + fetchedItem.getEstimatedValue());
-                                Uri uri = Uri.parse(uriString);
-
-                                // Upload the image with the fetched item and the URI
-                                firestoreRepository.uploadImage(uri, fetchedItem, new FirestoreRepository.OnImageUploadedListener() {
+                            public void onImageUploaded(String downloadUrl) {
+                                Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
+                                firestoreRepository.updateItem(itemId, item, new FirestoreRepository.OnItemUpdatedListener() {
                                     @Override
-                                    public void onImageUploaded(String downloadUrl) {
-                                        Log.d("AddItemActivity", "Image uploaded, download URL: " + downloadUrl);
-                                        firestoreRepository.updateItem(itemId, fetchedItem, new FirestoreRepository.OnItemUpdatedListener() {
-                                            @Override
-                                            public void onItemUpdated() {
-                                                Log.d("AddItemActivity", "Item updated, ID: " + fetchedItem.getId() + ", Name: " + fetchedItem.getName() + ", Estimated Value: " + fetchedItem.getEstimatedValue());
-                                                // Navigate to MainActivity after the item has been updated
-                                                navigateToMainActivity();
-                                            }
-
-                                            @Override
-                                            public void onError(Exception e) {
-                                                Log.e("AddItemActivity", "Error updating item", e);
-                                            }
-                                        });
+                                    public void onItemUpdated() {
+                                        Log.d("AddItemActivity", "Item updated, ID: " + item.getId() + ", Name: " + item.getName() + ", Estimated Value: " + item.getEstimatedValue());
+                                        // Navigate to MainActivity after the item has been updated
+                                        navigateToMainActivity();
                                     }
 
                                     @Override
                                     public void onError(Exception e) {
-                                        Log.e("AddItemActivity", "Error uploading image", e);
+                                        Log.e("AddItemActivity", "Error updating item", e);
                                     }
                                 });
                             }
 
                             @Override
                             public void onError(Exception e) {
-                                Log.e("AddItemActivity", "Error fetching item", e);
+                                Log.e("AddItemActivity", "Error uploading image", e);
                             }
                         });
                     } else {
@@ -404,7 +317,7 @@ public class AddItemActivity extends AppCompatActivity {
                     Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
-    }
+        }
 
     private void navigateToMainActivity() {
         Intent intent = new Intent(AddItemActivity.this, MainActivity.class);
@@ -426,7 +339,6 @@ public class AddItemActivity extends AppCompatActivity {
         tagList.addAll(newTags);
         // If needed, update the UI or other elements that depend on the tagList
     }
-
 
     /**
      * Converts an {@link Item} object to a {@link Map} for Firestore storage.

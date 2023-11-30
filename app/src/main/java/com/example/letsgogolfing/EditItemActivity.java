@@ -1,7 +1,6 @@
 package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
-import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_GALLERY;
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 import android.Manifest;
@@ -59,7 +58,7 @@ public class EditItemActivity extends AppCompatActivity {
     private Item item;
     private FirestoreRepository db;
     private String username;
-    private List<String> tempUris = new ArrayList<>();
+    private ArrayList<String> tempUri;
     private static final String TAG = "EditItemActivity";
 
 
@@ -83,6 +82,7 @@ public class EditItemActivity extends AppCompatActivity {
 
         item = (Item) getIntent().getSerializableExtra("item");
 
+
         // Retrieve the item from the intent
         if (item == null) {
             // If the Item object is null, log an error and finish the activity
@@ -90,7 +90,7 @@ public class EditItemActivity extends AppCompatActivity {
             finish();
             return;
         }
-    
+
         InitializeUI(item);
 
         backButton.setOnClickListener(v -> {
@@ -108,7 +108,7 @@ public class EditItemActivity extends AppCompatActivity {
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
 
         addPhotoButton.setOnClickListener(v -> {
-            updateItem();
+            updateItem(); // not working properly
             Intent photoIntent = new Intent(this, CameraActivity.class);
             photoIntent.putExtra("mode", MODE_PHOTO_CAMERA);
             photoIntent.putExtra("BarcodeInfo", false);
@@ -120,45 +120,51 @@ public class EditItemActivity extends AppCompatActivity {
             if (item != null && item.getId() != null) {
                 updateItem();
                 Log.d("EditItemActivity", "Item ID before update: " + item.getId());
-                db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+
+                // Get the URI passed through the intent from CameraActivity
+                String uriString = getIntent().getStringExtra("uri");
+                Uri uri = Uri.parse(uriString);
+
+                // Upload the image first
+                db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
                     @Override
-                    public void onItemUpdated() {
-                        Log.d("EditItemActivity", "Item ID after update: " + item.getId());
-                        // Get the URI passed through the intent from CameraActivity
-                        String uriString = getIntent().getStringExtra("uri");
-                        Uri uri = Uri.parse(uriString);
-            
-                        // Upload the image with the updated item and the URI
-                        db.uploadImage(uri, item, new FirestoreRepository.OnImageUploadedListener() {
+                    public void onImageUploaded(String downloadUrl) {
+                        Log.d("EditItemActivity", "Item ID after image upload: " + item.getId());
+                        Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
+
+                        // Add the download URL to the item's ImageUris field
+                        if (item.getImageUris() == null) {
+                            item.setImageUris(new ArrayList<>());
+                        }
+                        // Then update the item
+                        db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
                             @Override
-                            public void onImageUploaded(String downloadUrl) {
-                                Log.d("EditItemActivity", "Item ID after image upload: " + item.getId());
-                                Log.d("EditItemActivity", "Image uploaded, download URL: " + downloadUrl);
-            
+                            public void onItemUpdated() {
+                                Log.d("EditItemActivity", "Item ID after update: " + item.getId());
+
                                 // Move to ViewDetailsActivity
                                 Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
                                 intent.putExtra("item", item);
                                 startActivity(intent);
                             }
-            
+
                             @Override
                             public void onError(Exception e) {
-                                Log.e("EditItemActivity", "Error uploading image", e);
+                                Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
-            
+
                     @Override
                     public void onError(Exception e) {
-                        Toast.makeText(EditItemActivity.this, "Error updating item", Toast.LENGTH_SHORT).show();
+                        Log.e("EditItemActivity", "Error uploading image", e);
                     }
                 });
             } else {
                 Log.e("EditItemActivity", "Item or item ID is null");
             }
-            });
+        });
     }
-
 
     /**
      * Initializes EditText fields and buttons with item data.
@@ -177,6 +183,7 @@ public class EditItemActivity extends AppCompatActivity {
         date = findViewById(R.id.date_edit_text);
         value = findViewById(R.id.value_edit_text);
         tagsContainerView = findViewById(R.id.tags_linear_layout);
+        tempUri = item.getImageUris() != null ? item.getImageUris() : new ArrayList<>();
         // Initialize Buttons
         addTagsButton = findViewById(R.id.add_tags_button_view);
         saveButton = findViewById(R.id.save_button);
@@ -192,28 +199,7 @@ public class EditItemActivity extends AppCompatActivity {
         comment.setText(item.getComment());
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
-        tempUris = item.getImageUris();
         loadTags();
-    }
-
-    /**
-     * This is a new thing i added to handle updating items with new images
-     */
-// Call this method after the image URI list is updated
-    private void updateItemInFirestore() {
-        db.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
-            @Override
-            public void onItemUpdated() {
-                // Notify user of success
-                Toast.makeText(EditItemActivity.this, "Item updated with new image", Toast.LENGTH_SHORT).show();
-                // Refresh the UI here if necessary
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(EditItemActivity.this, "Error updating item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 
@@ -299,28 +285,18 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     private void updateItem() {
-        try {
-            // Convert the date string back to a Date object
-            item.setDateOfPurchase(dateFormat.parse(date.getText().toString()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Toast.makeText(EditItemActivity.this, "Invalid date format", Toast.LENGTH_SHORT).show();
-        }
-
-        // Convert the value string to a double
-        try {
-            item.setEstimatedValue(Double.parseDouble(value.getText().toString()));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            Toast.makeText(EditItemActivity.this, "No Value Entered. Defaulted to 0.", Toast.LENGTH_SHORT).show();
-            item.setEstimatedValue(0);
-        }
-        item.setName(name.getText().toString());
-        item.setDescription(description.getText().toString());
-        item.setModel(model.getText().toString());
-        item.setMake(make.getText().toString());
-        item.setSerialNumber(serial.getText().toString());
-        item.setComment(comment.getText().toString());
-        item.setTags(selectedTags);
+        item.setItemProperties(
+                EditItemActivity.this,
+                date.getText().toString(),
+                value.getText().toString(),
+                name.getText().toString(),
+                description.getText().toString(),
+                model.getText().toString(),
+                make.getText().toString(),
+                serial.getText().toString(),
+                comment.getText().toString(),
+                selectedTags,
+                tempUri
+        );
     }
 }

@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.utils;
 
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.letsgogolfing.Item;
+import com.example.letsgogolfing.R;
 
 import java.util.ArrayList;
 import java.util.HashSet;

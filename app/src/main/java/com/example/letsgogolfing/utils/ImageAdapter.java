@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.utils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,7 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.letsgogolfing.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
@@ -68,6 +70,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             super(itemView);
             imageView = itemView.findViewById(R.id.image_view);
             deleteButton = itemView.findViewById(R.id.delete_button);
+        }
+    }
+
+    public void updateImageUris(List<String> newImageUris) {
+        this.imageUris = new ArrayList<>();
+        for (String uriString : newImageUris) {
+            this.imageUris.add(Uri.parse(uriString));
         }
     }
 }
