@@ -32,9 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.BuildConfig;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -137,10 +134,8 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 return;
             }
 
-
             // Initialize FirestoreRepository with the current username
             firestoreRepository = new FirestoreRepository(currentUsername);
-
         }
 
         initializeComponents();
