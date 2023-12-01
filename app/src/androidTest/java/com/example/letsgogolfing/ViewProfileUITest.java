@@ -15,6 +15,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static java.util.regex.Pattern.matches;
 
+import java.util.regex.Pattern;
+
 @RunWith(AndroidJUnit4.class)
 public class ViewProfileUITest {
 
@@ -28,13 +30,13 @@ public class ViewProfileUITest {
         // You can add code here to verify the displayed data, for example:
 
         // Check if the username is displayed
-        onView(withId(R.id.nameLabel)).check(matches(withText("Expected Username")));
+        onView(withId(R.id.nameLabel)).check(Pattern.matches(withText("Expected Username")));
 
         // Check if the total items count is displayed
-        onView(withId(R.id.totalItemCount)).check(matches(withText("Expected Total Items Count")));
+        onView(withId(R.id.totalItemCount)).check(Pattern.matches(withText("Expected Total Items Count")));
 
         // Check if the total cost is displayed
-        onView(withId(R.id.totalItemValue)).check(matches(withText("Expected Total Cost")));
+        onView(withId(R.id.totalItemValue)).check(Pattern.matches(withText("Expected Total Cost")));
     }
 
     @Test
