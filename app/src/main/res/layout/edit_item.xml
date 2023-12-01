@@ -11,13 +11,13 @@
         android:id="@+id/header_title"
         android:layout_width="match_parent"
         android:layout_height="43dp"
-        android:layout_marginBottom="21dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
         android:text="Edit Item"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/name_edit_text"
-        tools:layout_editor_absoluteX="1dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <ImageButton
@@ -36,7 +36,7 @@
         android:id="@+id/name_edit_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
         android:inputType="text"
@@ -45,7 +45,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/header_title" />
 
 
     <EditText
