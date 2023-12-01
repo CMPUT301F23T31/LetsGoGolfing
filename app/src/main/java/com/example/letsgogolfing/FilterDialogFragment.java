@@ -17,7 +17,11 @@ import androidx.fragment.app.DialogFragment;
 public class FilterDialogFragment extends DialogFragment {
 
     public interface FilterDialogListener {
-        void onFilterSelected(boolean option1, boolean option2, boolean option3, boolean option4);
+        void onFilterSelected(FilterType filterType);
+    }
+
+    public enum FilterType {
+        BY_DESCRIPTOR, BY_TAGS, BY_MAKE, BY_DATE
     }
 
     private FilterDialogListener listener;
@@ -54,11 +58,12 @@ public class FilterDialogFragment extends DialogFragment {
 
         builder.setView(view)
                 .setPositiveButton("Apply", (dialog, id) -> {
-                    boolean option1 = radioButton1.isChecked();
-                    boolean option2 = radioButton2.isChecked();
-                    boolean option3 = radioButton3.isChecked();
-                    boolean option4 = radioButton4.isChecked();
-                    listener.onFilterSelected(option1, option2, option3, option4);
+                    FilterType selectedFilterType = null;
+                    if (radioButton1.isChecked()) selectedFilterType = FilterType.BY_DESCRIPTOR;
+                    else if (radioButton2.isChecked()) selectedFilterType = FilterType.BY_TAGS;
+                    else if (radioButton3.isChecked()) selectedFilterType = FilterType.BY_MAKE;
+                    else if (radioButton4.isChecked()) selectedFilterType = FilterType.BY_DATE;
+                    listener.onFilterSelected(selectedFilterType);
                 })
                 .setNegativeButton("Cancel", (dialog, id) -> {
                     // User cancelled the dialog

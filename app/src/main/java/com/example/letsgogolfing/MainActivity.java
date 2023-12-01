@@ -46,15 +46,16 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
-
     private ImageButton filterButton;
+
+    private FilterDialogFragment.FilterType filterType;
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     // The item was added or updated, so refresh your list
-                    fetchItemsAndRefreshAdapter();
+                    //fetchItemsAndRefreshAdapter();
                 }
             });
 
@@ -85,23 +86,45 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
      * Fetches items from the Firestore database and updates the grid adapter.
      * It also updates the total value of all items displayed.
      */
-    private void fetchItemsAndRefreshAdapter() {
+    /*
+    private void fetchItemsAndRefreshAdapter(FilterType filterType) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                List<Item> newItems = new ArrayList<>();
+                List<Item> allItems = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Item item = document.toObject(Item.class);
-                    item.setId(document.getId()); // Make sure to set the document ID
-                    newItems.add(item);
+                    item.setId(document.getId());
+                    allItems.add(item);
                 }
-                itemAdapter.updateItems(newItems); // Assuming your adapter has this method
-                updateTotalValue(newItems);
+
+                List<Item> filteredItems;
+                switch (filterType) {
+                    case BY_DESCRIPTOR:
+                        filteredItems = filterByDescriptor(allItems);
+                        break;
+                    case BY_TAGS:
+                        filteredItems = filterByTags(allItems);
+                        break;
+                    case BY_MAKE:
+                        filteredItems = filterByMake(allItems);
+                        break;
+                    case BY_DATE:
+                        filteredItems = filterByDate(allItems);
+                        break;
+                    default:
+                        filteredItems = allItems; // No filter or default case
+                        break;
+                }
+
+                itemAdapter.updateItems(filteredItems);
+                updateTotalValue(filteredItems);
             } else {
                 Log.w(TAG, "Error getting documents: ", task.getException());
             }
         });
     }
+    */
 
     /**
      * Deletes the selected items from the Firestore database and updates the UI accordingly.
@@ -162,7 +185,9 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
         ImageView filterButton = findViewById(R.id.filter_button);
         filterButton.setOnClickListener(v -> showDialog());
 
+        /*
         fetchItemsAndRefreshAdapter();
+        */
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("items").get().addOnCompleteListener(task -> {
@@ -263,7 +288,28 @@ public class MainActivity extends AppCompatActivity implements FilterDialogFragm
     }
 
     @Override
-    public void onFilterSelected(boolean option1, boolean option2, boolean option3, boolean option4) {
+    public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
 
     }
+/*
+    @Override
+    public void onFilterSelected(FilterType filterType) {
+        switch (filterType) {
+            case BY_DESCRIPTOR:
+                // Implement filtering by item descriptor
+                break;
+            case BY_TAGS:
+                // Implement filtering by tags
+                break;
+            case BY_MAKE:
+                // Implement filtering by make
+                break;
+            case BY_DATE:
+                // Implement filtering by date
+                break;
+        }
+        fetchItemsAndRefreshAdapter(filterType); // Pass the filter type to your fetching method
+    }
+*/
 }
+
