@@ -15,5 +15,5 @@
 
     <string name="descending">Descending</string>
 
-    <string name="cost_formatting">Total Cost: $%.2f</string>
+    <string name="cost_formatting">$%.2f</string>
 </resources>

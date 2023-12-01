@@ -113,20 +113,6 @@
         app:layout_constraintTop_toBottomOf="@+id/itemGrid"
         app:layout_constraintVertical_bias="1.0" />
 
-
-    <ImageButton
-        android:id="@+id/select_button"
-        android:layout_width="81dp"
-        android:layout_height="25dp"
-        android:background="@drawable/select_button"
-        android:gravity="center"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/itemGrid"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.93"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter_button" />
-
     <ImageButton
         android:id="@+id/delete_button"
         android:layout_width="48dp"
@@ -150,10 +136,11 @@
         android:text="Cancel"
         android:textIsSelectable="false"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/select_button"
-        app:layout_constraintEnd_toEndOf="@+id/select_button"
-        app:layout_constraintStart_toStartOf="@+id/select_button"
-        app:layout_constraintTop_toTopOf="@+id/select_button" />
+        app:layout_constraintBottom_toTopOf="@+id/itemGrid"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.93"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_button" />
 
     <ImageView
         android:id="@+id/profileButton"

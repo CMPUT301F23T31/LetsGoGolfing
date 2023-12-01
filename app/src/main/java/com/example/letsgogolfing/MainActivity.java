@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
     private boolean isSelectMode = false;
-    private ImageButton selectButton;
     private ImageButton deleteButton;
     private ItemComparator comparator;
     private ImageView scanItemButton;
@@ -138,8 +137,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             firestoreRepository = new FirestoreRepository(currentUsername);
         }
 
-        initializeComponents();
-
         GetTags getTags = new GetTags(this, firestoreRepository);
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
@@ -167,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                     deleteButton.setVisibility(View.VISIBLE);
                     itemAdapter.toggleSelection(position);
                     selectTextCancel.setVisibility(View.VISIBLE);
-                    selectButton.setVisibility(View.VISIBLE);
                 }
             } else {
                 // Document ID is null, handle this case
@@ -226,14 +222,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 });
 
         selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
         deleteButton = findViewById(R.id.delete_button);
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
-        selectButton.setOnClickListener(v -> {
-            clearSelection();
-        });
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
         profileButton.setOnClickListener(view -> {
@@ -274,32 +266,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         super.onResume();
         fetchItemsAndRefreshAdapter();
     }
-
-    private void initializeComponents() {
-        itemGrid = findViewById(R.id.itemGrid);
-        itemAdapter = new ItemAdapter(this, new ArrayList<>());
-        itemGrid.setAdapter(itemAdapter);
-
-        // Set up click listeners and other UI components
-        // ...
-
-        ImageView addItemButton = findViewById(R.id.addItemButton);
-        addItemButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
-            intent.putExtra("username", currentUsername); // Now accessible here
-            editItemActivityLauncher.launch(intent);
-        });
-
-        // ...
-    }
-
-    ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    // The item was added or updated, so refresh your list
-                }
-            });
 
 
     /**
@@ -507,7 +473,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         itemAdapter.clearSelection(); // Inform the adapter
         deleteButton.setVisibility(View.GONE);
         selectTextCancel.setVisibility(View.GONE);
-        selectButton.setVisibility(View.GONE);
     }
 
 }
