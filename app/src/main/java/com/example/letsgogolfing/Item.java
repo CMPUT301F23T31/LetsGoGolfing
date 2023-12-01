@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -36,7 +37,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     private String make;
     private String model;
     private String serialNumber;
-    private double estimatedValue;
+    private Double estimatedValue;
     private String comment;
     private List<String> tags;
 
@@ -223,7 +224,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      *
      * @return The estimated value of the item.
      */
-    public double getEstimatedValue() {
+    public Double getEstimatedValue() {
         return estimatedValue;
     }
 
@@ -269,7 +270,13 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      * @param tags The list of tags to set for the item.
      */
     public void setTags(List<String> tags) {
-        this.tags = tags;
+        if (tags != null && !tags.isEmpty()) {
+            Collections.sort(tags);
+            this.tags = tags;
+        }
+        else {
+            this.tags = new ArrayList<>();
+        }
     }
 
 

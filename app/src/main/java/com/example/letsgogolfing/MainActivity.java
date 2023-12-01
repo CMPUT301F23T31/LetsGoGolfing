@@ -4,6 +4,7 @@ package com.example.letsgogolfing;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 
 import android.app.Activity;
@@ -21,9 +22,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.letsgogolfing.utils.ItemAdapter;
+import com.google.firebase.appcheck.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
@@ -36,7 +39,7 @@ import java.util.Set;
  * It handles the display and interaction with a grid of items, allowing the user to
  * select and delete items, as well as adding new ones and viewing their details.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener {
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
@@ -45,9 +48,31 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
+    private ItemComparator comparator;
     private ImageView scanItemButton;
 
     private FirestoreRepository firestoreRepository;
+    private DialogFragment sortDialog = new SortDialogFragment();
+
+    @Override
+    public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
+        comparator = new ItemComparator(selectedOption, sortDirection);
+        sortArrayAdapter(comparator);
+    }
+
+    private void sortArrayAdapter(Comparator<Item> comparator) {
+        if (itemAdapter != null) {
+            ArrayList<Item> itemList = new ArrayList<>();
+            for (int i = 0; i < itemAdapter.getCount(); i++) {
+                itemList.add(itemAdapter.getItem(i));
+            }
+
+            itemList.sort(comparator);
+            itemAdapter.clear();
+            itemAdapter.addAll(itemList);
+            itemAdapter.notifyDataSetChanged();
+        }
+    }
 
 
     /**
@@ -63,21 +88,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Retrieve current username from SharedPreferences
-        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-        String currentUsername = sharedPref.getString("username", null);
-        if (currentUsername == null || currentUsername.isEmpty()) {
-            // Redirect to LoginActivity
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            Toast.makeText(MainActivity.this, "FUCKKKK", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+        if (isDebugMode() || isRunningEspressoTest()) {
+            // Bypass login and directly initialize components
+            // Initialize with test or default data
+            initForTesting();
+        } else {
+            SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+            String currentUsername = sharedPref.getString("username", null);
+            if (currentUsername == null || currentUsername.isEmpty()) {
+                // Redirect to LoginActivity
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                Toast.makeText(MainActivity.this, "Crashed in known location", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+
+            // Initialize FirestoreRepository with the current username
+            firestoreRepository = new FirestoreRepository(currentUsername);
+
         }
-
-
-        // Initialize FirestoreRepository with the current username
-        firestoreRepository = new FirestoreRepository(currentUsername);
 
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
@@ -138,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
-            editItemActivityLauncher.launch(intent); // Use the launcher to start for result
+            startActivity(intent);
         });
 
         Button manageTagsButton = findViewById(R.id.manage_tags_button);
@@ -146,22 +177,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
             startActivity(intent);
         });
+        ImageButton sortButton = findViewById(R.id.sort_button);
+        sortButton.setOnClickListener(v -> {
+            sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
 
-
-        selectTextCancel = findViewById(R.id.select_text_cancel);
-        selectButton = findViewById(R.id.select_button);
-        deleteButton = findViewById(R.id.delete_button);
-
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
-
-        selectButton.setOnClickListener(v -> {
-            isSelectMode = !isSelectMode; // Toggle select mode
-            itemAdapter.setSelectModeEnabled(isSelectMode); // Inform the adapter
-            deleteButton.setVisibility(isSelectMode ? View.VISIBLE : View.GONE); // Show or hide the delete button
-            selectTextCancel.setText(isSelectMode ? "Cancel" : "Select"); // Update the text
         });
-
-        deleteButton.setOnClickListener(v -> deleteSelectedItems());
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
         profileButton.setOnClickListener(view -> {
@@ -178,17 +198,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(photoIntent);
         });
 
-
-
     }
 
-    ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    // The item was added or updated, so refresh your list
-                }
-            });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchItemsAndRefreshAdapter();
+    }
 
 
     /**
@@ -206,6 +222,28 @@ public class MainActivity extends AppCompatActivity {
         totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
     }
 
+    private boolean isRunningEspressoTest() {
+        // Check for a system property that you will set in your test setup
+        return "true".equals(System.getProperty("isRunningEspressoTest"));
+    }
+
+    private void initForTesting() {
+        // Initialize components as needed for testing
+        // This might include setting up dummy data or mocks
+        // For example:
+        firestoreRepository = new FirestoreRepository("testUser");
+        itemGrid = findViewById(R.id.itemGrid);
+        itemAdapter = new ItemAdapter(this, new ArrayList<>()); // Use a test adapter if necessary
+        itemGrid.setAdapter(itemAdapter);
+        // Other initializations...
+    }
+
+
+
+    private boolean isDebugMode() {
+        return BuildConfig.DEBUG;
+    }
+
 
     /**
      * Fetches items from the Firestore database and updates the grid adapter.
@@ -217,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemsFetched(List<Item> items) {
                 itemAdapter.updateItems(items);
+                sortArrayAdapter(comparator);
                 updateTotalValue(items);
             }
 
@@ -265,5 +304,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
 }

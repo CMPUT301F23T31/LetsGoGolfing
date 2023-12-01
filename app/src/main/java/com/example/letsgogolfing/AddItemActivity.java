@@ -40,7 +40,6 @@ public class AddItemActivity extends AppCompatActivity {
     private Item item;
     private static final String TAG = "EditItemActivity";
 
-    // IS THE FOLLOWING ARRAYLIST EVEN BEING USED? idk
     private ArrayList<String> tempUris = new ArrayList<>();
 
     private FirestoreRepository firestoreRepository;

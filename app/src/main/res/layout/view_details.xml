@@ -21,13 +21,13 @@
         android:id="@+id/header_title"
         android:layout_width="match_parent"
         android:layout_height="43dp"
-        android:layout_marginBottom="21dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
         android:text="Item Details"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/name_view_text"
-        tools:layout_editor_absoluteX="1dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <ImageButton
@@ -46,16 +46,17 @@
         android:id="@+id/name_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
         android:inputType="text"
-        android:paddingStart="16dp"
+        android:paddingStart="10dp"
+        android:paddingTop="12dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/header_title" />
 
 
     <TextView
@@ -65,58 +66,67 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Description"
-        android:inputType="text"
-        android:paddingStart="16dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_view_text" />
+        app:layout_constraintTop_toBottomOf="@+id/name_view_text"
+        tools:ignore="TextViewEdits" />
 
 
     <!-- Date and Model Fields in a row -->
+
     <TextView
         android:id="@+id/date_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
+        android:layout_marginEnd="5dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Date (yyyy-mm-dd)"
         android:inputType="date"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="10dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="10dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/model_view_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/description_view_text" />
 
+    <!-- Make and Value Fields in a row -->
     <TextView
         android:id="@+id/model_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Model"
         android:inputType="text"
-        android:paddingStart="16dp"
+        android:paddingStart="10dp"
+        android:paddingTop="12dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/date_view_text"
         app:layout_constraintTop_toBottomOf="@+id/description_view_text" />
 
-    <!-- Make and Value Fields in a row -->
     <TextView
         android:id="@+id/make_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
+        android:layout_marginEnd="5dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Make"
         android:inputType="text"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="10dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="10dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/value_view_text"
         app:layout_constraintStart_toStartOf="parent"
@@ -127,13 +137,14 @@
         android:id="@+id/value_view_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Value (Optional)"
         android:inputType="numberDecimal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="10dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="10dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/make_view_text"
@@ -147,11 +158,12 @@
         android:layout_height="110dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
-        android:gravity=""
         android:hint="Comment (Optional)"
-        android:inputType="text"
-        android:paddingStart="16dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:paddingStart="10dp"
         android:paddingEnd="16dp"
+        android:paddingTop="5dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

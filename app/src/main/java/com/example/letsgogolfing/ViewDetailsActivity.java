@@ -79,20 +79,16 @@ public class ViewDetailsActivity extends AppCompatActivity {
             // takes back to home page main_activity
             Intent intent = new Intent(ViewDetailsActivity.this, MainActivity.class);
             startActivity(intent);
+            finish();
         });
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
-            Log.d(TAG, "Item ID: " + item.getId());
+            Log.d(TAG, "Editing Item ID: " + item.getId());
             intent.putExtra("item", item);
             startActivity(intent);
         });
 
-
-
-        Button viewPhotoButton = findViewById(R.id.view_photo_button);
-
-        // Set an OnClickListener on the button
         viewPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,12 +144,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
         date.setText(dateFormat.format(item.getDateOfPurchase()));
         value.setText(Double.toString(item.getEstimatedValue()));
 
-        // Connect to database
-        db = new FirestoreRepository(username);
-
-
-
-
         // Set content of Tag Container
         loadTags();
     }
@@ -183,10 +173,6 @@ public class ViewDetailsActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
     /**
      * Loads tags from Firestore and updates the UI accordingly.
      * This method fetches a collection of tags from Firestore, processes the response,
@@ -206,6 +192,23 @@ public class ViewDetailsActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Toast.makeText(ViewDetailsActivity.this, "Failed to fetch tags", Toast.LENGTH_SHORT).show();
                 Log.w(TAG, "Error getting documents: ", e);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        db.fetchItemById(item.getId(), new FirestoreRepository.OnItemFetchedListener() {
+            @Override
+            public void onItemFetched(Item item2) {
+                item = item2;
+                InitializeUI();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(ViewDetailsActivity.this, "Failed to update item from database", Toast.LENGTH_SHORT).show();
             }
         });
     }

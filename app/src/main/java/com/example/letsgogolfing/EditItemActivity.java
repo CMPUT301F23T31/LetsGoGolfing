@@ -52,7 +52,6 @@ public class EditItemActivity extends AppCompatActivity {
     private EditText name, description, value, make, model, serial, comment, date;
     private LinearLayout tagsContainerView;
     private Button saveButton, cancelButton, addPhotoButton, addTagsButton;
-    private ImageButton backButton;
     private final List<String> tagList = new ArrayList<>(); // This should be populated from Firestore
     private List<String> selectedTags = new ArrayList<>();
     private Item item;
@@ -93,16 +92,11 @@ public class EditItemActivity extends AppCompatActivity {
 
         InitializeUI(item);
 
-        backButton.setOnClickListener(v -> {
-            // takes back to home page main_activity
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        });
-
         cancelButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ViewDetailsActivity.class);
             intent.putExtra("item", item);
             startActivity(intent);
+            finish();
         });
 
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
@@ -189,7 +183,6 @@ public class EditItemActivity extends AppCompatActivity {
         saveButton = findViewById(R.id.save_button);
         cancelButton = findViewById(R.id.cancel_edit_button);
         addPhotoButton = findViewById(R.id.add_photo_button);
-        backButton = findViewById(R.id.back_button);
         // Set the EditTexts with the original values
         name.setText(item.getName());
         description.setText(item.getDescription());

@@ -28,14 +28,17 @@
     <EditText
         android:id="@+id/descriptionField"
         android:layout_width="0dp"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Description"
-        android:inputType="text"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
         android:textSize="16sp"
-        android:paddingStart="16dp"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
         android:paddingEnd="16dp"
+        android:gravity="top"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameField" />
@@ -117,10 +120,11 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Comment (Optional)"
-        android:gravity=""
+        android:gravity="top"
         android:inputType="text"
         android:textSize="16sp"
-        android:paddingStart="16dp"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
         android:paddingEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -150,58 +154,68 @@
     <!-- Add Photo Button -->
     <Button
         android:id="@+id/addPhotoBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
 
 
         android:text="Add Photo"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_tags_button"
+        app:layout_constraintVertical_bias="1.0" />
 
 
     <!-- Confirm Button -->
+
+    <!-- Container for the tags -->
     <Button
         android:id="@+id/confirmBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:text="Confirm"
-        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/addPhotoBtn" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_tags_button"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/cancel_button_add_item"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
         android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/confirmBtn" />
+        app:layout_constraintEnd_toStartOf="@+id/confirmBtn"
+        app:layout_constraintStart_toEndOf="@+id/addPhotoBtn"
+        app:layout_constraintTop_toTopOf="@+id/tagsContainer"
+        app:layout_constraintVertical_bias="1.0" />
 
-    <!-- Container for the tags -->
     <LinearLayout
         android:id="@+id/tagsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/serialField"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
+        app:layout_constraintVertical_bias="0.0">
         <!-- Tags TextViews will be added here programmatically -->
     </LinearLayout>
 
 
     <Button
         android:id="@+id/add_tags_button"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="10dp"
         android:text="Add Tags"
-        app:layout_constraintBottom_toTopOf="@+id/confirmBtn"
-        tools:layout_editor_absoluteX="126dp" />
+        app:layout_constraintBottom_toTopOf="@+id/cancel_button_add_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tagsContainer"
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
