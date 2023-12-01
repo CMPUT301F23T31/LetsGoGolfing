@@ -128,7 +128,7 @@
         app:layout_constraintStart_toEndOf="@+id/totalValue" />
 
     <TextView
-        android:id="@+id/select_button"
+        android:id="@+id/select_text_cancel"
         android:layout_width="66dp"
         android:layout_height="22dp"
         android:fontFamily="sans-serif"
