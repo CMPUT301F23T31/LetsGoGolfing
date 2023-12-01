@@ -3,45 +3,24 @@ package com.example.letsgogolfing;
 import static com.example.letsgogolfing.CameraActivity.MODE_PHOTO_CAMERA;
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.example.letsgogolfing.utils.FirestoreRepository;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 /**
  * Activity for editing the details of an item in an Android application.
@@ -108,6 +87,7 @@ public class EditItemActivity extends AppCompatActivity {
             photoIntent.putExtra("BarcodeInfo", false);
             photoIntent.putExtra("item", item);
             startActivity(photoIntent);
+            finish();
         });
 
         saveButton.setOnClickListener(v -> {
@@ -140,6 +120,7 @@ public class EditItemActivity extends AppCompatActivity {
                                 Intent intent = new Intent(EditItemActivity.this, ViewDetailsActivity.class);
                                 intent.putExtra("item", item);
                                 startActivity(intent);
+                                finish();
                             }
 
                             @Override

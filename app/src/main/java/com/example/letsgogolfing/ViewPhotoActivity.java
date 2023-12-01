@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.letsgogolfing.utils.FirestoreRepository;
 import com.example.letsgogolfing.utils.ImageAdapter;
 
 import java.util.ArrayList;
@@ -94,10 +95,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
         }
 
         Button back_button = findViewById(R.id.back_button);
-        back_button.setOnClickListener(v -> {
-            finish();
-        });
-
+        back_button.setOnClickListener(v -> finish());
     }
 
     @Override

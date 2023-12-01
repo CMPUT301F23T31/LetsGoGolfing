@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.letsgogolfing.utils.FirestoreRepository;
+
 import java.util.List;
 
 /**
@@ -43,9 +45,7 @@ public class ViewProfileActivity extends AppCompatActivity {
         fetchProfileData();
 
         ImageView homeButton = findViewById(R.id.homeButton);
-        homeButton.setOnClickListener(v -> {
-            finish();
-        });
+        homeButton.setOnClickListener(v -> finish());
 
         Button logout_button = findViewById(R.id.logout_button);
 

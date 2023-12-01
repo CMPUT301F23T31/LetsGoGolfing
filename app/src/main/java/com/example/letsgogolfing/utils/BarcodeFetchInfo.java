@@ -1,6 +1,8 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.utils;
 
 import android.util.Log;
+
+import com.example.letsgogolfing.Item;
 
 import org.json.JSONArray;
 import org.json.JSONException;

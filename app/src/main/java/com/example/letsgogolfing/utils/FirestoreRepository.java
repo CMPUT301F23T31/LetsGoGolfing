@@ -1,7 +1,8 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.utils;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.letsgogolfing.Item;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;

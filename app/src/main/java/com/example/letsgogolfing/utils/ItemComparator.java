@@ -1,4 +1,6 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.utils;
+
+import com.example.letsgogolfing.Item;
 
 import java.util.Comparator;
 import java.util.List;

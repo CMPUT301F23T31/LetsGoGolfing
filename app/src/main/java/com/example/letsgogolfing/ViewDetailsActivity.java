@@ -2,15 +2,10 @@ package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -19,17 +14,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 
+import com.example.letsgogolfing.utils.FirestoreRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,18 +66,14 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
         InitializeUI();
 
-        backButton.setOnClickListener(v -> {
-            // takes back to home page main_activity
-            Intent intent = new Intent(ViewDetailsActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        backButton.setOnClickListener(v -> finish());
 
         editButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewDetailsActivity.this, EditItemActivity.class);
             Log.d(TAG, "Editing Item ID: " + item.getId());
             intent.putExtra("item", item);
             startActivity(intent);
+            finish();
         });
 
         viewPhotoButton.setOnClickListener(new View.OnClickListener() {

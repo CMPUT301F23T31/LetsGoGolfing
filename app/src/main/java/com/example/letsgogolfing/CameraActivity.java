@@ -14,19 +14,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.letsgogolfing.utils.BarcodeFetchInfo;
+import com.example.letsgogolfing.utils.FirestoreRepository;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
@@ -38,26 +37,13 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 
 // Other imports that your class already uses
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.*;
-import org.json.*;
 
 
 public class CameraActivity extends AppCompatActivity {
@@ -274,6 +260,7 @@ public class CameraActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AddItemActivity.class);
             intent.putExtra("item", item);
             startActivity(intent);
+            finish();
         } else {
             if (item == null) {
                 // If the item is null, report error to log
@@ -291,6 +278,7 @@ public class CameraActivity extends AppCompatActivity {
                 intent.putExtra("item", item);
                 intent.putExtra("uri", uri.toString());
                 startActivity(intent);
+                finish();
             }
         }
     }

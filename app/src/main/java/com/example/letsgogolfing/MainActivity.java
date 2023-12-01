@@ -1,13 +1,10 @@
 package com.example.letsgogolfing;
 
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +18,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.letsgogolfing.utils.FirestoreRepository;
 import com.example.letsgogolfing.utils.ItemAdapter;
+import com.example.letsgogolfing.utils.ItemComparator;
 import com.google.firebase.appcheck.BuildConfig;
 
 import java.util.ArrayList;

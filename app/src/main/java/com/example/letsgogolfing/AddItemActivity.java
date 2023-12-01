@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.letsgogolfing.utils.FirestoreRepository;
 import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
@@ -78,7 +79,7 @@ public class AddItemActivity extends AppCompatActivity {
         // confirm button listener - ISSUE?
         Button confirmBtn = findViewById(R.id.confirmBtn);
         confirmBtn.setOnClickListener(v -> {
-            updateItem(); // THIS COULD BE COOKED
+            updateItem();
             if (item != null) {
                 // Generate the item ID
                 firestoreRepository.generateID("items", new FirestoreRepository.OnIDGeneratedListener() {
@@ -131,6 +132,7 @@ public class AddItemActivity extends AppCompatActivity {
                 photoIntent.putExtra("BarcodeInfo", false);
                 photoIntent.putExtra("item", item);
                 startActivity(photoIntent);
+                finish(); //testing finish
         });
     }
 
@@ -290,7 +292,8 @@ public class AddItemActivity extends AppCompatActivity {
                                     public void onItemUpdated() {
                                         Log.d("AddItemActivity", "Item updated, ID: " + item.getId() + ", Name: " + item.getName() + ", Estimated Value: " + item.getEstimatedValue());
                                         // Navigate to MainActivity after the item has been updated
-                                        navigateToMainActivity();
+                                        //navigateToMainActivity();
+                                        finish();
                                     }
 
                                     @Override
@@ -307,7 +310,8 @@ public class AddItemActivity extends AppCompatActivity {
                         });
                     } else {
                         // If the URI is null, navigate to MainActivity after adding the item
-                        navigateToMainActivity();
+                        //navigateToMainActivity();
+                        finish();
                     }
                 }
 

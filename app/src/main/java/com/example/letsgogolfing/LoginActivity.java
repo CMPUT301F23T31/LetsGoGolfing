@@ -2,18 +2,14 @@ package com.example.letsgogolfing;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.example.letsgogolfing.utils.FirestoreRepository;
 
 /**
  * LoginActivity is responsible for handling the user login process.
