@@ -68,14 +68,13 @@
 
 
     <!-- Date and Model Fields in a row -->
-    <EditText
+    <com.example.letsgogolfing.DatePickerEditText
         android:id="@+id/date_edit_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Date (yyyy-mm-dd)"
-        android:inputType="date"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
