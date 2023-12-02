@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
     private boolean isSelectMode = false;
     private ImageButton deleteButton;
+    private ImageButton cancelButton;
     private ItemComparator comparator;
     private ImageView scanItemButton;
     private ArrayList<String>tagList;
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
-
+        cancelButton = findViewById(R.id.cancel_button);
 
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
@@ -164,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                     deleteButton.setVisibility(View.VISIBLE);
                     itemAdapter.toggleSelection(position);
                     selectTextCancel.setVisibility(View.VISIBLE);
+                    cancelButton.setVisibility(View.VISIBLE);
                 }
             } else {
                 // Document ID is null, handle this case
@@ -172,7 +174,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
             return true; // True to indicate the long click was consumed
         });
-
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearSelection();
+            }
+        });
         itemGrid.setOnItemClickListener((parent, view, position, id) -> {
             if (isSelectMode) {
                 itemAdapter.toggleSelection(position); // Toggle item selection
@@ -473,6 +480,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         itemAdapter.clearSelection(); // Inform the adapter
         deleteButton.setVisibility(View.GONE);
         selectTextCancel.setVisibility(View.GONE);
+        cancelButton.setVisibility(View.GONE);
     }
 
 }

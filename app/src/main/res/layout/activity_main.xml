@@ -126,6 +126,19 @@
         app:layout_constraintEnd_toStartOf="@+id/scan_item_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/totalValue" />
+    <ImageButton
+        android:id="@+id/cancel_button"
+        android:layout_width="81dp"
+        android:layout_height="28dp"
+        android:background="@drawable/select_button"
+        android:gravity="center"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/itemGrid"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.951"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchEditText"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/select_text_cancel"
