@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CalendarView;
@@ -15,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 public class FilterDialogFragment extends DialogFragment {
+
+    private FilterType selectedFilterType;
 
     public interface FilterDialogListener {
         void onFilterSelected(FilterType filterType);
@@ -43,33 +44,37 @@ public class FilterDialogFragment extends DialogFragment {
         // Initially hide the calendar view
         calendarView.setVisibility(View.GONE);
 
-        // Add listener to RadioGroup to toggle CalendarView visibility
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            Log.d("FilterDialog", "Checked ID: " + checkedId);
-            if (checkedId == R.id.radio_button4) {
-                Log.d("FilterDialog", "Showing calendar view");
+            if (checkedId == R.id.radio_button1) {
+                selectedFilterType = FilterType.BY_DESCRIPTOR;
+            } else if (checkedId == R.id.radio_button2) {
+                selectedFilterType = FilterType.BY_TAGS;
+            } else if (checkedId == R.id.radio_button3) {
+                selectedFilterType = FilterType.BY_MAKE;
+            } else if (checkedId == R.id.radio_button4) {
+                selectedFilterType = FilterType.BY_DATE;
                 calendarView.setVisibility(View.VISIBLE);
             } else {
-                Log.d("FilterDialog", "Hiding calendar view");
-                calendarView.setVisibility(View.GONE);
+                selectedFilterType = null;
             }
+            calendarView.setVisibility(View.GONE);
         });
-
 
         builder.setView(view)
                 .setPositiveButton("Apply", (dialog, id) -> {
-                    FilterType selectedFilterType = null;
-                    if (radioButton1.isChecked()) selectedFilterType = FilterType.BY_DESCRIPTOR;
-                    else if (radioButton2.isChecked()) selectedFilterType = FilterType.BY_TAGS;
-                    else if (radioButton3.isChecked()) selectedFilterType = FilterType.BY_MAKE;
-                    else if (radioButton4.isChecked()) selectedFilterType = FilterType.BY_DATE;
-                    listener.onFilterSelected(selectedFilterType);
+                    if (listener != null) {
+                        listener.onFilterSelected(selectedFilterType);
+                    }
                 })
                 .setNegativeButton("Cancel", (dialog, id) -> {
                     // User cancelled the dialog
                 });
 
         return builder.create();
+    }
+
+    public void setFilterDialogListener(FilterDialogListener listener) {
+        this.listener = listener;
     }
 
     // Override the onAttach to ensure that the host activity implements the callback interface
@@ -82,5 +87,4 @@ public class FilterDialogFragment extends DialogFragment {
             throw new ClassCastException(context.toString() + " must implement FilterDialogListener");
         }
     }
-
 }

@@ -14,8 +14,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -23,17 +21,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
-import java.util.Set;
 
 
 /**
@@ -41,8 +33,7 @@ import java.util.Set;
  * It handles the display and interaction with a grid of items, allowing the user to
  * select and delete items, as well as adding new ones and viewing their details.
  */
-public class MainActivity extends AppCompatActivity implements FilterDialogFragment.FilterDialogListener {
-public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener {
+public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener, FilterDialogFragment.FilterDialogListener{
 
     private TextView selectTextCancel; // Add this member variable for the TextView
     private static final String TAG = "MainActivity";
@@ -50,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
+    private FilterDialogFragment.FilterType selectedFilterType = FilterDialogFragment.FilterType.BY_DESCRIPTOR;
     private boolean isSelectMode = false;
     private ImageButton selectButton;
     private ImageButton deleteButton;
@@ -58,11 +50,15 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private FilterDialogFragment.FilterType filterType;
     private DialogFragment sortDialog = new SortDialogFragment();
 
+
+
     @Override
     public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
         ItemComparator comparator = new ItemComparator(selectedOption, sortDirection);
         sortArrayAdapter(comparator);
     }
+
+
 
     private void sortArrayAdapter(Comparator<Item> comparator) {
         if (itemAdapter != null) {
@@ -109,9 +105,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
+
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
+
+        itemAdapter.setCurrentFilterType(selectedFilterType);
 
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
@@ -164,6 +163,26 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             }
         });
 
+        // Inside onCreate method or appropriate initialization method
+        EditText searchEditText = findViewById(R.id.searchEditText);
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No action needed here for this context
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // No action needed here for this context
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // As the user types or clears text in the EditText
+                itemAdapter.getFilter().filter(s.toString());
+            }
+        });
+
         ImageView addItemButton = findViewById(R.id.addItemButton);
         addItemButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddItemActivity.class);
@@ -186,6 +205,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             Intent intent = new Intent(MainActivity.this, ViewProfileActivity.class);
             startActivity(intent);
         });
+
+        ImageView filterButton = findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(v -> showDialog());
+
     }
 
     ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
@@ -198,17 +221,18 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             });
 
 
+
+    public void showDialog() {
+        FilterDialogFragment dialogFragment = new FilterDialogFragment();
+        dialogFragment.setFilterDialogListener(this);
+        dialogFragment.show(getSupportFragmentManager(), "FilterDialogFragment");
+    }
+
     /**
      * Updates the total value text view with the sum of estimated values of all items.
      *
      * @param items The list of items whose values are to be summed.
      */
-
-    public void showDialog() {
-        FilterDialogFragment dialogFragment = new FilterDialogFragment();
-        dialogFragment.show(getSupportFragmentManager(), "FilterDialogFragment");
-    }
-
     private void updateTotalValue(List<Item> items) {
         double totalValue = 0;
         for (Item item : items) {
@@ -220,45 +244,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     }
 
 
-    /**
-     * Fetches items from the Firestore database and updates the grid adapter.
-     * It also updates the total value of all items displayed.
-     */
-    /*
-    private void fetchItemsAndRefreshAdapter(FilterType filterType) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<Item> allItems = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Item item = document.toObject(Item.class);
-                    item.setId(document.getId());
-                    allItems.add(item);
-                }
-
-                List<Item> filteredItems;
-                switch (filterType) {
-                    case BY_DESCRIPTOR:
-                        filteredItems = filterByDescriptor(allItems);
-                        break;
-                    case BY_TAGS:
-                        filteredItems = filterByTags(allItems);
-                        break;
-                    case BY_MAKE:
-                        filteredItems = filterByMake(allItems);
-                        break;
-                    case BY_DATE:
-                        filteredItems = filterByDate(allItems);
-                        break;
-                    default:
-                        filteredItems = allItems; // No filter or default case
-                        break;
-                }
-
-                itemAdapter.updateItems(filteredItems);
-                updateTotalValue(filteredItems);
-            } else {
-                Log.w(TAG, "Error getting documents: ", task.getException());
     private void fetchItemsAndRefreshAdapter() {
         // I changed this so that we use the FirestoreRepo class to handle the database - (vedant)
         firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
@@ -274,76 +259,13 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             }
         });
     }
-    */
 
-    /**
-     * Deletes the selected items from the Firestore database and updates the UI accordingly.
-     * It clears the selection mode after deletion is completed.
-     */
-    private void deleteSelectedItems() {
-        Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
-        List<String> itemIdsToDelete = new ArrayList<>();
-        for (int position : selectedPositions) {
-            Item item = itemAdapter.getItem(position);
-            itemIdsToDelete.add(item.getId());
-        }
-
-        firestoreRepository.deleteItems(itemIdsToDelete, new FirestoreRepository.OnItemDeletedListener() {
-            @Override
-            public void OnItemsDeleted() {
-                // Remove items from the adapter and refresh
-                List<Integer> positions = new ArrayList<>(selectedPositions);
-                Collections.sort(positions, Collections.reverseOrder());
-                for (int position : positions) {
-                    itemAdapter.removeItem(position);
-                }
-                itemAdapter.clearSelection();
-                itemAdapter.notifyDataSetChanged();
-                updateTotalValue(itemAdapter.getItems());
-                Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
-
-                // Reset select mode
-                isSelectMode = false;
-                itemAdapter.setSelectModeEnabled(false);
-                deleteButton.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
-            }
-
-            // Reset select mode
-            isSelectMode = false;
-            itemAdapter.setSelectModeEnabled(false);
-            deleteButton.setVisibility(View.GONE);
-        });
-    }
-   
 
     @Override
     public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
+        this.selectedFilterType = filterType; // Save the selected filter type
+        // Apply the selected filter type
+    }
 
-    }
-/*
-    @Override
-    public void onFilterSelected(FilterType filterType) {
-        switch (filterType) {
-            case BY_DESCRIPTOR:
-                // Implement filtering by item descriptor
-                break;
-            case BY_TAGS:
-                // Implement filtering by tags
-                break;
-            case BY_MAKE:
-                // Implement filtering by make
-                break;
-            case BY_DATE:
-                // Implement filtering by date
-                break;
-        }
-        fetchItemsAndRefreshAdapter(filterType); // Pass the filter type to your fetching method
-    }
-*/
 }
 

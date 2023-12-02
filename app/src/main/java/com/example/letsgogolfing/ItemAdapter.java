@@ -11,6 +11,8 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
+import com.example.letsgogolfing.FilterDialogFragment.FilterType;
+
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import java.util.Collection;
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
+    FilterType currentFilterType = FilterType.BY_DESCRIPTOR;
     private List<Item> items;
     private LayoutInflater inflater;
 
@@ -81,6 +84,10 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             selectedItems.add(position);
         }
         notifyDataSetChanged();
+    }
+
+    public void setCurrentFilterType(FilterType filterType) {
+        this.currentFilterType = filterType;
     }
 
 
@@ -196,13 +203,14 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         // Add more views as needed
     }
 
-
     // Correct getFilter() method
     public Filter getFilter() {
         if (itemFilter == null) {
             itemFilter = new ItemFilter(this, items);
         }
         return itemFilter;
+    }
+
     @Override
     public void clear() {
         items.clear();

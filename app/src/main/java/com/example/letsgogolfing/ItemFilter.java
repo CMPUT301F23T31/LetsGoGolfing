@@ -29,8 +29,23 @@ public class ItemFilter extends Filter {
             final String filterPattern = constraint.toString().toLowerCase().trim();
 
             for (final Item item : originalList) {
-                if (item.getName().toLowerCase().contains(filterPattern)) {
-                    filteredList.add(item);
+                switch (adapter.currentFilterType) {
+                    case BY_DESCRIPTOR:
+                        if (item.getDescription().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(item);
+                        }
+                        break;
+                    case BY_TAGS:
+                        // Example logic for filtering by tags, assuming `item.getTags()` returns a List<String>
+                        if (item.getTags() != null && item.getTags().stream().anyMatch(tag -> tag.toLowerCase().contains(filterPattern))) {
+                            filteredList.add(item);
+                        }
+                    case BY_MAKE:
+                        // Add logic to filter by make
+                        break;
+                    case BY_DATE:
+                        // Add logic to filter by date
+                        break;
                 }
             }
         }
@@ -39,6 +54,7 @@ public class ItemFilter extends Filter {
         results.count = filteredList.size();
         return results;
     }
+
 
 
     @Override
