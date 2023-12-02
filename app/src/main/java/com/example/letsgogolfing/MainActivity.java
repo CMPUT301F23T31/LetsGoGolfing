@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import androidx.fragment.app.DialogFragment;
 
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,10 +20,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -57,7 +57,7 @@ import java.util.Set;
  * It handles the display and interaction with a grid of items, allowing the user to
  * select and delete items, as well as adding new ones and viewing their details.
  */
-public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener {
+public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener, FilterDialogFragment.FilterDialogListener{
 
     private Uri imageUri;
 
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
+    private FilterDialogFragment.FilterType selectedFilterType = FilterDialogFragment.FilterType.BY_DESCRIPTOR;
     private boolean isSelectMode = false;
     private ImageButton deleteButton;
     private ItemComparator comparator;
@@ -82,13 +83,20 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private FirestoreRepository firestoreRepository;
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
+    private ImageButton filterButton;
+
+    private FilterDialogFragment.FilterType filterType;
     private DialogFragment sortDialog = new SortDialogFragment();
+
+
 
     @Override
     public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
         comparator = new ItemComparator(selectedOption, sortDirection);
         sortArrayAdapter(comparator);
     }
+
+
 
     private void sortArrayAdapter(Comparator<Item> comparator) {
         if (itemAdapter != null) {
@@ -140,10 +148,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         GetTags getTags = new GetTags(this, firestoreRepository);
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
+
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
 
+        itemAdapter.setCurrentFilterType(selectedFilterType);
 
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
@@ -181,6 +191,26 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 Intent intent = new Intent(MainActivity.this, ViewDetailsActivity.class);
                 intent.putExtra("item", item);
                 startActivity(intent);
+            }
+        });
+
+        // Inside onCreate method or appropriate initialization method
+        EditText searchEditText = findViewById(R.id.searchEditText);
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No action needed here for this context
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // No action needed here for this context
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // As the user types or clears text in the EditText
+                itemAdapter.getFilter().filter(s.toString());
             }
         });
 
@@ -266,7 +296,27 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         super.onResume();
         fetchItemsAndRefreshAdapter();
     }
+        ImageView filterButton = findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(v -> showDialog());
 
+    }
+
+    ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // The item was added or updated, so refresh your list
+                    //fetchItemsAndRefreshAdapter();
+                }
+            });
+
+
+
+    public void showDialog() {
+        FilterDialogFragment dialogFragment = new FilterDialogFragment();
+        dialogFragment.setFilterDialogListener(this);
+        dialogFragment.show(getSupportFragmentManager(), "FilterDialogFragment");
+    }
 
     /**
      * Updates the total value text view with the sum of estimated values of all items.
@@ -305,10 +355,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         return BuildConfig.DEBUG;
     }
 
-    /**
-     * Fetches items from the Firestore database and updates the grid adapter.
-     * It also updates the total value of all items displayed.
-     */
     private void fetchItemsAndRefreshAdapter() {
         // I changed this so that we use the FirestoreRepo class to handle the database - (vedant)
         firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
@@ -327,17 +373,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         });
     }
 
-    /**
-     * Deletes the selected items from the Firestore database and updates the UI accordingly.
-     * It clears the selection mode after deletion is completed.
-     */
-    private void deleteSelectedItems() {
-        Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
-        List<String> itemIdsToDelete = new ArrayList<>();
-        for (int position : selectedPositions) {
-            Item item = itemAdapter.getItem(position);
-            itemIdsToDelete.add(item.getId());
-        }
 
         firestoreRepository.deleteItems(itemIdsToDelete, new FirestoreRepository.OnItemDeletedListener() {
             @Override
@@ -475,4 +510,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         selectTextCancel.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
+        this.selectedFilterType = filterType; // Save the selected filter type
+        // Apply the selected filter type
+    }
+
 }
+

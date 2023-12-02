@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.Filter;
 import android.widget.TextView;
+import com.example.letsgogolfing.FilterDialogFragment.FilterType;
 
 import com.bumptech.glide.Glide;
 
@@ -23,11 +25,11 @@ import java.util.Collection;
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
+    FilterType currentFilterType = FilterType.BY_DESCRIPTOR;
     private List<Item> items;
     private LayoutInflater inflater;
 
-
-
+    private ItemFilter itemFilter;
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
 
@@ -86,6 +88,10 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             selectedItems.add(position);
         }
         notifyDataSetChanged();
+    }
+
+    public void setCurrentFilterType(FilterType filterType) {
+        this.currentFilterType = filterType;
     }
 
 
@@ -217,6 +223,14 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         TextView valueTextView;
         ImageView imageView;
         // Add more views as needed
+    }
+
+    // Correct getFilter() method
+    public Filter getFilter() {
+        if (itemFilter == null) {
+            itemFilter = new ItemFilter(this, items);
+        }
+        return itemFilter;
     }
 
     @Override
