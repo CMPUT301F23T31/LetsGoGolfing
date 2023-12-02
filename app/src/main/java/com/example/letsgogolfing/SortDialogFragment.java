@@ -21,7 +21,9 @@ import androidx.fragment.app.DialogFragment;
  * the hosting activity or fragment through the {@code SortOptionListener} interface.
  */
 public class SortDialogFragment extends DialogFragment {
-    private int checkedItem = -1; // No item is selected by default
+    private int checkedItem = -1; // No item is selected by
+    private static int lastSelectedOption = -1; // Persist last checked sort option
+    private static boolean lastSelectedDirection = true; // Persist last sort direction, default to true (ascending)
     private SortOptionListener mListener;
 
     /**
@@ -59,16 +61,25 @@ public class SortDialogFragment extends DialogFragment {
 
         // Dynamically add radio buttons for sort options
         String[] sortOptions = getResources().getStringArray(R.array.sort_options);
+        RadioButton lastSelectedRadioButton = null;
         for (int i = 0; i < sortOptions.length; i++) {
             RadioButton radioButton = new RadioButton(getContext());
             radioButton.setText(sortOptions[i]);
             radioButton.setId(View.generateViewId());
             sortOptionsGroup.addView(radioButton);
 
-            if (i == checkedItem) {
+            if (i == lastSelectedOption) {
                 radioButton.setChecked(true);
             }
+
         }
+
+        // Assuming the first child in sortDirectionGroup is Ascending and the second is Descending
+        if (sortDirectionGroup.getChildCount() >= 2) {
+            ((RadioButton) sortDirectionGroup.getChildAt(0)).setChecked(lastSelectedDirection);
+            ((RadioButton) sortDirectionGroup.getChildAt(1)).setChecked(!lastSelectedDirection);
+        }
+
         builder.setView(view)
                 .setTitle(R.string.dialog_sort)
                 .setPositiveButton(R.string.confirm, null)
@@ -120,6 +131,16 @@ public class SortDialogFragment extends DialogFragment {
             String directionText = ((RadioButton) dialog.findViewById(selectedDirectionId)).getText().toString().toLowerCase();
             sortDirection = directionText.equals("ascending");
         }
+        // Save the index of the selected sort option for next time
+        for (int i = 0; i < sortOptionsGroup.getChildCount(); i++) {
+            if (((RadioButton)sortOptionsGroup.getChildAt(i)).isChecked()) {
+                lastSelectedOption = i;
+                break;
+            }
+        }
+        // Save the selected sort direction
+        lastSelectedDirection = sortDirection;
+
         // If a sort option is not selected do not dismiss dialog
         if (selectedOptionId == -1) {
             Toast.makeText(getContext(), "Please select a sort option.", Toast.LENGTH_SHORT).show();
