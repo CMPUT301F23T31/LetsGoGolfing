@@ -20,18 +20,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="41dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="4dp"
-        android:src="@drawable/ic_home_black_24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/header_title"
-        app:layout_constraintStart_toStartOf="@+id/header_title"
-        app:layout_constraintTop_toTopOf="@+id/header_title"
-        app:layout_constraintVertical_bias="0.0" />
-
-
     <EditText
         android:id="@+id/name_edit_text"
         android:layout_width="0dp"
@@ -166,9 +154,11 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_edit_text" />
+        app:layout_constraintTop_toBottomOf="@+id/comment_edit_text"
+        app:layout_constraintVertical_bias="0.00999999" />
 
 
     <!-- Tags Field -->
@@ -230,6 +220,7 @@
         android:text="Add Tags"
         app:layout_constraintBottom_toTopOf="@+id/cancel_edit_button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tags_linear_layout"
         app:layout_constraintVertical_bias="0.82" />
