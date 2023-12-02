@@ -1,5 +1,9 @@
 package com.example.letsgogolfing;
+import android.util.Log;
+
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -52,6 +56,10 @@ public class FirestoreRepository {
             }
         });
     }
+
+
+
+
 
     public void fetchItemById(String itemId, OnItemFetchedListener listener) {
         db.collection("users").document(currentUserId).collection("items").document(itemId).get()
@@ -239,6 +247,32 @@ public class FirestoreRepository {
         void onError(Exception e);
     }
 
+    public void deleteImageUriFromItem(String itemId, String imageUri, OnImageUriDeletedListener listener) {
+        if (itemId == null || imageUri == null) {
+            Log.e("FirestoreRepository", "Item ID or Image URI is null");
+            listener.onError(new Exception("Item ID or Image URI is null"));
+            return;
+        }
+
+        Log.d("FirestoreRepository", "Deleting image URI " + imageUri + " from item " + itemId);
+
+        // Log the currentUserId and itemId for debugging
+        Log.d("FirestoreRepository", "currentUserId: " + currentUserId);
+        Log.d("FirestoreRepository", "itemId: " + itemId);
+
+        DocumentReference itemRef = db.collection("users").document(currentUserId).collection("items").document(itemId);
+        Log.d("FirestoreRepository", "Deleting URI from: " + itemRef.getPath());
+
+        itemRef.update("imageUris", FieldValue.arrayRemove(imageUri))
+                .addOnSuccessListener(aVoid -> listener.onImageUriDeleted())
+                .addOnFailureListener(listener::onError);
+    }
+
+
+    public interface OnImageUriDeletedListener {
+        void onImageUriDeleted();
+        void onError(Exception e);
+    }
     /**
      * Converts an {@link Item} object to a {@link Map} for Firestore storage.
      * <p>
