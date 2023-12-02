@@ -232,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         deleteButton = findViewById(R.id.delete_button);
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
+        deleteButton.setOnClickListener(v -> deleteSelectedItems());
 
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
