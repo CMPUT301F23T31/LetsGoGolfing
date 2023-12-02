@@ -2,21 +2,8 @@ package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
-import com.example.letsgogolfing.utils.ImageFragment;
-import com.example.letsgogolfing.utils.PhotoStorageManager;
-
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -26,33 +13,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import android.Manifest;
 
 // generate javadocs for ViewDetailsActivity
 /**
@@ -116,6 +81,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
 
                 // Pass the list of image URIs to ViewPhotoActivity
                 intent.putStringArrayListExtra("imageUris", new ArrayList<>(item.getImageUris()));
+
+                // Pass the item ID to ViewPhotoActivity
+                intent.putExtra("itemId", item.getId());
 
                 // Start ViewPhotoActivity
                 startActivity(intent);
