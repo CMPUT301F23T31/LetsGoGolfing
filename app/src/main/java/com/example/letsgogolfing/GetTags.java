@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -71,11 +72,13 @@ public class GetTags {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setView(customView);
             // Add OK and Cancel buttons
-            builder.setPositiveButton("OK", (dialog, which) -> {
-                tagOkFunction.apply(selectedTags);
-            });
+//            builder.setPositiveButton("OK", (dialog, which) -> {
+//                tagOkFunction.apply(selectedTags);
+//            });
+//
+//            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
-            builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+            //OKButton.setOnClickListener();
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -124,6 +127,33 @@ public class GetTags {
             });
             AlertDialog dialog = builder.create();
             dialog.show();
+            Button OKButton = customView.findViewById(R.id.selectTagsOK);
+            OKButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tagOkFunction.apply(selectedTags);
+                    dialog.dismiss();
+                }
+            });
+            Button cancelButton = customView.findViewById(R.id.selectTagsCancel);
+            cancelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            Button deleteButton = customView.findViewById(R.id.selectTagsDelete);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   for (String tag : selectedTags) {
+                      tagList.remove(tag);
+                      // delete in database...
+                   }
+                   adapter.notifyDataSetChanged();
+
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(activity, "Error showing dialog: " + e.getMessage(), Toast.LENGTH_LONG).show();

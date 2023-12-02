@@ -90,6 +90,8 @@ public class EditItemActivity extends AppCompatActivity {
             finish();
         });
 
+
+
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
 
         addPhotoButton.setOnClickListener(v -> {

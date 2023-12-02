@@ -111,6 +111,9 @@ public class FirestoreRepository {
                 .addOnFailureListener(listener::onError);
     }
 
+//    public void deleteTags(List<String> tags){
+//        db.collection("tags").
+//    }
     /**
      * Deletes a list of items from the Firestore database using a batch operation.
      * This method iterates over a list of item IDs and adds each delete operation to a Firestore batch.
