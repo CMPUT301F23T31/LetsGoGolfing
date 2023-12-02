@@ -253,7 +253,16 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 });
 
         selectTextCancel = findViewById(R.id.select_text_cancel);
+
+
+        selectTextCancel.setOnClickListener(v -> {
+                    clearSelection();
+        });
         deleteButton = findViewById(R.id.delete_button);
+
+        deleteButton.setOnClickListener(v -> {
+            deleteSelectedItems();
+        });
 
         deleteButton.setVisibility(View.GONE); // Hide delete button initially
 
