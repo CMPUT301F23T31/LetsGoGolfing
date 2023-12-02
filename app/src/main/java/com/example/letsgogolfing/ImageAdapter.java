@@ -26,7 +26,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     public void setImageUris(List<Uri> imageUris) {
         this.imageUris = imageUris;
-        notifyDataSetChanged();
     }
 
     @NonNull

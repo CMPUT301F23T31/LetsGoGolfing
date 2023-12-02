@@ -1,5 +1,7 @@
 package com.example.letsgogolfing;
 
+import static com.google.android.gms.vision.L.TAG;
+
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -83,7 +85,6 @@ public class ViewPhotoActivity extends AppCompatActivity {
         photoRef.delete().addOnSuccessListener(aVoid -> {
             Log.d("ViewPhotoActivity", "Image deleted successfully");
             removeImageUriFromItem(imageUriString);
-            runOnUiThread(() -> imageAdapter.notifyDataSetChanged());
         }).addOnFailureListener(exception -> {
             Log.e("ViewPhotoActivity", "Error deleting image", exception);
         });
@@ -107,6 +108,7 @@ public class ViewPhotoActivity extends AppCompatActivity {
             public void onImageUriDeleted() {
                 // Image URI removed from Firestore, now update UI
                 Log.d("ViewPhotoActivity", imageUriString + " removed from item " + itemId);
+                refreshData();
             }
             @Override
             public void onError(Exception e) {
@@ -115,7 +117,28 @@ public class ViewPhotoActivity extends AppCompatActivity {
         });
     }
 
+    private void refreshData() {
+        // Get the updated item from the database
+        firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
+            @Override
+            public void onItemFetched(Item item) {
+                // Convert the imageUris list to actual Uris
+                List<Uri> imageUris = new ArrayList<>();
+                for (String uriString : item.getImageUris()) {
+                    imageUris.add(Uri.parse(uriString));
+                }
+                // Update the list in the ImageAdapter
+                imageAdapter.setImageUris(imageUris);
+                // Notify the adapter
+                imageAdapter.notifyDataSetChanged();
+            }
 
-
+            @Override
+            public void onError(Exception e) {
+                // Handle any errors
+                Log.e(TAG, "onError: failed to load item " + itemId, e);
+            }
+        });
+    }
 
 }
