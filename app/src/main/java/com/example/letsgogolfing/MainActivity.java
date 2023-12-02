@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -289,6 +290,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
             }
         });
+
+        ImageView filterButton = findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(v -> showDialog());
+
     }
 
     @Override
@@ -296,19 +301,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         super.onResume();
         fetchItemsAndRefreshAdapter();
     }
-        ImageView filterButton = findViewById(R.id.filter_button);
-        filterButton.setOnClickListener(v -> showDialog());
-
-    }
-
-    ActivityResultLauncher<Intent> editItemActivityLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    // The item was added or updated, so refresh your list
-                    //fetchItemsAndRefreshAdapter();
-                }
-            });
 
 
 
@@ -374,6 +366,17 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     }
 
 
+        /**
+         * Deletes the selected items from the Firestore database and updates the UI accordingly.
+         * It clears the selection mode after deletion is completed.
+         */
+    private void deleteSelectedItems() {
+        Set<Integer> selectedPositions = itemAdapter.getSelectedPositions();
+        List<String> itemIdsToDelete = new ArrayList<>();
+        for (int position : selectedPositions) {
+            Item item = itemAdapter.getItem(position);
+            itemIdsToDelete.add(item.getId());
+        }
         firestoreRepository.deleteItems(itemIdsToDelete, new FirestoreRepository.OnItemDeletedListener() {
             @Override
             public void OnItemsDeleted() {

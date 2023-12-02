@@ -36,10 +36,7 @@ public class ItemFilter extends Filter {
                         }
                         break;
                     case BY_TAGS:
-                        // Example logic for filtering by tags, assuming `item.getTags()` returns a List<String>
-                        if (item.getTags() != null && item.getTags().stream().anyMatch(tag -> tag.toLowerCase().contains(filterPattern))) {
-                            filteredList.add(item);
-                        }
+                        // Add logic to filter by tags
                     case BY_MAKE:
                         // Add logic to filter by make
                         break;
