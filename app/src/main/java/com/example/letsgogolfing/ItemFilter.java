@@ -36,7 +36,13 @@ public class ItemFilter extends Filter {
                         }
                         break;
                     case BY_TAGS:
-                        // Add logic to filter by tags
+                        // Logic to filter by tags
+                        for (String tag : item.getTags()) {
+                            if (tag.toLowerCase().contains(filterPattern)) {
+                                filteredList.add(item);
+                                break; // Break to avoid adding the same item multiple times
+                            }
+                        }
                     case BY_MAKE:
                         // Add logic to filter by make
                         break;
@@ -47,7 +53,11 @@ public class ItemFilter extends Filter {
             }
         }
 
-        results.values = filteredList;
+        if (filteredList.isEmpty()) {
+            results.values = new ArrayList<Item>(); // return an empty list instead of null
+        } else {
+            results.values = filteredList;
+        }
         results.count = filteredList.size();
         return results;
     }
@@ -57,7 +67,9 @@ public class ItemFilter extends Filter {
     @Override
     protected void publishResults(CharSequence constraint, FilterResults results) {
         adapter.clear();
-        adapter.addAll((ArrayList<Item>) results.values);
+        if (results.values != null) {
+            adapter.addAll((ArrayList<Item>) results.values);
+        }
         adapter.notifyDataSetChanged();
     }
 }

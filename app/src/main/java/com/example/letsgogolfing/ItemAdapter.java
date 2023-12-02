@@ -25,7 +25,7 @@ import java.util.Collection;
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
-    FilterType currentFilterType = FilterType.BY_DESCRIPTOR;
+    public FilterType currentFilterType;
     private List<Item> items;
     private LayoutInflater inflater;
 
@@ -241,7 +241,9 @@ public class ItemAdapter extends ArrayAdapter<Item>{
 
     @Override
     public void addAll(Collection<? extends Item> collection) {
-        items.addAll(collection);
+        if (collection != null) {
+            items.addAll(collection);
+        }
         super.notifyDataSetChanged();
     }
 }

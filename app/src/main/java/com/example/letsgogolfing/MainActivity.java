@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
-    private FilterDialogFragment.FilterType selectedFilterType = FilterDialogFragment.FilterType.BY_DESCRIPTOR;
+    private FilterDialogFragment.FilterType selectedFilterType;
     private boolean isSelectMode = false;
     private ImageButton deleteButton;
     private ItemComparator comparator;
@@ -517,6 +517,15 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
         this.selectedFilterType = filterType; // Save the selected filter type
         // Apply the selected filter type
+        // Set the current filter type in the adapter
+        itemAdapter.setCurrentFilterType(filterType);
+
+        // Assuming you have a reference to your search EditText
+        EditText searchEditText = findViewById(R.id.searchEditText);
+        CharSequence currentSearchText = searchEditText.getText();
+
+        // Apply the filter with the current search text
+        itemAdapter.getFilter().filter(currentSearchText);
     }
 
 }
