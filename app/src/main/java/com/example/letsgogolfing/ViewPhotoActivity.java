@@ -1,9 +1,13 @@
 package com.example.letsgogolfing;
 
+import static com.google.android.gms.vision.L.TAG;
+
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,7 +25,13 @@ import java.util.List;
 public class ViewPhotoActivity extends AppCompatActivity {
     private ImageAdapter imageAdapter;
 
+    private List<String> imageUris; // Field to store image URI strings
 
+    private FirestoreRepository firestoreRepository;
+
+    private String itemId;
+
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,66 +44,101 @@ public class ViewPhotoActivity extends AppCompatActivity {
         imageAdapter = new ImageAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(imageAdapter);
 
-        // Retrieve the list of image URIs passed from ViewDetailsActivity
-        List<String> imageUris = getIntent().getStringArrayListExtra("imageUris");
-        if (imageUris != null) {
-            // Convert String URIs to Uri objects
-            List<Uri> uriList = new ArrayList<>();
-            for (String uriString : imageUris) {
-                uriList.add(Uri.parse(uriString));
-            }
+        username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
 
-            // Update the adapter with the image URIs
-            imageAdapter.setImageUris(uriList);
-            imageAdapter.notifyDataSetChanged();
-        } else {
-            // Handle the case where no image URIs are passed
-            Log.e("ViewPhotoActivity", "No image URIs received");
+        // Get current user ID
+        firestoreRepository = new FirestoreRepository(username);
+
+        // Retrieve item ID and image URIs from the intent
+        itemId = getIntent().getStringExtra("itemId");
+        List<String> stringUris = getIntent().getStringArrayListExtra("imageUris");
+
+        // log the photo uri's
+        Log.d("ViewPhotoActivity", "Photo URI's: " + stringUris);
+        Log.d("ViewPhotoActivity", "Item ID: " + itemId);
+
+        if (itemId == null || stringUris == null) {
+            Toast.makeText(this, "Error: Missing data", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        Button back_button = findViewById(R.id.back_button);
-        back_button.setOnClickListener(v -> {
-            finish();
+        // Convert String URIs to Uri objects and set them to the adapter
+        List<Uri> uriList = new ArrayList<>();
+        for (String uriStr : stringUris) {
+            uriList.add(Uri.parse(uriStr));
+        }
+        imageAdapter.setImageUris(uriList);
+
+        // Set delete listener for the adapter
+        imageAdapter.setOnImageDeleteListener(imageUri -> {
+            deleteImageFromFirebase(imageUri.toString());
         });
 
-
-
+        Button back_button = findViewById(R.id.back_button);
+        back_button.setOnClickListener(v -> finish());
     }
 
 
-    public void displayImagesFromFirebase() {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-        StorageReference imagesRef = storageRef.child("images/testImages/");
-    
-        imagesRef.listAll()
-            .addOnSuccessListener(listResult -> {
-                Log.d("Firebase Storage", "Number of items: " + listResult.getItems().size());
-                List<Task<Uri>> tasks = new ArrayList<>();
-                for (StorageReference item : listResult.getItems()) {
-                    Task<Uri> task = item.getDownloadUrl();
-                    task.addOnFailureListener(exception -> {
-                        Log.e("Firebase Storage", "Failed to get download URL", exception);
-                    });
-                    tasks.add(task);
+    private void deleteImageFromFirebase(String imageUriString) {
+        StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUriString);
+        photoRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("ViewPhotoActivity", "Image deleted successfully");
+            removeImageUriFromItem(imageUriString);
+        }).addOnFailureListener(exception -> {
+            Log.e("ViewPhotoActivity", "Error deleting image", exception);
+        });
+    }
+
+
+    private void removeImageUriFromItem(String imageUriString) {
+        // Assuming you have the item ID
+
+        if (itemId == null) {
+            Log.e("ViewPhotoActivity", "Item ID is null");
+            // Handle the case appropriately
+            return;
+        }
+
+
+
+        Log.d("ViewPhotoActivity", "Removing image URI from item " + itemId);
+        firestoreRepository.deleteImageUriFromItem(itemId, imageUriString, new FirestoreRepository.OnImageUriDeletedListener() {
+            @Override
+            public void onImageUriDeleted() {
+                // Image URI removed from Firestore, now update UI
+                Log.d("ViewPhotoActivity", imageUriString + " removed from item " + itemId);
+                refreshData();
+            }
+            @Override
+            public void onError(Exception e) {
+                // Handle error
+            }
+        });
+    }
+
+    private void refreshData() {
+        // Get the updated item from the database
+        firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
+            @Override
+            public void onItemFetched(Item item) {
+                // Convert the imageUris list to actual Uris
+                List<Uri> imageUris = new ArrayList<>();
+                for (String uriString : item.getImageUris()) {
+                    imageUris.add(Uri.parse(uriString));
                 }
-    
-                Tasks.whenAllSuccess(tasks).addOnSuccessListener(objects -> {
-                    List<Uri> imageUris = new ArrayList<>();
-                    for (Object object : objects) {
-                        Uri uri = (Uri) object;
-                        Log.d("Firebase Storage", "Image URI: " + uri.toString());
-                        imageUris.add(uri);
-                    }
-    
-                    // Update the adapter with the image URIs
-                    imageAdapter.setImageUris(imageUris);
-                    imageAdapter.notifyDataSetChanged();
-                    Log.d("ImageAdapter", "Item count: " + imageAdapter.getItemCount());
-                });
-            })
-            .addOnFailureListener(exception -> {
+                // Update the list in the ImageAdapter
+                imageAdapter.setImageUris(imageUris);
+                // Notify the adapter
+                imageAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(Exception e) {
                 // Handle any errors
-                Log.e("Firebase Storage", "Failed to list files", exception);
-            });
+                Log.e(TAG, "onError: failed to load item " + itemId, e);
+            }
+        });
     }
+
 }

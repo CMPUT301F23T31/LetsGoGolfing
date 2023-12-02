@@ -82,6 +82,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
                 // Pass the list of image URIs to ViewPhotoActivity
                 intent.putStringArrayListExtra("imageUris", new ArrayList<>(item.getImageUris()));
 
+                // Pass the item ID to ViewPhotoActivity
+                intent.putExtra("itemId", item.getId());
+
                 // Start ViewPhotoActivity
                 startActivity(intent);
             }
