@@ -111,19 +111,20 @@
         app:layout_constraintTop_toBottomOf="@+id/itemGrid"
         app:layout_constraintVertical_bias="0.774" />
 
+
     <ImageButton
         android:id="@+id/delete_button"
         android:layout_width="48dp"
         android:layout_height="44dp"
         android:layout_marginStart="60dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/garbage_icon"
         android:text="Delete"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/scan_item_button"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.594"
         app:layout_constraintStart_toEndOf="@+id/totalValue" />
-
 
     <Button
         android:id="@+id/select_text_cancel"
