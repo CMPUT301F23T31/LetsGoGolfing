@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         });
 
         ImageView filterButton = findViewById(R.id.filter_button);
-        filterButton.setOnClickListener(v -> showDialog());
+        filterButton.setOnClickListener(v -> showFilterDialog());
 
     }
 
@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
-    public void showDialog() {
+    public void showFilterDialog() {
         FilterDialogFragment dialogFragment = new FilterDialogFragment();
         dialogFragment.setFilterDialogListener(this);
         dialogFragment.show(getSupportFragmentManager(), "FilterDialogFragment");

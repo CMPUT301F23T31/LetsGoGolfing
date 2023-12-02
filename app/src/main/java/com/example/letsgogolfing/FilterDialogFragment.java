@@ -101,7 +101,7 @@ public class FilterDialogFragment extends DialogFragment {
         try {
             listener = (FilterDialogListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement FilterDialogListener");
+            throw new ClassCastException(context + " must implement FilterDialogListener");
         }
     }
 }

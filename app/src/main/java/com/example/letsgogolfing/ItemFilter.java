@@ -45,7 +45,9 @@ public class ItemFilter extends Filter {
                         }
                     case BY_MAKE:
                         // Add logic to filter by make
-                        break;
+                        if (item.getMake() != null && item.getMake().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(item);
+                        }
                     case BY_DATE:
                         // Add logic to filter by date
                         break;
