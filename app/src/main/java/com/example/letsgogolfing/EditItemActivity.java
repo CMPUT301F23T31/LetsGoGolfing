@@ -62,8 +62,6 @@ public class EditItemActivity extends AppCompatActivity {
     private static final String TAG = "EditItemActivity";
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
 
-
-
     /**
      * Initializes the activity. This method sets up the user interface and initializes
      * the listeners for various UI components.
@@ -74,6 +72,9 @@ public class EditItemActivity extends AppCompatActivity {
      */    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        initializeActivityResultLauncher();
 
         // Set Layout
         setContentView(R.layout.edit_item);
@@ -92,13 +93,7 @@ public class EditItemActivity extends AppCompatActivity {
 
         addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
 
-        addPhotoButton.setOnClickListener(v -> {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-            } else {
-                launchCamera();
-            }
-        });
+        addPhotoButton.setOnClickListener(v -> showImageSourceDialog());
 
         saveButton.setOnClickListener(v -> {
             updateItem();
@@ -116,12 +111,48 @@ public class EditItemActivity extends AppCompatActivity {
             });
         });
 
-        cameraActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                        result -> {
-                            if (result.getResultCode() == Activity.RESULT_OK && imageUri != null) {
-                                uploadImage(imageUri); // This will start the upload and then update the item
+    }
+
+    private void initializeActivityResultLauncher() {
+        cameraActivityResultLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // Check if the result comes from the camera
+                        if (imageUri != null) {
+                            // The image is saved at imageUri
+                            uploadImage(imageUri);
+                        } else if (result.getData() != null && result.getData().getClipData() != null) {
+                            // Multiple images selected from the gallery
+                            int count = result.getData().getClipData().getItemCount();
+                            for (int i = 0; i < count; i++) {
+                                Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
+                                uploadImage(imageUri);
                             }
-                        });
+                        }
+                    }
+                });
+    }
+
+    private void showImageSourceDialog() {
+        String[] options = {"Take Photo", "Choose from Gallery"};
+        new AlertDialog.Builder(this)
+                .setTitle("Select Photo")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        launchCamera();
+                    } else {
+                        launchGallery();
+                    }
+                })
+                .show();
+    }
+
+    private void launchGallery() {
+        Intent galleryIntent = new Intent();
+        galleryIntent.setType("image/*");
+        galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+        cameraActivityResultLauncher.launch(galleryIntent);
     }
 
 

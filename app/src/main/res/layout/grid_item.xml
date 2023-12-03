@@ -42,7 +42,7 @@
         android:id="@+id/itemDescription"
         android:layout_width="225dp"
         android:layout_height="82dp"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/drawable_edittext"
         android:fontFamily="sans-serif"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
