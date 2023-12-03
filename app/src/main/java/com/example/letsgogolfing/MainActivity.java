@@ -118,25 +118,26 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (isDebugMode() || isRunningEspressoTest()) {
-            // Bypass login and directly initialize components
-            // Initialize with test or default data
-            initForTesting();
-        } else {
-            SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-            String currentUsername = sharedPref.getString("username", null);
-            if (currentUsername == null || currentUsername.isEmpty()) {
-                // Redirect to LoginActivity
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-                Toast.makeText(MainActivity.this, "Crashed in known location", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
-
-            // Initialize FirestoreRepository with the current username
-            firestoreRepository = new FirestoreRepository(currentUsername);
-        }
+        initForTesting();
+//        if (isDebugMode() || isRunningEspressoTest()) {
+//            // Bypass login and directly initialize components
+//            // Initialize with test or default data
+//            initForTesting();
+//        } else {
+//            SharedPreferences sharedPref = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+//            String currentUsername = sharedPref.getString("username", null);
+//            if (currentUsername == null || currentUsername.isEmpty()) {
+//                // Redirect to LoginActivity
+//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                startActivity(intent);
+//                Toast.makeText(MainActivity.this, "Crashed in known location", Toast.LENGTH_SHORT).show();
+//                finish();
+//                return;
+//            }
+//
+//            // Initialize FirestoreRepository with the current username
+//            firestoreRepository = new FirestoreRepository(currentUsername);
+//        }
 
         GetTags getTags = new GetTags(this, firestoreRepository);
         itemGrid = findViewById(R.id.itemGrid);
@@ -300,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         // Initialize components as needed for testing
         // This might include setting up dummy data or mocks
         // For example:
-        firestoreRepository = new FirestoreRepository("testUser");
+        firestoreRepository = new FirestoreRepository("test");
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>()); // Use a test adapter if necessary
         itemGrid.setAdapter(itemAdapter);

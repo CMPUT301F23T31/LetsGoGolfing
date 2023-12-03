@@ -1,5 +1,6 @@
 package com.example.letsgogolfing;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.action.ViewActions;
@@ -29,8 +30,13 @@ import static org.hamcrest.Matchers.instanceOf;
 import static java.util.EnumSet.allOf;
 import static java.util.regex.Pattern.matches;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 public class TagsUITest {
@@ -64,42 +70,130 @@ public class TagsUITest {
 
     @Before
     public void setup() {
+        System.setProperty("isRunningEspressoTest", "true");
         animationUtils.disableAnimations();
-    }
+        itemsFetched = false;
+        tagsFetched = false;
+        FirestoreRepository db = new FirestoreRepository("test");
 
-    @After
-    public void cleanup() {
-        animationUtils.enableAnimations();
-    }
+        db.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
+            @Override
+            public void onItemsFetched(List<Item> items) {
+                itemsFetched = true;
+                myItems = (ArrayList<Item>)items;
+            }
 
+            @Override
+            public void onError(Exception e) {
 
-    @Test
-    public void testApplyTagsToSelectedItems() {
-        int itemPosition = 0;
+            }
+        });
+        db.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
+            @Override
+            public void onTagsFetched(List<String> tags) {
+                tagsFetched = true;
+                myTags = (ArrayList<String>) tags;
+            }
 
-        // wait for items to get fetched first...
-        while (!MainActivity.itemsFetched) {
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+        while (!itemsFetched || !tagsFetched) { // Directly accessing attribute from class???
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    @After
+    public void cleanup() {
+        animationUtils.enableAnimations();
+    }
+    private boolean itemsFetched;
+    private boolean tagsFetched;
+    private ArrayList<Item> myItems;
+    private ArrayList<String> myTags;
+
+    @Test
+    public void testApplyTagsToSelectedItems() {
+
+       Random random = new Random();
+       if(myItems.size() == 0 || myTags.size() == 0) // If there aren't any items to test...
+           return;
+
+       int [] itemIndices = generateUniqueRandomIntArray(random.nextInt(myItems.size())+1, myItems.size());
+
+
         Espresso.onData(Matchers.anything())
                 .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
-                .atPosition(itemPosition)
+                .atPosition(itemIndices[0])
                 .perform(ViewActions.longClick());
+
+        for(int i = 1; i < itemIndices.length; ++i)
+            Espresso.onData(Matchers.anything())
+                    .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
+                    .atPosition(itemIndices[i])
+                    .perform(click());
+
         onView(withId(R.id.manage_tags_button)).perform(click());
 
-        String checkboxText = "bathroom";
+        int [] tagIndices = generateUniqueRandomIntArray(random.nextInt(myTags.size())+1, myTags.size());
+        for(int tagIndex : tagIndices)
+            onView(ViewMatchers.withText(myTags.get(tagIndex))).perform(click());
 
-        onView(ViewMatchers.withText(checkboxText)).perform(click());
         onView(ViewMatchers.withText("OK")).perform(click());
-        Espresso.onData(Matchers.anything())
-                .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
-                .atPosition(itemPosition)
-                .perform(ViewActions.click());
-        onView(ViewMatchers.withText(checkboxText)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
 
+//        for(int item : itemIndices) {
+//            Espresso.onData(Matchers.anything())
+//                    .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
+//                    .atPosition(item)
+//                    .perform(ViewActions.click());
+//            for(int tagIndex : tagIndices)
+//                onView(ViewMatchers.withText(myTags.get(tagIndex))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+//        }
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < itemIndices.length; ++i) {
+            Espresso.onData(Matchers.anything())
+                    .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
+                    .atPosition(itemIndices[i])
+                    .perform(click());
+            for(int tagIndex : tagIndices)
+                onView(ViewMatchers.withText(myTags.get(tagIndex))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+        }
+
+    }
+
+    // max is exclusive
+    private static int[] generateUniqueRandomIntArray(int size, int max) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Array size must be greater than zero.");
+        }
+
+        int[] array = new int[size];
+        Set<Integer> uniqueSet = new HashSet<>();
+        Random random = new Random();
+
+        for (int i = 0; i < size; ) {
+            int randomNum = random.nextInt(max); // Generates random integers
+            // If you want to limit the range, you can use:
+            // int randomNum = random.nextInt(max - min) + min;
+
+            if (uniqueSet.add(randomNum)) {
+                // If the number is unique, add it to the array
+                array[i] = randomNum;
+                i++;
+            }
+        }
+
+        return array;
     }
 }
