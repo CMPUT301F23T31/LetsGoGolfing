@@ -1,5 +1,7 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,20 +16,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class FilterDialogFragment extends DialogFragment {
     private static FilterType lastSelectedFilterType = null;
     private FilterType selectedFilterType;
-
-    private static long selectedDateTimestamp = -1;
-
+    private String selectedDate;
     public interface FilterDialogListener {
-        void onFilterSelected(FilterType filterType);
-        void onDateFilterSelected(long selectedDateTimestamp); // Add this to handle date filtering
+        void onFilterSelected(FilterType filterType, String selectedDate);
     }
 
     public enum FilterType {
-        BY_DESCRIPTOR, BY_TAGS, BY_MAKE, BY_DATE
+        BY_DESCRIPTOR, BY_TAGS, BY_MAKE, BY_DATE, CLEAR
     }
 
     private FilterDialogListener listener;
@@ -85,25 +85,27 @@ public class FilterDialogFragment extends DialogFragment {
         // Handle CalendarView date selection
         calendarView.setOnDateChangeListener((view1, year, month, dayOfMonth) -> {
             Calendar calendar = Calendar.getInstance();
-            calendar.set(year, month, dayOfMonth, 0, 0, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            selectedDateTimestamp = calendar.getTimeInMillis(); // Save the selected date in milliseconds
+            calendar.set(year, month, dayOfMonth);
+            selectedDate = dateFormat.format(new Date(calendar.getTimeInMillis()));
         });
 
         builder.setView(view)
                 .setPositiveButton("Apply", (dialog, id) -> {
                     if (listener != null) {
-                        if (selectedFilterType == FilterType.BY_DATE && selectedDateTimestamp != -1) {
+                        if (selectedFilterType == FilterType.BY_DATE && selectedDate != null) {
                             // If the date filter type is selected and a date has been picked, call onDateFilterSelected
-                            listener.onDateFilterSelected(selectedDateTimestamp);
+                            listener.onFilterSelected(selectedFilterType, selectedDate);
                         } else {
                             // For other filter types, call the existing onFilterSelected
-                            listener.onFilterSelected(selectedFilterType);
+                            listener.onFilterSelected(selectedFilterType, null);
                         }
                     }
                 })
                 .setNegativeButton("Cancel", (dialog, id) -> {
                     // User cancelled the dialog
+                })
+                .setNeutralButton("Clear Filter", (dialog, id) -> {
+                    listener.onFilterSelected(FilterType.CLEAR, null);
                 });
 
         return builder.create();

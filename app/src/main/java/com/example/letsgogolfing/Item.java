@@ -1,5 +1,8 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -304,6 +307,24 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     @Override
     public int compareTo(Item item) {
         return this.getName().compareTo(item.getName());
+    }
+    public boolean matchesCriteria(String query, FilterDialogFragment.FilterType filterField) {
+        final String finalQuery = query.toLowerCase();
+
+        if (filterField == FilterDialogFragment.FilterType.BY_DESCRIPTOR) {
+            return description.toLowerCase().contains(finalQuery);
+        } else if (filterField == FilterDialogFragment.FilterType.BY_TAGS) {
+            return tags.stream().anyMatch(tag -> tag.toLowerCase().contains(finalQuery));
+        } else if (filterField == FilterDialogFragment.FilterType.BY_MAKE) {
+            return make.toLowerCase().contains(finalQuery);
+        } else if (filterField == FilterDialogFragment.FilterType.BY_DATE) {
+            try {
+                Date queryDate = dateFormat.parse(finalQuery);
+                return dateOfPurchase.equals(queryDate);
+            } catch (ParseException e) {
+                return false;
+            }
+        } else return false;
     }
 
 

@@ -81,14 +81,13 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private ImageButton deleteButton;
     private ItemComparator comparator;
     private ImageView scanItemButton;
-    private ArrayList<String>tagList;
+    private ArrayList<String> tagList;
 
     private FirestoreRepository firestoreRepository;
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private ImageButton filterButton;
-
-    private FilterDialogFragment.FilterType filterType;
+    private String lastFilterCriteria;
     private DialogFragment sortDialog = new SortDialogFragment();
 
 
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             @Override
             public void afterTextChanged(Editable s) {
                 // As the user types or clears text in the EditText
-                itemAdapter.getFilter().filter(s.toString());
+                applyFilter(s.toString());
             }
         });
 
@@ -356,6 +355,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             public void onItemsFetched(List<Item> items) {
                 itemAdapter.updateItems(items);
                 sortArrayAdapter(comparator);
+
+                // Reapply the filter if there was a filter applied previously
+                if (lastFilterCriteria != null && !lastFilterCriteria.isEmpty()) {
+                    itemAdapter.getFilter().filter(lastFilterCriteria);
+                }
+
                 updateTotalValue(items);
                 itemsFetched = true;
             }
@@ -516,35 +521,33 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     }
 
     @Override
-    public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
-        this.selectedFilterType = filterType; // Save the selected filter type
+    public void onFilterSelected(FilterDialogFragment.FilterType filterType, String selectedDate) {
+        selectedFilterType = filterType; // Save the selected filter type
         // Apply the selected filter type
         // Set the current filter type in the adapter
         itemAdapter.setCurrentFilterType(filterType);
 
-        // Assuming you have a reference to your search EditText
-        EditText searchEditText = findViewById(R.id.searchEditText);
-        CharSequence currentSearchText = searchEditText.getText();
+        if (filterType == FilterDialogFragment.FilterType.CLEAR) {
+            itemAdapter.clearFilter();
+            selectedFilterType = null;
+            lastFilterCriteria = "";
+        } else if (filterType == FilterDialogFragment.FilterType.BY_DATE && selectedDate != null) {
+            applyFilter(selectedDate);
+        } else {
+            // Assuming you have a reference to your search EditText
+            EditText searchEditText = findViewById(R.id.searchEditText);
+            CharSequence currentSearchText = searchEditText.getText();
 
-        // Apply the filter with the current search text
-        itemAdapter.getFilter().filter(currentSearchText);
+            // Apply the filter with the current search text
+            applyFilter(currentSearchText.toString());
+        }
     }
 
-    @Override
-    public void onDateFilterSelected(long selectedDateTimestamp) {
-        Calendar startOfDay = Calendar.getInstance();
-        startOfDay.setTimeInMillis(selectedDateTimestamp);
-        startOfDay.set(Calendar.HOUR_OF_DAY, 0);
-        startOfDay.set(Calendar.MINUTE, 0);
-        startOfDay.set(Calendar.SECOND, 0);
-        startOfDay.set(Calendar.MILLISECOND, 0);
-
-        Calendar endOfDay = (Calendar) startOfDay.clone();
-        endOfDay.add(Calendar.DAY_OF_MONTH, 1);
-
-        itemAdapter.setDateFilterRange(startOfDay.getTimeInMillis(), endOfDay.getTimeInMillis());
-        itemAdapter.getFilter().filter("");
+    public void applyFilter(String criteria) {
+        lastFilterCriteria = criteria;
+        itemAdapter.getFilter().filter(lastFilterCriteria);
     }
+
 
 }
 

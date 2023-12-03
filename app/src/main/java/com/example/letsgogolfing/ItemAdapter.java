@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.Filter;
 import android.widget.TextView;
@@ -27,7 +26,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
     public FilterType currentFilterType;
-    private List<Item> items;
+    private List<Item> originalItems;
+    private List<Item> filteredItems;
     private LayoutInflater inflater;
 
     private ItemFilter itemFilter;
@@ -56,7 +56,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     public ItemAdapter(Context context, List<Item> items) {
         super(context, R.layout.grid_item, items);
         this.context = context;
-        this.items = items;
+        this.originalItems = new ArrayList<>(items);
+        this.filteredItems = new ArrayList<>(items);
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -77,6 +78,44 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return selectedItems.isEmpty();
     }
 
+    public void setFilterField(FilterType filterType) {
+        this.currentFilterType = filterType;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                if (constraint == null || constraint.length() == 0) {
+                    results.values = originalItems;
+                    results.count = originalItems.size();
+                } else {
+                    String searchStr = constraint.toString().toLowerCase();
+                    List<Item> matchValues = new ArrayList<>();
+
+                    for (Item item : originalItems) {
+                        if (item.matchesCriteria(searchStr, currentFilterType)) {
+                            matchValues.add(item);
+                        }
+                    }
+
+                    results.values = matchValues;
+                    results.count = matchValues.size();
+                }
+                return results;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredItems = (ArrayList<Item>) results.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
     public void setDateFilterRange(long startDate, long endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
@@ -112,7 +151,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      * @return The list of items.
      */
     public List<Item> getItems() {
-        return items;
+        return filteredItems;
     }
 
     /**
@@ -121,7 +160,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      */
     @Override
     public int getCount() {
-        return items.size();
+        return filteredItems.size();
     }
 
     /**
@@ -131,7 +170,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      */
     @Override
     public Item getItem(int position) {
-        return items.get(position);
+        return filteredItems.get(position);
     }
 
     /**
@@ -200,8 +239,10 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      * @param newItems The new list of items to update the adapter with.
      */
     public void updateItems(List<Item> newItems) {
-        this.items.clear();
-        this.items.addAll(newItems);
+        this.originalItems.clear();
+        this.filteredItems.clear();
+        this.originalItems.addAll(newItems);
+        this.filteredItems.addAll(newItems);
         notifyDataSetChanged();
     }
 
@@ -212,8 +253,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      * @param position The position of the item to remove.
      */
     public void removeItem(int position) {
-        if (position >= 0 && position < items.size()) {
-            items.remove(position);
+        if (position >= 0 && position < filteredItems.size()) {
+            filteredItems.remove(position);
         }
     }
 
@@ -233,25 +274,27 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         // Add more views as needed
     }
 
-    // Correct getFilter() method
-    public Filter getFilter() {
-        if (itemFilter == null) {
-            itemFilter = new ItemFilter(this, items);
-        }
-        return itemFilter;
-    }
-
     @Override
     public void clear() {
-        items.clear();
+        originalItems.clear();
+        filteredItems.clear();
         super.notifyDataSetChanged();
     }
 
     @Override
     public void addAll(Collection<? extends Item> collection) {
         if (collection != null) {
-            items.addAll(collection);
+            originalItems.addAll(collection);
+            filteredItems.addAll(collection);
         }
         super.notifyDataSetChanged();
     }
+
+    public void clearFilter() {
+        filteredItems.clear();
+        filteredItems.addAll(originalItems);
+        notifyDataSetChanged();
+    }
+
+
 }
