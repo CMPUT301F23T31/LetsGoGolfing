@@ -4,6 +4,7 @@ import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.Filter;
 import android.widget.TextView;
 import com.example.letsgogolfing.FilterDialogFragment.FilterType;
-
+import java.util.Date;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
 
+    long startDate;
+    long endDate;
     public Set<Integer> getSelectedPositions() {
         return new HashSet<>(selectedItems);
     }
@@ -74,6 +77,11 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return selectedItems.isEmpty();
     }
 
+    public void setDateFilterRange(long startDate, long endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        Log.d("Filter", "Date range set: Start = " + new Date(startDate) + ", End = " + new Date(endDate));
+    }
     // generate javadocs for toggleSelection
     /**
      * Toggles the selection of the item at the given position.

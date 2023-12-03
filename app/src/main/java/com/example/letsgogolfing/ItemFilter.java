@@ -1,11 +1,13 @@
 package com.example.letsgogolfing;
 
+import android.util.Log;
 import android.widget.Filter;
 
 import com.example.letsgogolfing.ItemAdapter;
 import com.example.letsgogolfing.Item;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 public class ItemFilter extends Filter {
     private final ItemAdapter adapter;
@@ -43,13 +45,21 @@ public class ItemFilter extends Filter {
                                 break; // Break to avoid adding the same item multiple times
                             }
                         }
+                        break;
                     case BY_MAKE:
                         // Add logic to filter by make
                         if (item.getMake() != null && item.getMake().toLowerCase().contains(filterPattern)) {
                             filteredList.add(item);
                         }
+                        break;
                     case BY_DATE:
-                        // Add logic to filter by date
+                        if (item.getDateOfPurchase() != null) {
+                            long itemDateMillis = item.getDateOfPurchase().getTime();
+                            Log.d("Filter", "Item Date: " + item.getDateOfPurchase() + ", Filter Start: " + new Date(adapter.startDate) + ", Filter End: " + new Date(adapter.endDate));
+                            if (itemDateMillis >= adapter.startDate && itemDateMillis < adapter.endDate) {
+                                filteredList.add(item);
+                            }
+                        }
                         break;
                 }
             }

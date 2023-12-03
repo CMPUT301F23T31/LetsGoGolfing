@@ -8,6 +8,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import androidx.fragment.app.DialogFragment;
+import java.util.Calendar;
+
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -526,6 +528,22 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
         // Apply the filter with the current search text
         itemAdapter.getFilter().filter(currentSearchText);
+    }
+
+    @Override
+    public void onDateFilterSelected(long selectedDateTimestamp) {
+        Calendar startOfDay = Calendar.getInstance();
+        startOfDay.setTimeInMillis(selectedDateTimestamp);
+        startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+        startOfDay.set(Calendar.MINUTE, 0);
+        startOfDay.set(Calendar.SECOND, 0);
+        startOfDay.set(Calendar.MILLISECOND, 0);
+
+        Calendar endOfDay = (Calendar) startOfDay.clone();
+        endOfDay.add(Calendar.DAY_OF_MONTH, 1);
+
+        itemAdapter.setDateFilterRange(startOfDay.getTimeInMillis(), endOfDay.getTimeInMillis());
+        itemAdapter.getFilter().filter("");
     }
 
 }
