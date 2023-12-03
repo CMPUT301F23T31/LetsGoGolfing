@@ -61,6 +61,8 @@ public class EditItemActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private static final String TAG = "EditItemActivity";
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private static final int MY_GALLERY_PERMISSION_CODE = 101;
+
 
     /**
      * Initializes the activity. This method sets up the user interface and initializes
@@ -160,6 +162,14 @@ public class EditItemActivity extends AppCompatActivity {
      * This method is called when the user selects the "Choose from Gallery" option in the image source dialog.
      */
     private void launchGallery() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, MY_GALLERY_PERMISSION_CODE);
+        } else {
+            openGallery();
+        }
+    }
+
+    private void openGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
         galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -208,6 +218,14 @@ public class EditItemActivity extends AppCompatActivity {
      * This method is called when the user selects the "Take Photo" option in the image source dialog.
      */
     private void launchCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageUri = createImageFile();
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
