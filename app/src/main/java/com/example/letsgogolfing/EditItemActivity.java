@@ -62,9 +62,6 @@ public class EditItemActivity extends AppCompatActivity {
     private static final String TAG = "EditItemActivity";
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
 
-
-    private ActivityResultLauncher<Intent> activityResultLauncher;
-
     /**
      * Initializes the activity. This method sets up the user interface and initializes
      * the listeners for various UI components.
@@ -117,22 +114,19 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     private void initializeActivityResultLauncher() {
-        cameraActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
+        cameraActivityResultLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            if (data.getData() != null) {
-                                // Single image selected (camera)
-                                Uri imageUri = data.getData();
+                        // Check if the result comes from the camera
+                        if (imageUri != null) {
+                            // The image is saved at imageUri
+                            uploadImage(imageUri);
+                        } else if (result.getData() != null && result.getData().getClipData() != null) {
+                            // Multiple images selected from the gallery
+                            int count = result.getData().getClipData().getItemCount();
+                            for (int i = 0; i < count; i++) {
+                                Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
                                 uploadImage(imageUri);
-                            } else if (data.getClipData() != null) {
-                                // Multiple images selected (gallery)
-                                int count = data.getClipData().getItemCount();
-                                for (int i = 0; i < count; i++) {
-                                    Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                                    uploadImage(imageUri);
-                                }
                             }
                         }
                     }

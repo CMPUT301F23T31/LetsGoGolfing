@@ -75,19 +75,16 @@ public class AddItemActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    Intent data = result.getData();
-                    if (data != null) {
-                        if (data.getData() != null) {
-                            // Single image selected (camera)
-                            Uri imageUri = data.getData();
+                    // Check if the result comes from the camera
+                    if (imageUri != null) {
+                        // The image is saved at imageUri
+                        uploadImage(imageUri);
+                    } else if (result.getData() != null && result.getData().getClipData() != null) {
+                        // Multiple images selected from the gallery
+                        int count = result.getData().getClipData().getItemCount();
+                        for (int i = 0; i < count; i++) {
+                            Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
                             uploadImage(imageUri);
-                        } else if (data.getClipData() != null) {
-                            // Multiple images selected (gallery)
-                            int count = data.getClipData().getItemCount();
-                            for (int i = 0; i < count; i++) {
-                                Uri imageUri = data.getClipData().getItemAt(i).getUri();
-                                uploadImage(imageUri);
-                            }
                         }
                     }
                 }
@@ -169,7 +166,7 @@ public class AddItemActivity extends AppCompatActivity {
     private void showImageSourceDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         new AlertDialog.Builder(this)
-                .setTitle("Select Photo")
+                .setTitle("Photo Source")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
                         launchCamera();
@@ -188,13 +185,12 @@ public class AddItemActivity extends AppCompatActivity {
         cameraActivityResultLauncher.launch(galleryIntent);
     }
 
+
     private void launchCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-            imageUri = createImageFile();
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            cameraActivityResultLauncher.launch(cameraIntent);
-        }
+        imageUri = createImageFile();
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraActivityResultLauncher.launch(cameraIntent);
     }
 
     private Uri createImageFile(){
