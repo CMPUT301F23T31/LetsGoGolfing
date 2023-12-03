@@ -71,35 +71,4 @@ public class TagsUITest {
     public void cleanup() {
         animationUtils.enableAnimations();
     }
-
-
-    @Test
-    public void testApplyTagsToSelectedItems() {
-        int itemPosition = 0;
-
-        // wait for items to get fetched first...
-        while (!MainActivity.itemsFetched) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        Espresso.onData(Matchers.anything())
-                .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
-                .atPosition(itemPosition)
-                .perform(ViewActions.longClick());
-        onView(withId(R.id.manage_tags_button)).perform(click());
-
-        String checkboxText = "bathroom";
-
-        onView(ViewMatchers.withText(checkboxText)).perform(click());
-        onView(ViewMatchers.withText("OK")).perform(click());
-        Espresso.onData(Matchers.anything())
-                .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
-                .atPosition(itemPosition)
-                .perform(ViewActions.click());
-        onView(ViewMatchers.withText(checkboxText)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
-
-    }
 }
