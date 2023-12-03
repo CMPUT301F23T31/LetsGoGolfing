@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Collection;
 
+/**
+ * Adapter for the GridView in the MainActivity.
+ */
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
@@ -36,6 +39,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     public Set<Integer> getSelectedPositions() {
         return new HashSet<>(selectedItems);
     }
+
 
     public void clearSelection() {
         selectedItems.clear();
@@ -209,6 +213,11 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         }
     }
 
+    /**
+     * Add item.
+     *
+     * @param item The item to add.
+     */
     public ArrayList<Item> getSelectedItems(){
         ArrayList<Item> itemList = new ArrayList<>();
         for(Integer i : selectedItems)
@@ -216,7 +225,12 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return itemList;
     }
 
-    // ViewHolder pattern to optimize performance
+
+    /**
+     * Add item.
+     *
+     * @param item The item to add.
+     */
     private static class ViewHolder {
         TextView nameTextView;
         TextView descriptionTextView;
@@ -225,7 +239,9 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         // Add more views as needed
     }
 
-    // Correct getFilter() method
+    /**
+     * Filter for the ItemAdapter.
+     */
     public Filter getFilter() {
         if (itemFilter == null) {
             itemFilter = new ItemFilter(this, items);
@@ -233,12 +249,18 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return itemFilter;
     }
 
+    /**
+     * Filter for the ItemAdapter.
+     */
     @Override
     public void clear() {
         items.clear();
         super.notifyDataSetChanged();
     }
 
+    /**
+     * Filter for the ItemAdapter.
+     */
     @Override
     public void addAll(Collection<? extends Item> collection) {
         items.addAll(collection);

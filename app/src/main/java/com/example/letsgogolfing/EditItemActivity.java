@@ -113,6 +113,10 @@ public class EditItemActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Initializes the ActivityResultLauncher for the camera and gallery intents.
+     * This method is called in onCreate().
+     */
     private void initializeActivityResultLauncher() {
         cameraActivityResultLauncher =
                 registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -133,6 +137,10 @@ public class EditItemActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Displays a dialog for selecting the image source.
+     * This method is called when the user clicks the add photo button.
+     */
     private void showImageSourceDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         new AlertDialog.Builder(this)
@@ -147,6 +155,10 @@ public class EditItemActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Launches the gallery to select images.
+     * This method is called when the user selects the "Choose from Gallery" option in the image source dialog.
+     */
     private void launchGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
@@ -191,6 +203,10 @@ public class EditItemActivity extends AppCompatActivity {
         loadTags();
     }
 
+    /**
+     * Launches the camera to take a photo.
+     * This method is called when the user selects the "Take Photo" option in the image source dialog.
+     */
     private void launchCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageUri = createImageFile();
@@ -198,7 +214,13 @@ public class EditItemActivity extends AppCompatActivity {
         cameraActivityResultLauncher.launch(cameraIntent);
     }
 
-    // Implement the createImageFile method
+
+    /**
+     * Creates an image file in the external storage.
+     * This method is called when the user selects the "Take Photo" option in the image source dialog.
+     *
+     * @return The URI of the image file.
+     */
     private Uri createImageFile(){
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "Cliche" + timeStamp;
@@ -209,8 +231,12 @@ public class EditItemActivity extends AppCompatActivity {
         return imageUri;
     }
 
-    // Implement the uploadImage method
-    // After capturing the image, upload it
+    /**
+     * Uploads an image to Firebase Storage.
+     * This method is called when the user selects an image from the gallery or takes a photo with the camera.
+     *
+     * @param imageUri The URI of the image to upload.
+     */
     private void uploadImage(Uri imageUri) {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
@@ -339,6 +365,10 @@ public class EditItemActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Updates the item object with the new values from the EditText fields.
+     * Converts and validates user input before updating the item object.
+     */
     private void updateItem() {
         try {
             // Convert the date string back to a Date object
@@ -365,6 +395,10 @@ public class EditItemActivity extends AppCompatActivity {
         item.setTags(selectedTags);
     }
 
+    /**
+     * Displays a dialog for selecting the image source.
+     * This method is called when the user clicks the add photo button.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

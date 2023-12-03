@@ -13,20 +13,34 @@ import android.widget.RadioGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * DialogFragment for selecting a filter to apply to the list of items.
+ */
 public class FilterDialogFragment extends DialogFragment {
 
     private FilterType selectedFilterType;
 
+    /**
+     * Interface for the callback to be invoked when a filter is selected.
+     */
     public interface FilterDialogListener {
         void onFilterSelected(FilterType filterType);
     }
 
+    /**
+     * Enum representing the different types of filters that can be applied.
+     */
     public enum FilterType {
         BY_DESCRIPTOR, BY_TAGS, BY_MAKE, BY_DATE
     }
 
     private FilterDialogListener listener;
 
+    /**
+     * Creates a new instance of FilterDialogFragment.
+     *
+     * @return A new instance of FilterDialogFragment.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -73,11 +87,20 @@ public class FilterDialogFragment extends DialogFragment {
         return builder.create();
     }
 
+    /**
+     * Sets the listener for the dialog.
+     *
+     * @param listener The listener to be set.
+     */
     public void setFilterDialogListener(FilterDialogListener listener) {
         this.listener = listener;
     }
 
-    // Override the onAttach to ensure that the host activity implements the callback interface
+    /**
+     * Called when the fragment is attached to the activity.
+     *
+     * @param context The context of the activity.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

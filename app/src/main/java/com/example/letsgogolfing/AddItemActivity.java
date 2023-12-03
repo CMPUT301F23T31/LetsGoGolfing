@@ -163,6 +163,9 @@ public class AddItemActivity extends AppCompatActivity {
         add_photo_button.setOnClickListener(v -> showImageSourceDialog());
     }
 
+    /**
+     * Displays a dialog for selecting an image source.
+     */
     private void showImageSourceDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         new AlertDialog.Builder(this)
@@ -177,6 +180,9 @@ public class AddItemActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Launches the camera to take a photo.
+     */
     private void launchGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
@@ -186,6 +192,9 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Launches the camera to take a photo.
+     */
     private void launchCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageUri = createImageFile();
@@ -193,6 +202,11 @@ public class AddItemActivity extends AppCompatActivity {
         cameraActivityResultLauncher.launch(cameraIntent);
     }
 
+    /**
+     * Creates a file for storing the image.
+     *
+     * @return The Uri of the image file.
+     */
     private Uri createImageFile(){
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "Cliche" + timeStamp;
@@ -203,6 +217,12 @@ public class AddItemActivity extends AppCompatActivity {
         return imageUri;
     }
 
+    /**
+     * Checks if the camera permission is granted.
+     * <p>
+     * This method checks if the camera permission is granted. If it is, the {@link #launchCamera()}
+     * method is called. If not, the permission is requested from the user.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -278,6 +298,16 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if a given date string is valid.
+     * <p>
+     * This method checks if a given date string is valid. The date string must be in the format
+     * "yyyy-MM-dd", and the date must be a valid date (e.g., 2021-02-29 is not valid).
+     * </p>
+     *
+     * @param dateString The date string to be checked.
+     * @return True if the date string is valid, false otherwise.
+     */
     public boolean isValidDate(String dateString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         sdf.setLenient(false); // This will make sure SimpleDateFormat doesn't adjust dates on its own

@@ -91,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+    /**
+     * compares two {@code Item} objects based on the specified sorting field and order.
+     */
     @Override
     public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
         comparator = new ItemComparator(selectedOption, sortDirection);
@@ -99,6 +102,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+    /**
+     * Sorts the item adapter based on the specified comparator.
+     *
+     * @param comparator The comparator to use for sorting.
+     */
     private void sortArrayAdapter(Comparator<Item> comparator) {
         if (itemAdapter != null) {
             ArrayList<Item> itemList = new ArrayList<>();
@@ -198,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         // Inside onCreate method or appropriate initialization method
         EditText searchEditText = findViewById(R.id.searchEditText);
         searchEditText.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // No action needed here for this context
@@ -305,6 +314,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
     }
 
+    /**
+     * Called when the activity is resumed.
+     * It fetches the items from the database and refreshes the adapter.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -313,6 +326,9 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+    /**
+     * Displays the filter dialog fragment.
+     */
     public void showDialog() {
         FilterDialogFragment dialogFragment = new FilterDialogFragment();
         dialogFragment.setFilterDialogListener(this);
@@ -334,11 +350,24 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
     }
 
+    /**
+     * Proceeds to the main activity after successful login.
+     *
+     * @param username The username of the user.
+     */
     private boolean isRunningEspressoTest() {
         // Check for a system property that you will set in your test setup
         return "true".equals(System.getProperty("isRunningEspressoTest"));
     }
 
+    /**
+     * Initializes the activity with the required layout and sets up the item grid adapter.
+     * It also configures click listeners for the item grid and other UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     *                           being shut down, this Bundle contains the most recent data,
+     *                           or null if it is the first time.
+     */
     private void initForTesting() {
         // Initialize components as needed for testing
         // This might include setting up dummy data or mocks
@@ -350,12 +379,20 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         // Other initializations...
     }
 
-
-
+    /**
+     * Checks if the application is running in debug mode.
+     *
+     * @return True if the application is running in debug mode, false otherwise.
+     */
     private boolean isDebugMode() {
         return BuildConfig.DEBUG;
     }
 
+    /**
+     * Proceeds to the main activity after successful login.
+     *
+     * @param username The username of the user.
+     */
     private void fetchItemsAndRefreshAdapter() {
         // I changed this so that we use the FirestoreRepo class to handle the database - (vedant)
         firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
@@ -414,6 +451,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         });
     }
 
+    /**
+     * Processes the image for barcodes using ML Kit.
+     *
+     * @param imageUri The URI of the image to process.
+     */
     public void processImageForBarcode(Uri imageUri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
@@ -423,6 +465,14 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         }
     }
 
+    /**
+     * Called when the user responds to a permission request.
+     * It launches the camera if the permission is granted.
+     *
+     * @param requestCode  The request code passed in requestPermissions()
+     * @param permissions  The requested permissions.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -441,6 +491,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     }
 
 
+    /**
+     * Processes the image for barcodes using ML Kit.
+     *
+     * @param context The context of the activity.
+     * @param bitmap  The bitmap of the image to process.
+     */
     private void processImageWithMLKit(Context context, Bitmap bitmap) {
         BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
         try {
@@ -491,6 +547,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         }
     }
 
+    /**
+     * Creates an image file in the external storage directory.
+     *
+     * @return The URI of the image file.
+     */
     private Uri createImageFile(){
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "Cliche" + timeStamp;
@@ -522,6 +583,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         selectTextCancel.setVisibility(View.GONE);
     }
 
+    /**
+     * Called when the user selects a filter type in the filter dialog fragment.
+     *
+     * @param filterType The selected filter type.
+     */
     @Override
     public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
         this.selectedFilterType = filterType; // Save the selected filter type
