@@ -71,6 +71,7 @@ public class AddItemActivity extends AppCompatActivity {
 
     private Uri imageUri;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private static final int MY_GALLERY_PERMISSION_CODE = 101;
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -184,6 +185,14 @@ public class AddItemActivity extends AppCompatActivity {
      * Launches the camera to take a photo.
      */
     private void launchGallery() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, MY_GALLERY_PERMISSION_CODE);
+        } else {
+            openGallery();
+        }
+    }
+
+    private void openGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
         galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -196,6 +205,14 @@ public class AddItemActivity extends AppCompatActivity {
      * Launches the camera to take a photo.
      */
     private void launchCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageUri = createImageFile();
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -228,9 +245,15 @@ public class AddItemActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera();
+                openCamera();
             } else {
                 Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == MY_GALLERY_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openGallery();
+            } else {
+                Toast.makeText(this, "Gallery permission is required to access photos", Toast.LENGTH_SHORT).show();
             }
         }
     }
