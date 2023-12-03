@@ -5,6 +5,7 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -31,18 +32,26 @@ import static java.util.EnumSet.allOf;
 import static java.util.regex.Pattern.matches;
 
 import java.lang.reflect.Array;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RunWith(AndroidJUnit4.class)
 public class TagsUITest {
     private AnimationUtils animationUtils = new AnimationUtils();
+//    @Rule
+//    public ActivityScenarioRule<MainActivity> mainActivityRule = new ActivityScenarioRule<>(MainActivity.class);
     @Rule
-    public ActivityScenarioRule<MainActivity> mainActivityRule = new ActivityScenarioRule<>(MainActivity.class);
+public ActivityScenarioRule<LoginActivity> activityRule = new ActivityScenarioRule<>(LoginActivity.class);
 
     @Test
     public void testAddingNewTagFromMain() {
@@ -67,14 +76,36 @@ public class TagsUITest {
     public void testEditingTagsInViewDetailsActivity() {
         // Implementation for testing in ViewDetailsActivity
     }
-
+    private FirestoreRepository db;
     @Before
     public void setup() {
-        System.setProperty("isRunningEspressoTest", "true");
+        Intents.init();
+
+        // Perform the login action
+        String newUser = generateRandomString(10);
+        // does not check in case the user already exists...
+
+        onView(withId(R.id.usernameInput)).perform(typeText(newUser), closeSoftKeyboard());
+        onView(withId(R.id.signUpButton)).perform(click());
+
+        //System.setProperty("isRunningEspressoTest", "true");
         animationUtils.disableAnimations();
         itemsFetched = false;
         tagsFetched = false;
-        FirestoreRepository db = new FirestoreRepository("test");
+
+        db = new FirestoreRepository(newUser);
+        itemsCreated = 0;
+        int itemsToMake = random.nextInt(10)+1;
+        createSampleItems(itemsToMake);
+
+        while(itemsCreated != itemsToMake) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
 
         db.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
             @Override
@@ -119,15 +150,15 @@ public class TagsUITest {
     private ArrayList<Item> myItems;
     private ArrayList<String> myTags;
 
+    Random random = new Random();
+
     @Test
     public void testApplyTagsToSelectedItems() {
 
-       Random random = new Random();
        if(myItems.size() == 0 || myTags.size() == 0) // If there aren't any items to test...
            return;
 
        int [] itemIndices = generateUniqueRandomIntArray(random.nextInt(myItems.size())+1, myItems.size());
-
 
         Espresso.onData(Matchers.anything())
                 .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
@@ -142,7 +173,8 @@ public class TagsUITest {
 
         onView(withId(R.id.manage_tags_button)).perform(click());
 
-        int [] tagIndices = generateUniqueRandomIntArray(random.nextInt(myTags.size())+1, myTags.size());
+        int temp = random.nextInt(myTags.size())+1;
+        int [] tagIndices = generateUniqueRandomIntArray(temp > 5 ? 5 : temp, myTags.size());
         for(int tagIndex : tagIndices)
             onView(ViewMatchers.withText(myTags.get(tagIndex))).perform(click());
 
@@ -156,18 +188,15 @@ public class TagsUITest {
 //            for(int tagIndex : tagIndices)
 //                onView(ViewMatchers.withText(myTags.get(tagIndex))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
 //        }
-        try {
-            Thread.sleep(150);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        for(int i = 0; i < itemIndices.length; ++i) {
+
+        for(int item: itemIndices) {
             Espresso.onData(Matchers.anything())
                     .inAdapterView(ViewMatchers.withId(R.id.itemGrid))
-                    .atPosition(itemIndices[i])
+                    .atPosition(item)
                     .perform(click());
             for(int tagIndex : tagIndices)
                 onView(ViewMatchers.withText(myTags.get(tagIndex))).check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+           onView(ViewMatchers.withId(R.id.back_button)).perform(click());
         }
 
     }
@@ -196,4 +225,56 @@ public class TagsUITest {
 
         return array;
     }
+    private int itemsCreated;
+    private void createSampleItems(int itemsToMake){
+        final int maxItems = 10;
+        final int randomStringMaxLength = 15;
+        for(int i = 0; i < itemsToMake; ++i)
+            db.addItem(new Item(generateRandomString(random.nextInt(randomStringMaxLength) + 1), null, generateRandomDate(), null, null, null, random.nextDouble(), null, null),
+                    new FirestoreRepository.OnItemAddedListener() {
+                        @Override
+                        public void onItemAdded(String itemId) {
+                            ++itemsCreated;
+
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    });
+
+    }
+
+    private static final String ALPHANUMERIC_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+     private String generateRandomString(int length) {
+        StringBuilder randomString = new StringBuilder(length);
+
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(ALPHANUMERIC_CHARS.length());
+            char randomChar = ALPHANUMERIC_CHARS.charAt(randomIndex);
+            randomString.append(randomChar);
+        }
+
+        return randomString.toString();
+    }
+    public static Date generateRandomDate() {
+        // Define a date range (adjust as needed)
+        LocalDate startDate = LocalDate.of(1970, 1, 1);
+        LocalDate endDate = LocalDate.of(2023, 12, 31);
+
+        // Generate a random number of days between the start and end dates
+        long randomDays = ThreadLocalRandom.current().nextLong(0, endDate.toEpochDay() - startDate.toEpochDay());
+
+        // Create a random date within the specified range
+        LocalDate randomDate = startDate.plusDays(randomDays);
+
+        // Convert LocalDate to Date
+        Instant instant = randomDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
+
+        return date;
+    }
+
 }
