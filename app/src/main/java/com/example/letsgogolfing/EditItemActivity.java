@@ -63,6 +63,11 @@ public class EditItemActivity extends AppCompatActivity {
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private static final int MY_GALLERY_PERMISSION_CODE = 101;
 
+    private int uploadCounter = 0;
+    private int totalUploadCount = 0;
+    private AlertDialog loadingDialog;
+
+
 
     /**
      * Initializes the activity. This method sets up the user interface and initializes
@@ -130,6 +135,9 @@ public class EditItemActivity extends AppCompatActivity {
                         } else if (result.getData() != null && result.getData().getClipData() != null) {
                             // Multiple images selected from the gallery
                             int count = result.getData().getClipData().getItemCount();
+                            totalUploadCount = count;
+                            uploadCounter = 0; // Reset counter
+                            showLoadingDialog();
                             for (int i = 0; i < count; i++) {
                                 Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
                                 uploadImage(imageUri);
@@ -138,6 +146,22 @@ public class EditItemActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
+    private void showLoadingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(R.layout.loading_dialog);
+        builder.setCancelable(false); // Make dialog non-cancelable if desired
+        loadingDialog = builder.create();
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+    }
+
 
     /**
      * Displays a dialog for selecting the image source.
@@ -273,13 +297,26 @@ public class EditItemActivity extends AppCompatActivity {
 
                 // Update the item in Firestore
                 updateItemInFirestore();
+
+                // Increment the upload counter and hide the loading dialog if all uploads are done
+                uploadCounter++;
+                if (uploadCounter == totalUploadCount) {
+                    hideLoadingDialog();
+                }
             });
         }).addOnFailureListener(exception -> {
             // Handle unsuccessful uploads
             Log.e("Firebase Upload", "Upload failed", exception);
             Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+
+            // Increment the upload counter and hide the loading dialog if all uploads are done
+            uploadCounter++;
+            if (uploadCounter == totalUploadCount) {
+                hideLoadingDialog();
+            }
         });
     }
+
 
     /**
      * This is a new thing i added to handle updating items with new images
@@ -290,7 +327,6 @@ public class EditItemActivity extends AppCompatActivity {
             @Override
             public void onItemUpdated() {
                 // Notify user of success
-                Toast.makeText(EditItemActivity.this, "Item updated with new image", Toast.LENGTH_SHORT).show();
                 // Refresh the UI here if necessary
             }
 

@@ -61,6 +61,11 @@ public class AddItemActivity extends AppCompatActivity {
     private Item item;
     private static final String TAG = "EditItemActivity";
 
+    private int uploadCounter = 0;
+    private int totalUploadCount = 0;
+
+    private AlertDialog loadingDialog;
+
     private ArrayList<String> tempUris = new ArrayList<>();
 
     private FirestoreRepository firestoreRepository;
@@ -83,6 +88,9 @@ public class AddItemActivity extends AppCompatActivity {
                     } else if (result.getData() != null && result.getData().getClipData() != null) {
                         // Multiple images selected from the gallery
                         int count = result.getData().getClipData().getItemCount();
+                        totalUploadCount = count;
+                        uploadCounter = 0; // Reset counter
+                        showLoadingDialog();
                         for (int i = 0; i < count; i++) {
                             Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
                             uploadImage(imageUri);
@@ -91,6 +99,19 @@ public class AddItemActivity extends AppCompatActivity {
                 }
             });
 
+    private void showLoadingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(R.layout.loading_dialog);
+        builder.setCancelable(false); // Optional: make the dialog non-cancelable
+        loadingDialog = builder.create();
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+    }
 
     /**
      * Called when the activity is starting. Responsible for initializing the activity.
@@ -513,19 +534,32 @@ public class AddItemActivity extends AppCompatActivity {
             StorageReference imagesRef = storageRef.child("images/" + photoFileName);
 
             UploadTask uploadTask = imagesRef.putBytes(imageData);
-            uploadTask.addOnFailureListener(exception -> {
-                Log.e("Firebase Upload", "Upload failed", exception);
-                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                // Get the download URL
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                // ... existing code ...
                 imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                     tempUris.add(downloadUri.toString());
-                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                    uploadCounter++;
+                    if (uploadCounter == totalUploadCount) {
+                        hideLoadingDialog(); // Hide the dialog when all images are processed
+                    }
                 });
+            }).addOnFailureListener(exception -> {
+                Log.e("Firebase Upload", "Upload failed", exception);
+                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+
+                uploadCounter++;
+                if (uploadCounter == totalUploadCount) {
+                    hideLoadingDialog(); // Hide the dialog when all images are processed
+                }
             });
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+            uploadCounter++;
+            if (uploadCounter == totalUploadCount) {
+                hideLoadingDialog(); // Hide the dialog when all images are processed
+            }
         }
     }
 
