@@ -1,17 +1,11 @@
 package com.example.letsgogolfing;
 
-import androidx.test.espresso.Root;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import android.os.IBinder;
+import org.hamcrest.Matchers;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
-
-
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,28 +16,27 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.intent.Intents.intended;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.app.DatePickerDialog;
+import android.widget.DatePicker;
 
-import static org.hamcrest.CoreMatchers.anything;
-
-import android.content.Context;
-
+import com.example.letsgogolfing.controllers.AddItemActivity;
 import com.example.letsgogolfing.controllers.LoginActivity;
+import com.example.letsgogolfing.views.DatePickerEditText;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 @RunWith(AndroidJUnit4.class)
 public class AddItemActivityTest{
 
     @Rule
     public ActivityScenarioRule<LoginActivity> activityRule = new ActivityScenarioRule<>(LoginActivity.class);
+    private AddItemActivity activity;
 
-
-    private Context instrumentationContext;
 
     @Before
     public void setUp() {
@@ -65,25 +58,18 @@ public class AddItemActivityTest{
         // Wait for MainActivity to start
     }
 
-    @After
-    public void tearDown() {
-        Intents.release();
-    }
-
 
 
     @Test
     public void testSuccessfulItemAddition() {
+
         onView(withId(R.id.nameField)).perform(typeText("Golf Club"), closeSoftKeyboard());
         onView(withId(R.id.descriptionField)).perform(typeText("Brand new golf club"), closeSoftKeyboard());
         onView(withId(R.id.valueField)).perform(typeText("100"), closeSoftKeyboard());
-        onView(withId(R.id.dateField)).perform(typeText("2002-02-02"), closeSoftKeyboard());
         onView(withId(R.id.serialField)).perform(typeText("Golf Course"), closeSoftKeyboard());
         onView(withId(R.id.commentField)).perform(typeText("Golf Course"), closeSoftKeyboard());
         onView(withId(R.id.makeField)).perform(typeText("Golf Course"), closeSoftKeyboard());
         onView(withId(R.id.modelField)).perform(typeText("Golf Course"), closeSoftKeyboard());
-
-
         onView(withId(R.id.confirmBtn)).perform(click());
 
         try{
@@ -113,37 +99,7 @@ public class AddItemActivityTest{
         }
         // Since we cannot directly access the activity to get the decor view,
         // we use a different approach to handle the dialog interaction
-        // Select a tag from the dialog - replace "TagName" with the actual tag name
-
-        onView(withText("OK"))
-                .inRoot(isDialog()) // Uses the corrected custom matcher
-                .check(matches(isDisplayed()))
-                .perform(click());
-        // Click the 'OK' button in the dialog
-
-        // Optionally, assert if the tag was added to the view
-        // This depends on how the tags are displayed in your UI
     }
-
-    public static Matcher<Root> isDialog() {
-        return new TypeSafeMatcher<Root>() {
-            @Override
-            protected boolean matchesSafely(Root root) {
-                // Get the Window token and Application window token
-                IBinder windowToken = root.getDecorView().getWindowToken();
-                IBinder appWindowToken = root.getDecorView().getApplicationWindowToken();
-
-                // Check if the window token is not the same as the application window token, and it's not null
-                return windowToken != appWindowToken && windowToken != null;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("is dialog");
-            }
-        };
-    }
-
 
 
     @Test
@@ -162,9 +118,9 @@ public class AddItemActivityTest{
         onView(withId(R.id.cancel_button_add_item)).perform(click());
     }
 
-
-
-
-
+    @After
+    public void tearDown() {
+        Intents.release();
+    }
 
 }

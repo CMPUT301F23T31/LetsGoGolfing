@@ -45,6 +45,7 @@ public class ViewDetailsUITest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 
     @After
@@ -72,6 +73,15 @@ public class ViewDetailsUITest {
 
     @Test
     public void testAddTags() {
+
+        // click the first item in the grid
+        onView(withId(R.id.itemGrid)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // Click the add tags button
         onView(withId(R.id.add_tags_button_view)).perform(click());
 
@@ -84,8 +94,17 @@ public class ViewDetailsUITest {
     public void testSaveItemDetails() {
         // Make changes to the item details
 
+        onView(withId(R.id.itemGrid)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
+
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // Click the save button
-        onView(withId(R.id.saveBtn)).perform(click());
+        onView(withId(R.id.save_button)).perform(click());
 
         // Verify updated details are displayed
         // Use matches to check the text in the views
@@ -95,11 +114,18 @@ public class ViewDetailsUITest {
     public void testCancelEdit() {
         // Make changes to the item details
 
+        onView(withId(R.id.itemGrid)).perform(click());
+        onView(withId(R.id.edit_item_button)).perform(click());
+
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // Click the cancel button
         onView(withId(R.id.cancel_edit_button)).perform(click());
 
-        // Verify that the original details are displayed
-        // Use matches to check the text in the views
     }
 
     // Additional tests can be implemented following similar patterns for different parts of the activity

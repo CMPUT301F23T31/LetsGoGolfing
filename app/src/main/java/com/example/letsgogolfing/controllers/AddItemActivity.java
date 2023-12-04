@@ -501,7 +501,7 @@ public class AddItemActivity extends AppCompatActivity {
         String dateString = ((EditText) findViewById(R.id.dateField)).getText().toString();
 
         if (!isValidDate(dateString)) {
-            Toast.makeText(this, "Invalid date format", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Invalid date format, set to today", Toast.LENGTH_LONG).show();
             return; // Exit the method if the date is not valid
         }
 

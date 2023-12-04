@@ -13,7 +13,6 @@ import android.widget.Filter;
 import android.widget.TextView;
 import com.example.letsgogolfing.controllers.dialogs.FilterDialogFragment.FilterType;
 import com.bumptech.glide.Glide;
-import com.example.letsgogolfing.utils.ItemFilter;
 import com.example.letsgogolfing.R;
 import com.example.letsgogolfing.models.Item;
 
@@ -35,9 +34,6 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     private LayoutInflater inflater;
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
-
-    public long startDate;
-    public long endDate;
     public Set<Integer> getSelectedPositions() {
         return new HashSet<>(selectedItems);
     }
