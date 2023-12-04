@@ -292,12 +292,12 @@ public class FirestoreRepository {
     /**
      * Adds an image URI to an item in Firestore.
      * This method adds the provided image URI to the imageUris array of the item with the specified item ID.
-     * Upon successful addition, the provided {@link OnImageUriAddedListener} callback is notified.
+     * Upon successful addition, the provided {@link OnImageUriDeletedListener} callback is notified.
      * In case of failure, the callback is notified with the exception.
      *
      * @param itemId The ID ({@link String}) of the item to which the image URI is to be added.
      * @param imageUri The image URI ({@link String}) to be added to the item.
-     * @param listener The {@link OnImageUriAddedListener} callback for handling the result of the addition operation.
+     * @param listener The {@link OnImageUriDeletedListener} callback for handling the result of the addition operation.
      */
     public void deleteImageUriFromItem(String itemId, String imageUri, OnImageUriDeletedListener listener) {
         if (itemId == null || imageUri == null) {
