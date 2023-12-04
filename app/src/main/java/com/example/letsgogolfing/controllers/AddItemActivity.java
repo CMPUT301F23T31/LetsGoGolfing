@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -24,7 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.letsgogolfing.utils.TagDialogHelper;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.controllers.dialogs.TagDialogHelper;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
 import com.google.firebase.Timestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;

@@ -1,8 +1,7 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import static com.google.android.gms.vision.L.TAG;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
+import com.example.letsgogolfing.views.ImageAdapter;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 

@@ -10,7 +10,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import androidx.fragment.app.DialogFragment;
-import java.util.Calendar;
 
 
 import android.app.Activity;
@@ -23,7 +22,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -33,11 +31,21 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.letsgogolfing.utils.TagDialogHelper;
+import com.example.letsgogolfing.controllers.AddItemActivity;
+import com.example.letsgogolfing.controllers.dialogs.FilterDialogFragment;
+import com.example.letsgogolfing.controllers.LoginActivity;
+import com.example.letsgogolfing.controllers.dialogs.SortDialogFragment;
+import com.example.letsgogolfing.controllers.ViewDetailsActivity;
+import com.example.letsgogolfing.controllers.ViewProfileActivity;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
+import com.example.letsgogolfing.utils.BarcodeFetchInfo;
+import com.example.letsgogolfing.utils.ItemComparator;
+import com.example.letsgogolfing.controllers.dialogs.TagDialogHelper;
+import com.example.letsgogolfing.views.ItemAdapter;
 import com.google.firebase.BuildConfig;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -51,12 +59,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
-import java.util.Map;
 import java.util.Set;
 
 

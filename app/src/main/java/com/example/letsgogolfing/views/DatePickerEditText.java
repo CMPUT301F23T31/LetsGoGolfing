@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.views;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 

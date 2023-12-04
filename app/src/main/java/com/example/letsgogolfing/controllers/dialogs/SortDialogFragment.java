@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +13,8 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
+
+import com.example.letsgogolfing.R;
 
 /**
  * A dialog fragment that provides options for sorting items.

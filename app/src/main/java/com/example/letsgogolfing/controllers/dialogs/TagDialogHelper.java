@@ -1,4 +1,4 @@
-package com.example.letsgogolfing.utils;
+package com.example.letsgogolfing.controllers.dialogs;
 
 import android.app.AlertDialog;
 import android.content.Context;

@@ -3,7 +3,6 @@ package com.example.letsgogolfing;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.espresso.Espresso;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,12 +19,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.action.ViewActions.click;
 
 
-
-import android.content.Context;
-
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 
+import com.example.letsgogolfing.controllers.LoginActivity;
 
 
 @RunWith(AndroidJUnit4.class)

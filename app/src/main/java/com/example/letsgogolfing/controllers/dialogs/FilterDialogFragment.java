@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers.dialogs;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
@@ -14,6 +14,9 @@ import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.letsgogolfing.R;
+
 import java.util.Calendar;
 import java.util.Date;
 

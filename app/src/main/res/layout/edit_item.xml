@@ -64,7 +64,7 @@
 
 
     <!-- Date and Model Fields in a row -->
-    <com.example.letsgogolfing.DatePickerEditText
+    <com.example.letsgogolfing.views.DatePickerEditText
         android:id="@+id/date_edit_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
