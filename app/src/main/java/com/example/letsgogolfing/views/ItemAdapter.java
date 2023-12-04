@@ -4,6 +4,7 @@ import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,7 +99,11 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                filteredItems = new ArrayList<>((List<Item>) results.values);
+                try {
+                    filteredItems = new ArrayList<>((List<Item>) results.values);
+                } catch (Exception e) {
+                    Log.w("ItemAdapter", "Failed to apply results of filter to array", e);
+                }
                 sortItems();
                 notifyDataSetChanged();
             }

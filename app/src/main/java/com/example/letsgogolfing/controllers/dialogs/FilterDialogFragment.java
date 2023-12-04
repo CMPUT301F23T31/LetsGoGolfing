@@ -56,10 +56,8 @@ public class FilterDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.filter_dialog, null);
 
         RadioGroup radioGroup = view.findViewById(R.id.radio_group);
-        final CalendarView calendarView = view.findViewById(R.id.calendarView);
 
-        calendarView.setVisibility(View.GONE);// Initially hide the calendar view
-
+        RadioButton radioButtonName = view.findViewById(R.id.radio_button_name);
         RadioButton radioButtonDescriptor = view.findViewById(R.id.radio_button_descriptor);
         RadioButton radioButtonTags = view.findViewById(R.id.radio_button_tags);
         RadioButton radioButtonMake = view.findViewById(R.id.radio_button_make);
@@ -74,14 +72,10 @@ public class FilterDialogFragment extends DialogFragment {
                 radioButtonMake.setChecked(true);
             } else if (lastSelectedFilterType == FilterType.BY_DATE) {
                 radioButtonDate.setChecked(true);
-                calendarView.setVisibility(View.VISIBLE); // Show calendar if date filter was last selected
             }
         }
 
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            // Reset calendar visibility at the beginning
-            calendarView.setVisibility(View.GONE);
-
             if (checkedId == R.id.radio_button_descriptor) {
                 selectedFilterType = FilterType.BY_DESCRIPTOR;
             } else if (checkedId == R.id.radio_button_tags) {
@@ -90,7 +84,6 @@ public class FilterDialogFragment extends DialogFragment {
                 selectedFilterType = FilterType.BY_MAKE;
             } else if (checkedId == R.id.radio_button_date) {
                 selectedFilterType = FilterType.BY_DATE;
-                calendarView.setVisibility(View.VISIBLE); // Show calendar for date filter
             } else {
                 selectedFilterType = null;
             }
