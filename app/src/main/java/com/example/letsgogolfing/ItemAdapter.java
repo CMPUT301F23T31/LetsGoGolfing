@@ -1,5 +1,6 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
 import android.content.Context;
@@ -158,6 +159,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             holder.descriptionTextView = convertView.findViewById(R.id.itemDescription);
             holder.valueTextView = convertView.findViewById(R.id.itemValue);
             holder.makeTextView = convertView.findViewById(R.id.itemMake);
+            holder.dateTextView = convertView.findViewById(R.id.itemDate);
             holder.imageView = convertView.findViewById(R.id.itemImage);
             convertView.setTag(holder);
         } else {
@@ -169,7 +171,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         holder.descriptionTextView.setText(item.getDescription());
         holder.makeTextView.setText(item.getMake());
         holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
-
+        holder.dateTextView.setText(dateFormat.format(item.getDateOfPurchase()));
         // Set other properties to the holder's views as needed
 
         if (item.getImageUris() != null && !item.getImageUris().isEmpty()) {
@@ -238,6 +240,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         TextView valueTextView;
         ImageView imageView;
         TextView makeTextView;
+        TextView dateTextView;
     }
 
     /**
