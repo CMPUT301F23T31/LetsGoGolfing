@@ -1,11 +1,13 @@
 package com.example.letsgogolfing;
 
+import android.util.Log;
 import android.widget.Filter;
 
 import com.example.letsgogolfing.ItemAdapter;
 import com.example.letsgogolfing.Item;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 /**
  * Filter for the GridView in the MainActivity.
@@ -51,18 +53,38 @@ public class ItemFilter extends Filter {
                         }
                         break;
                     case BY_TAGS:
-                        // Add logic to filter by tags
+                        // Logic to filter by tags
+                        for (String tag : item.getTags()) {
+                            if (tag.toLowerCase().contains(filterPattern)) {
+                                filteredList.add(item);
+                                break; // Break to avoid adding the same item multiple times
+                            }
+                        }
+                        break;
                     case BY_MAKE:
                         // Add logic to filter by make
+                        if (item.getMake() != null && item.getMake().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(item);
+                        }
                         break;
                     case BY_DATE:
-                        // Add logic to filter by date
+                        if (item.getDateOfPurchase() != null) {
+                            long itemDateMillis = item.getDateOfPurchase().getTime();
+                            Log.d("Filter", "Item Date: " + item.getDateOfPurchase() + ", Filter Start: " + new Date(adapter.startDate) + ", Filter End: " + new Date(adapter.endDate));
+                            if (itemDateMillis >= adapter.startDate && itemDateMillis < adapter.endDate) {
+                                filteredList.add(item);
+                            }
+                        }
                         break;
                 }
             }
         }
 
-        results.values = filteredList;
+        if (filteredList.isEmpty()) {
+            results.values = new ArrayList<Item>(); // return an empty list instead of null
+        } else {
+            results.values = filteredList;
+        }
         results.count = filteredList.size();
         return results;
     }
@@ -78,7 +100,9 @@ public class ItemFilter extends Filter {
     @Override
     protected void publishResults(CharSequence constraint, FilterResults results) {
         adapter.clear();
-        adapter.addAll((ArrayList<Item>) results.values);
+        if (results.values != null) {
+            adapter.addAll((ArrayList<Item>) results.values);
+        }
         adapter.notifyDataSetChanged();
     }
 }
