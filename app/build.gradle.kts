@@ -52,6 +52,9 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     implementation("androidx.activity:activity:1.2.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+
+    compileOnly(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
+
     implementation("org.json:json:20210307")
     implementation("com.google.android.gms:play-services-vision:20.1.3")
     testImplementation("junit:junit:4.13.2")
