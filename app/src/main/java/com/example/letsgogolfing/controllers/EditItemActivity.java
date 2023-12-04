@@ -81,7 +81,7 @@ public class EditItemActivity extends AppCompatActivity {
         initializeActivityResultLauncher();
 
         // Set Layout
-        setContentView(R.layout.edit_item);
+        setContentView(R.layout.activity_edit_item);
 
         // Retrieve the item from the intent
         username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);

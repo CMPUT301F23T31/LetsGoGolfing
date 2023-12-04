@@ -113,7 +113,7 @@ public class AddItemActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_item_page);
+        setContentView(R.layout.activity_add_item);
 
         // Retrieve the current username from SharedPreferences
         SharedPreferences sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE);

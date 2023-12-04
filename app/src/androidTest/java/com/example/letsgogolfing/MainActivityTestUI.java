@@ -3,9 +3,12 @@ package com.example.letsgogolfing;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.content.Context;
@@ -25,7 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class MainActivityTest {
+public class MainActivityTestUI {
 
     @Rule
     public ActivityScenarioRule<LoginActivity> activityRule = new ActivityScenarioRule<>(LoginActivity.class);
@@ -108,19 +111,22 @@ public class MainActivityTest {
 
     }
 
+
     @Test
-    public void testManageTagsButton() {
+    public void testTagButton() {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        // Click the manage tags button
-        onView(withId(R.id.manage_tags_button)).perform(click());
+        // Simulate item selection - replace R.id.your_item_in_grid with the actual ID of an item in your grid
+        onView(withId(R.id.itemGrid)).perform(longClick());
 
+        // Now check if the manage tags button is visible
+        onView(withId(R.id.manage_tags_button)).check(matches(isDisplayed()));
+        // NOTE: unfortunately we cant test dialogs using espresso, so the best way to test the methods of the tags-
+        // -is to use unit tests, which i have implemented in the unittest folder.
     }
-
-
 
 }

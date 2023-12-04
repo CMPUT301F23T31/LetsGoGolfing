@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_page); // Set the layout for the activity
+        setContentView(R.layout.activity_login_page); // Set the layout for the activity
 
         // Initialize Firestore and UI elements
         mAuth = FirebaseAuth.getInstance();

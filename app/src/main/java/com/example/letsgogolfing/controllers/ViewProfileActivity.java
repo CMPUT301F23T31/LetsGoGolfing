@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.letsgogolfing.R;
-import com.example.letsgogolfing.controllers.LoginActivity;
 import com.example.letsgogolfing.models.FirestoreRepository;
 import com.example.letsgogolfing.models.Item;
 import com.example.letsgogolfing.views.ItemAdapter;
@@ -38,7 +37,7 @@ public class ViewProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile_page);
+        setContentView(R.layout.activity_profile_page);
 
         totalItems = findViewById(R.id.totalItemCount);
         totalCost = findViewById(R.id.totalItemValue);

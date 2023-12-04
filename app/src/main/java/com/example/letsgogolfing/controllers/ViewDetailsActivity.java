@@ -54,7 +54,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.view_details);
+        setContentView(R.layout.activity_view_details);
 
         // Retrieve the item from the intent
         username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
