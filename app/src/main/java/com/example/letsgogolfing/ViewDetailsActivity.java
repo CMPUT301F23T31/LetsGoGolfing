@@ -82,6 +82,9 @@ public class ViewDetailsActivity extends AppCompatActivity {
                 // Pass the list of image URIs to ViewPhotoActivity
                 intent.putStringArrayListExtra("imageUris", new ArrayList<>(item.getImageUris()));
 
+                // Pass the item ID to ViewPhotoActivity
+                intent.putExtra("itemId", item.getId());
+
                 // Start ViewPhotoActivity
                 startActivity(intent);
             }
@@ -178,6 +181,10 @@ public class ViewDetailsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method is called when the activity is resumed.
+     * It fetches the item from Firestore and updates the UI accordingly.
+     */
     @Override
     protected void onResume() {
         super.onResume();

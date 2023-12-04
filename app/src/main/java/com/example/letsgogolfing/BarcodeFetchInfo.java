@@ -18,9 +18,19 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * Fetches product details from the UPCItemDB API
+ */
 public class BarcodeFetchInfo {
 
 
+    /**
+     * Fetches product details from the UPCItemDB API
+     * @param upc
+     * @param listener
+     * @throws IOException
+     * @throws JSONException
+     */
     public void fetchProductDetails(String upc, OnProductFetchedListener listener) throws IOException, JSONException {
         OkHttpClient client = new OkHttpClient.Builder()
         .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
@@ -100,6 +110,9 @@ public class BarcodeFetchInfo {
         });
     }
 
+    /**
+     * Listener for when the product details are fetched
+     */
     public interface OnProductFetchedListener {
         void onProductFetched(Item item);
     }

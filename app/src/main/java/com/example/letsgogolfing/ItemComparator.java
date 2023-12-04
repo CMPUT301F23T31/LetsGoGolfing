@@ -65,6 +65,15 @@ public class ItemComparator implements Comparator<Item>{
         return ascending ? comparisonResult : -comparisonResult;
     }
 
+    /**
+     * Compares the tags of two {@code Item} objects.
+     *
+     * @param item1 The first {@code Item} to be compared.
+     * @param item2 The second {@code Item} to be compared.
+     * @return A negative integer, zero, or a positive integer as the first argument
+     *         is less than, equal to, or greater than the second, in the context of the
+     *         specified sorting preferences.
+     */
     public int compareTags(Item item1, Item item2) {
         List<String> tags1 = item1.getTags();
         List<String> tags2 = item2.getTags();

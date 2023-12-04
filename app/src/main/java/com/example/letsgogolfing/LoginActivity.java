@@ -9,11 +9,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * LoginActivity is responsible for handling the user login process.
@@ -26,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private Button signUpButton;
     private FirestoreRepository firestoreRepository;
+    private FirebaseAuth mAuth;
 
     /**
      * Called when the activity is starting. This is where most initialization should go:
@@ -42,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.login_page); // Set the layout for the activity
 
         // Initialize Firestore and UI elements
+        mAuth = FirebaseAuth.getInstance();
         usernameInput = findViewById(R.id.usernameInput);
         loginButton = findViewById(R.id.loginButton);
         signUpButton = findViewById(R.id.signUpButton);

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    android:background="#AED5B1">
+    android:background="@color/Outer_Space">
 
 
     <!-- Name Field -->
@@ -15,6 +15,7 @@
         android:layout_height="60dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
+
         android:inputType="text"
         android:textSize="16sp"
         android:paddingStart="16dp"
@@ -45,14 +46,13 @@
 
 
     <!-- Date and Model Fields in a row -->
-    <EditText
+    <com.example.letsgogolfing.DatePickerEditText
         android:id="@+id/dateField"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Date (yyyy-mm-dd)"
-        android:inputType="date"
         android:textSize="16sp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -207,12 +207,12 @@
     <Button
         android:id="@+id/add_tags_button"
         android:layout_width="120dp"
-        android:layout_height="wrap_content"
+        android:layout_height="46dp"
         android:layout_marginBottom="10dp"
         android:text="Add Tags"
         app:layout_constraintBottom_toTopOf="@+id/cancel_button_add_item"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tagsContainer"
         app:layout_constraintVertical_bias="1.0" />

@@ -1,6 +1,8 @@
 package com.example.letsgogolfing;
 
 
+import static android.view.View.GONE;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,9 +33,11 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.letsgogolfing.utils.TagDialogHelper;
 import com.google.firebase.BuildConfig;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -48,6 +52,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
@@ -63,15 +68,12 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity implements SortDialogFragment.SortOptionListener, FilterDialogFragment.FilterDialogListener{
 
     private Uri imageUri;
-
-    private String currentUsername;
-
-    private static final int CAMERA_REQUEST = 2104;
     private static final int MY_CAMERA_PERMISSION_CODE = 420;
 
     // itemsFetched used for UI test to check if items are fetched from FireStore;
     public static boolean itemsFetched;
     private TextView selectTextCancel; // Add this member variable for the TextView
+    private Button manageTagsButton;
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
@@ -92,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+    /**
+     * compares two {@code Item} objects based on the specified sorting field and order.
+     */
     @Override
     public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
         comparator = new ItemComparator(selectedOption, sortDirection);
@@ -100,6 +105,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+    /**
+     * Sorts the item adapter based on the specified comparator.
+     *
+     * @param comparator The comparator to use for sorting.
+     */
     private void sortArrayAdapter(Comparator<Item> comparator) {
         if (itemAdapter != null) {
             ArrayList<Item> itemList = new ArrayList<>();
@@ -176,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                     deleteButton.setVisibility(View.VISIBLE);
                     itemAdapter.toggleSelection(position);
                     selectTextCancel.setVisibility(View.VISIBLE);
+                    manageTagsButton.setVisibility(View.VISIBLE);
                 }
             } else {
                 // Document ID is null, handle this case
@@ -199,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         // Inside onCreate method or appropriate initialization method
         EditText searchEditText = findViewById(R.id.searchEditText);
         searchEditText.addTextChangedListener(new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // No action needed here for this context
@@ -222,30 +234,44 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             startActivity(intent);
         });
 
-        Button manageTagsButton = findViewById(R.id.manage_tags_button);
+        manageTagsButton = findViewById(R.id.manage_tags_button);
         manageTagsButton.setOnClickListener(v -> {
             if (isSelectMode) {
-                getTags.showTagSelectionDialog(selectedTags -> {
-                    Map<String, Object> update = new HashMap<>();
-                    for(Item item : itemAdapter.getSelectedItems()) {
-                        item.addTags(selectedTags);
-                        firestoreRepository.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+                TagDialogHelper.showTagSelectionDialog(this, tagList, new ArrayList<>(), // Empty list for pre-selected tags
+                        new TagDialogHelper.OnTagsSelectedListener() {
+                            @Override
+                            public void onTagsSelected(List<String> selectedTags) {
+                                // Update each selected item with these tags
+                                for(Item item : itemAdapter.getSelectedItems()) {
+                                    Set<String> mergedTags = new HashSet<>(item.getTags());
+                                    mergedTags.addAll(selectedTags); // Add all selected tags, duplicates are automatically handled
+                                    item.setTags(new ArrayList<>(mergedTags)); // Convert back to List
+                                    firestoreRepository.updateItem(item.getId(), item, new FirestoreRepository.OnItemUpdatedListener() {
+                                        @Override
+                                        public void onItemUpdated() {
+                                        }
+                                        @Override
+                                        public void onError(Exception e) {
+                                        }
+                                    });
+                                }
+                                clearSelection();
+                            }
+                            @Override
+                            public void onNewTagAdded(String newTag) {
+                                // Handle the addition of the new tag, e.g., update Firestore
+                                firestoreRepository.addTag(newTag, new FirestoreRepository.OnTagAddedListener() {
                                     @Override
-                                    public void onItemUpdated() {
+                                    public void onTagAdded() {
+                                        tagList.add(newTag); // Add the new tag to the local list
                                     }
-
                                     @Override
                                     public void onError(Exception e) {
                                     }
-                                }
-                        );
-                    }
-                    clearSelection();
-                }, tagList);
-                return;
+                                });
+                            }
+                        });
             }
-            Intent intent = new Intent(MainActivity.this, ManageTagsActivity.class);
-            startActivity(intent);
         });
 
         ImageButton sortButton = findViewById(R.id.sort_button);
@@ -254,9 +280,20 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 });
 
         selectTextCancel = findViewById(R.id.select_text_cancel);
-        deleteButton = findViewById(R.id.delete_button);
+        selectTextCancel.setOnClickListener(v -> {
+                    clearSelection();
+        });
 
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
+
+        deleteButton = findViewById(R.id.delete_button);
+        deleteButton.setOnClickListener(v -> {
+            deleteSelectedItems();
+        });
+
+
+        manageTagsButton.setVisibility(GONE);
+        selectTextCancel.setVisibility(GONE);
+        deleteButton.setVisibility(GONE); // Hide delete button initially
 
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
@@ -297,6 +334,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
     }
 
+    /**
+     * Called when the activity is resumed.
+     * It fetches the items from the database and refreshes the adapter.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -305,6 +346,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+
+    /**
+     * Displays the filter dialog fragment.
+     */
     public void showFilterDialog() {
         FilterDialogFragment dialogFragment = new FilterDialogFragment();
         dialogFragment.setFilterDialogListener(this);
@@ -331,6 +376,10 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         return "true".equals(System.getProperty("isRunningEspressoTest"));
     }
 
+    /**
+     * Initializes the activity with the required layout and sets up the item grid adapter.
+     * It also configures click listeners for the item grid and other UI components.
+     */
     private void initForTesting() {
         // Initialize components as needed for testing
         // This might include setting up dummy data or mocks
@@ -342,12 +391,18 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         // Other initializations...
     }
 
-
-
+    /**
+     * Checks if the application is running in debug mode.
+     *
+     * @return True if the application is running in debug mode, false otherwise.
+     */
     private boolean isDebugMode() {
         return BuildConfig.DEBUG;
     }
 
+    /**
+     * Proceeds to the main activity after successful login.
+     */
     private void fetchItemsAndRefreshAdapter() {
         // I changed this so that we use the FirestoreRepo class to handle the database - (vedant)
         firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
@@ -397,21 +452,19 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                 itemAdapter.notifyDataSetChanged();
                 updateTotalValue(itemAdapter.getItems());
                 Toast.makeText(MainActivity.this, "Items deleted", Toast.LENGTH_SHORT).show();
-
             }
-
             @Override
             public void onError(Exception e) {
                 Toast.makeText(MainActivity.this, "Error deleting items", Toast.LENGTH_SHORT).show();
             }
-            // Reset select mode
-//            isSelectMode = false;
-//            itemAdapter.setSelectModeEnabled(false);
-//            deleteButton.setVisibility(View.GONE);
-
         });
     }
 
+    /**
+     * Processes the image for barcodes using ML Kit.
+     *
+     * @param imageUri The URI of the image to process.
+     */
     public void processImageForBarcode(Uri imageUri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
@@ -421,6 +474,14 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         }
     }
 
+    /**
+     * Called when the user responds to a permission request.
+     * It launches the camera if the permission is granted.
+     *
+     * @param requestCode  The request code passed in requestPermissions()
+     * @param permissions  The requested permissions.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -439,6 +500,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     }
 
 
+    /**
+     * Processes the image for barcodes using ML Kit.
+     *
+     * @param context The context of the activity.
+     * @param bitmap  The bitmap of the image to process.
+     */
     private void processImageWithMLKit(Context context, Bitmap bitmap) {
         BarcodeFetchInfo barcodeFetchInfo = new BarcodeFetchInfo();
         try {
@@ -489,6 +556,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         }
     }
 
+    /**
+     * Creates an image file in the external storage directory.
+     *
+     * @return The URI of the image file.
+     */
     private Uri createImageFile(){
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "Cliche" + timeStamp;
@@ -516,10 +588,16 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private void clearSelection(){
         isSelectMode = !isSelectMode; // Toggle select mode
         itemAdapter.clearSelection(); // Inform the adapter
-        deleteButton.setVisibility(View.GONE);
-        selectTextCancel.setVisibility(View.GONE);
+        deleteButton.setVisibility(GONE);
+        selectTextCancel.setVisibility(GONE);
+        manageTagsButton.setVisibility(GONE);
     }
 
+    /**
+     * Called when the user selects a filter type in the filter dialog fragment.
+     *
+     * @param filterType The selected filter type.
+     */
     @Override
     public void onFilterSelected(FilterDialogFragment.FilterType filterType, String selectedDate) {
         selectedFilterType = filterType; // Save the selected filter type

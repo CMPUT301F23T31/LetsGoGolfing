@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Collection;
 
+/**
+ * Adapter for the GridView in the MainActivity.
+ */
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
@@ -39,6 +42,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     public Set<Integer> getSelectedPositions() {
         return new HashSet<>(selectedItems);
     }
+
 
     public void clearSelection() {
         selectedItems.clear();
@@ -200,6 +204,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             holder.nameTextView = convertView.findViewById(R.id.itemName);
             holder.descriptionTextView = convertView.findViewById(R.id.itemDescription);
             holder.valueTextView = convertView.findViewById(R.id.itemValue);
+            holder.makeTextView = convertView.findViewById(R.id.itemMake);
             holder.imageView = convertView.findViewById(R.id.itemImage);
             convertView.setTag(holder);
         } else {
@@ -209,7 +214,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-
+        holder.makeTextView.setText(item.getMake());
         holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
 
         // Set other properties to the holder's views as needed
@@ -224,9 +229,9 @@ public class ItemAdapter extends ArrayAdapter<Item>{
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
-            convertView.setBackgroundColor(Color.parseColor("#5E716A")); // color for selected items
+            convertView.setBackgroundColor(Color.parseColor("#2D4B41")); // color for selected items
         } else {
-            convertView.setBackgroundColor(Color.parseColor("#88CEB4")); // Original background color
+            convertView.setBackgroundColor(Color.parseColor("#5a786e")); // Original background color
         }
 
         return convertView;
@@ -258,6 +263,11 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         }
     }
 
+    /**
+     * Add item.
+     *
+     * @param item The item to add.
+     */
     public ArrayList<Item> getSelectedItems(){
         ArrayList<Item> itemList = new ArrayList<>();
         for(Integer i : selectedItems)
@@ -265,13 +275,29 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return itemList;
     }
 
-    // ViewHolder pattern to optimize performance
+
+    /**
+     * Add item.
+     *
+     * @param item The item to add.
+     */
     private static class ViewHolder {
         TextView nameTextView;
         TextView descriptionTextView;
         TextView valueTextView;
         ImageView imageView;
-        // Add more views as needed
+        TextView makeTextView;
+    }
+
+
+    /**
+     * Filter for the ItemAdapter.
+     */
+    public Filter getFilter() {
+        if (itemFilter == null) {
+            itemFilter = new ItemFilter(this, items);
+        }
+        return itemFilter;
     }
 
     @Override

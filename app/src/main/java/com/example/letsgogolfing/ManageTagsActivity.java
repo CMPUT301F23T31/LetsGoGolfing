@@ -12,11 +12,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Activity for managing tags.
+ * This activity allows the user to add new tags and delete existing tags.
+ */
 public class ManageTagsActivity extends AppCompatActivity {
     private ArrayAdapter<String> tagsAdapter;
     private List<String> tagsList = new ArrayList<>();
     private FirestoreRepository firestoreRepository;
 
+    /**
+     * Called when the activity is starting. This is where most initialization should go:
+     * calling setContentView(int) to inflate the activity's UI, using findViewById(int)
+     * to programmatically interact with widgets in the UI, setting up listeners, etc.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +79,9 @@ public class ManageTagsActivity extends AppCompatActivity {
         doneButton.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Fetches the list of tags from FirestoreRepository and updates the adapter.
+     */
     private void fetchTags() {
         firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
             @Override
@@ -74,6 +91,11 @@ public class ManageTagsActivity extends AppCompatActivity {
                 tagsAdapter.notifyDataSetChanged();
             }
 
+            /**
+             * Called when an error occurs while fetching tags.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onError(Exception e) {
                 Toast.makeText(ManageTagsActivity.this, "Error fetching tags", Toast.LENGTH_SHORT).show();

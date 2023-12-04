@@ -4,43 +4,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#AED5B1"
+    android:background="@color/Outer_Space"
     android:padding="24dp">
-
-
-    <!-- Header with "Item Detail" and Back Button -->
-
-
-    <!-- Name Field -->
-
-
-    <!-- Description Field -->
 
 
     <TextView
         android:id="@+id/header_title"
-        android:layout_width="match_parent"
-        android:layout_height="43dp"
+        android:layout_width="307dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
-        android:text="Item Details"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:textSize="20sp"
+        android:text="Item Details"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.988"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
     <ImageButton
         android:id="@+id/back_button"
-        android:layout_width="41dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="4dp"
+        android:layout_width="47dp"
+        android:layout_height="47dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/rounded_edittext"
         android:src="@drawable/ic_home_black_24dp"
         app:layout_constraintBottom_toBottomOf="@+id/header_title"
-        app:layout_constraintStart_toStartOf="@+id/header_title"
+        app:layout_constraintEnd_toStartOf="@+id/header_title"
+        app:layout_constraintHorizontal_bias="0.06"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/header_title"
         app:layout_constraintVertical_bias="0.0" />
-
 
     <TextView
         android:id="@+id/name_view_text"
@@ -50,6 +48,9 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
         android:inputType="text"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="10dp"
         android:paddingTop="12dp"
         android:paddingEnd="16dp"
@@ -69,6 +70,9 @@
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
         android:paddingStart="10dp"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingTop="5dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
@@ -87,8 +91,11 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="5dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Date (yyyy-mm-dd)"
+        android:hint="Date"
         android:inputType="date"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="10dp"
         android:paddingTop="12dp"
         android:paddingEnd="10dp"
@@ -107,6 +114,9 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Model"
         android:inputType="text"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="10dp"
         android:paddingTop="12dp"
         android:paddingEnd="16dp"
@@ -124,6 +134,9 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Make"
         android:inputType="text"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="10dp"
         android:paddingTop="12dp"
         android:paddingEnd="10dp"
@@ -143,6 +156,9 @@
         android:hint="Value (Optional)"
         android:inputType="numberDecimal"
         android:paddingStart="10dp"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingTop="12dp"
         android:paddingEnd="10dp"
         android:textSize="16sp"
@@ -157,11 +173,15 @@
         android:layout_width="0dp"
         android:layout_height="110dp"
         android:layout_marginTop="12dp"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:background="@drawable/rounded_edittext"
         android:hint="Comment (Optional)"
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
         android:paddingStart="10dp"
+
         android:paddingEnd="16dp"
         android:paddingTop="5dp"
         android:textSize="16sp"
@@ -180,6 +200,9 @@
         android:hint="Serial (Optional)"
         android:inputType="number"
         android:paddingStart="10dp"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingTop="12dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
@@ -199,6 +222,8 @@
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:text="View Photo"
+        android:textColor="@color/Ash_Gray"
+        android:background="@drawable/rounded_edittext"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -208,6 +233,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:text="Edit Item"
+        android:textColor="@color/Ash_Gray"
+        android:background="@drawable/rounded_edittext"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -239,27 +266,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/add_tags_button_view"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="16dp"
-        android:text="Add Tags"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/view_photo_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tags_linear_layout" />
-    <!--
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
--->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

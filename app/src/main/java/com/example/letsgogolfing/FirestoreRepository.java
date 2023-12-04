@@ -1,5 +1,9 @@
 package com.example.letsgogolfing;
+import android.util.Log;
+
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -9,7 +13,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// so far this only handles fetching tags and adding new items - vedant
+
+/**
+ * Repository class for interacting with the Firestore database.
+ * <p>
+ * This class provides methods for performing CRUD operations on the Firestore database.
+ * It also provides callback interfaces for handling the results of these operations.
+ * </p>
+ */
 public class FirestoreRepository {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -53,6 +64,16 @@ public class FirestoreRepository {
         });
     }
 
+    /**
+     * Fetches a single item from the Firestore database.
+     * This method retrieves a single item from Firestore using the provided item ID.
+     * The document is converted into an {@link Item} object and passed to the {@link OnItemFetchedListener} upon successful retrieval.
+     * In case of a failure during the fetch operation, the listener is notified with the exception.
+     *
+     * @param itemId The ID ({@link String}) of the item to be fetched.
+     * @param listener The {@link OnItemFetchedListener} callback for handling the results of the fetch operation.
+     *                 It receives an {@link Item} object on successful data retrieval or an exception on failure.
+     */
     public void fetchItemById(String itemId, OnItemFetchedListener listener) {
         db.collection("users").document(currentUserId).collection("items").document(itemId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -91,6 +112,9 @@ public class FirestoreRepository {
                 .addOnFailureListener(listener::onError);
     }
 
+    /**
+     * Callback interface for tag addition results.
+     */
     public interface OnTagAddedListener {
         void onTagAdded();
         void onError(Exception e);
@@ -171,6 +195,12 @@ public class FirestoreRepository {
         });
     }
 
+    /**
+     * Checks if a user exists in Firestore and notifies it through a callback.
+     *
+     * @param username The username of the user to be checked.
+     * @param listener The callback listener for user existence checking results.
+     */
     public void checkUserExists(String username, OnUserExistenceCheckedListener listener) {
         db.collection("users").document(username).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -183,6 +213,12 @@ public class FirestoreRepository {
                 .addOnFailureListener(listener::onError);
     }
 
+    /**
+     * Adds a new user to Firestore and notifies it through a callback.
+     *
+     * @param username The username of the user to be added.
+     * @param listener The callback listener for user addition results.
+     */
     public void addUser(String username, OnUserAddedListener listener) {
         Map<String, Object> user = new HashMap<>();
         user.put("username", username);
@@ -192,13 +228,20 @@ public class FirestoreRepository {
                 .addOnFailureListener(listener::onError);
     }
 
-    // Callback interfaces
+
+
+    /**
+     * Callback interface for tag addition results.
+     */
     public interface OnUserExistenceCheckedListener {
         void onUserExists();
         void onUserDoesNotExist();
         void onError(Exception e);
     }
 
+    /**
+     * Callback interface for user addition results.
+     */
     public interface OnUserAddedListener {
         void onUserAdded(String userId);
         void onError(Exception e);
@@ -229,16 +272,58 @@ public class FirestoreRepository {
         void onError(Exception e);
     }
 
+    /**
+     * Callback interface for item deletion results.
+     */
     public interface OnItemDeletedListener {
         void OnItemsDeleted();
         void onError(Exception e);
     }
 
+    /**
+     * Callback interface for item update results.
+     */
     public interface OnItemUpdatedListener {
         void onItemUpdated();
         void onError(Exception e);
     }
 
+    /**
+     * Adds an image URI to an item in Firestore.
+     * This method adds the provided image URI to the imageUris array of the item with the specified item ID.
+     * Upon successful addition, the provided {@link OnImageUriAddedListener} callback is notified.
+     * In case of failure, the callback is notified with the exception.
+     *
+     * @param itemId The ID ({@link String}) of the item to which the image URI is to be added.
+     * @param imageUri The image URI ({@link String}) to be added to the item.
+     * @param listener The {@link OnImageUriAddedListener} callback for handling the result of the addition operation.
+     */
+    public void deleteImageUriFromItem(String itemId, String imageUri, OnImageUriDeletedListener listener) {
+        if (itemId == null || imageUri == null) {
+            Log.e("FirestoreRepository", "Item ID or Image URI is null");
+            listener.onError(new Exception("Item ID or Image URI is null"));
+            return;
+        }
+
+        Log.d("FirestoreRepository", "Deleting image URI " + imageUri + " from item " + itemId);
+
+        // Log the currentUserId and itemId for debugging
+        Log.d("FirestoreRepository", "currentUserId: " + currentUserId);
+        Log.d("FirestoreRepository", "itemId: " + itemId);
+
+        DocumentReference itemRef = db.collection("users").document(currentUserId).collection("items").document(itemId);
+        Log.d("FirestoreRepository", "Deleting URI from: " + itemRef.getPath());
+
+        itemRef.update("imageUris", FieldValue.arrayRemove(imageUri))
+                .addOnSuccessListener(aVoid -> listener.onImageUriDeleted())
+                .addOnFailureListener(listener::onError);
+    }
+
+
+    public interface OnImageUriDeletedListener {
+        void onImageUriDeleted();
+        void onError(Exception e);
+    }
     /**
      * Converts an {@link Item} object to a {@link Map} for Firestore storage.
      * <p>
