@@ -18,6 +18,7 @@
         android:gravity="center"
         android:hint="Search Inventory"
         android:textSize="21dp"
+        android:textColor="@color/Ash_Gray"
         android:fontFamily="sans-serif-medium"
         android:textColorHint="@color/Ash_Gray"
         app:layout_constraintEnd_toEndOf="parent"
@@ -55,8 +56,8 @@
 
     <GridView
         android:id="@+id/itemGrid"
-        android:layout_width="408dp"
-        android:layout_height="530dp"
+        android:layout_width="match_parent"
+        android:layout_height="603dp"
         android:layout_marginTop="30dp"
         android:columnWidth="90dp"
         android:horizontalSpacing="10dp"
@@ -67,65 +68,64 @@
         app:layout_constraintHorizontal_bias="0.333"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchEditText"
-        app:layout_constraintVertical_bias="0.193"
         tools:listitem="@layout/grid_item" />
+
 
     <TextView
         android:id="@+id/totalValue"
         android:layout_width="135dp"
         android:layout_height="60dp"
-        android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_edittext"
         android:elevation="4dp"
         android:fontFamily="sans-serif-medium"
-        android:textColor="@color/Ash_Gray"
         android:gravity="center"
-        android:textSize="18dp"
         android:text="Total value: $69.42"
+        android:textColor="@color/Ash_Gray"
+        android:textSize="18dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.057"
         app:layout_constraintStart_toStartOf="parent" />
-
 
     <ImageView
         android:id="@+id/scan_item_button"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="@drawable/rounded_button_selector"
+        android:background="@drawable/rounded_edittext"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/addItemButton"
         app:layout_constraintHorizontal_bias="0.97"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/itemGrid"
-        app:layout_constraintVertical_bias="0.558" />
+        app:layout_constraintTop_toBottomOf="@+id/itemGrid" />
 
     <ImageView
         android:id="@+id/addItemButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/rounded_button_selector"
+        android:background="@drawable/rounded_edittext"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/itemGrid"
-        app:layout_constraintVertical_bias="0.558" />
+        app:layout_constraintTop_toBottomOf="@+id/itemGrid" />
 
     <ImageButton
         android:id="@+id/delete_button"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="20dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="12dp"
         android:background="@drawable/garbage_icon"
         android:text="Delete"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.536"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/itemGrid"
+        app:layout_constraintVertical_bias="0.65" />
 
     <Button
         android:id="@+id/manage_tags_button"

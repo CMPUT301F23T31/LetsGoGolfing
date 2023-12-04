@@ -28,6 +28,9 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:inputType="text"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -43,7 +46,10 @@
         android:layout_height="110dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Description"
+        android:hint="Description (Max 100 Characters)"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
         android:paddingStart="12dp"
@@ -63,7 +69,10 @@
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
-        android:hint="Date (yyyy-mm-dd)"
+        android:hint="Date Added"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
@@ -80,6 +89,9 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Model"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:inputType="text"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -97,6 +109,9 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Make"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:inputType="text"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -114,6 +129,9 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Value (Optional)"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:inputType="numberDecimal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -130,12 +148,17 @@
         android:layout_height="110dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
-        android:gravity=""
+
         android:hint="Comment (Optional)"
-        android:inputType="text"
         android:paddingTop="12dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="12dp"
         android:paddingEnd="16dp"
+        android:gravity="top"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -151,6 +174,9 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Serial (Optional)"
         android:inputType="number"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
@@ -164,29 +190,44 @@
     <!-- Tags Field -->
 
     <!-- Add Photo Button -->
+
+    <!-- Confirm Button -->
+
     <Button
         android:id="@+id/add_photo_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="88dp"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
         android:text="Add Photo"
+        android:textColor="@color/Ash_Gray"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.996"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_tags_button_view"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <!-- Confirm Button -->
+        app:layout_constraintTop_toBottomOf="@+id/serial_edit_text"
+        app:layout_constraintVertical_bias="0.766" />
 
     <Button
 
         android:id="@+id/cancel_edit_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
         android:text="Cancel"
+        android:textColor="@color/Ash_Gray"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/save_button"
-        app:layout_constraintStart_toEndOf="@+id/add_photo_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tags_linear_layout"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.763" />
 
     <LinearLayout
         android:id="@+id/tags_linear_layout"
@@ -203,27 +244,40 @@
     <!-- Cancel Button -->
 
     <!-- Save Button -->
+
     <Button
         android:id="@+id/save_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
         android:text="Confirm"
+        android:textColor="@color/Ash_Gray"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.993"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_tags_button_view"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.467" />
 
     <Button
         android:id="@+id/add_tags_button_view"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
         android:text="Add Tags"
+        android:textColor="@color/Ash_Gray"
         app:layout_constraintBottom_toTopOf="@+id/cancel_edit_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tags_linear_layout"
-        app:layout_constraintVertical_bias="0.71" />
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
