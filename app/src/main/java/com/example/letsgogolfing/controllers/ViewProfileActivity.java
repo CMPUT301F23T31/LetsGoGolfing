@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,8 +11,11 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.controllers.LoginActivity;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
+import com.example.letsgogolfing.views.ItemAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

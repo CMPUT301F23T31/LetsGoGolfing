@@ -1,11 +1,9 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.views;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
-import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +11,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Filter;
 import android.widget.TextView;
-import com.example.letsgogolfing.FilterDialogFragment.FilterType;
-import java.util.Date;
+import com.example.letsgogolfing.controllers.dialogs.FilterDialogFragment.FilterType;
 import com.bumptech.glide.Glide;
+import com.example.letsgogolfing.utils.ItemFilter;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.models.Item;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,13 +33,11 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     private List<Item> originalItems;
     private List<Item> filteredItems;
     private LayoutInflater inflater;
-
-    private ItemFilter itemFilter;
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
 
-    long startDate;
-    long endDate;
+    public long startDate;
+    public long endDate;
     public Set<Integer> getSelectedPositions() {
         return new HashSet<>(selectedItems);
     }

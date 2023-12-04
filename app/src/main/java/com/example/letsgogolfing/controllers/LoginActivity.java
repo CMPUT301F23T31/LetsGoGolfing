@@ -1,16 +1,18 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.letsgogolfing.MainActivity;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.models.FirestoreRepository;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 
 /**

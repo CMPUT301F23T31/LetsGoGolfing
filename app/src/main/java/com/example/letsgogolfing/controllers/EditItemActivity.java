@@ -1,22 +1,18 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,14 +24,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.letsgogolfing.utils.TagDialogHelper;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.controllers.dialogs.TagDialogHelper;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -99,7 +95,8 @@ public class EditItemActivity extends AppCompatActivity {
             finish();
         });
 
-        addTagsButton.setOnClickListener(v -> {TagDialogHelper.showTagSelectionDialog(
+        addTagsButton.setOnClickListener(v -> {
+            TagDialogHelper.showTagSelectionDialog(
                 EditItemActivity.this, tagList, selectedTags, new TagDialogHelper.OnTagsSelectedListener() {
                 @Override
                 public void onTagsSelected(List<String> newSelectedTags) {

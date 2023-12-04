@@ -21,8 +21,8 @@
         android:theme="@style/Theme.LetsGoGolfing"
         tools:targetApi="31">
         <!-- this is now the new launcher activity, login page will appear first - VT -->
-        <activity android:name=".ManageTagsActivity"/>
-        <activity android:name=".LoginActivity"
+        <activity android:name=".controllers.ManageTagsActivity"/>
+        <activity android:name=".controllers.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,15 +30,15 @@
             </intent-filter>
         </activity>
         <!-- add all our other activities below - VT -->
-        <activity android:name=".ViewDetailsActivity" />
-        <activity android:name=".ViewProfileActivity" />
-        <activity android:name=".AddItemActivity"
+        <activity android:name=".controllers.ViewDetailsActivity" />
+        <activity android:name=".controllers.ViewProfileActivity" />
+        <activity android:name=".controllers.AddItemActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".ViewPhotoActivity"></activity>
+        <activity android:name=".controllers.ViewPhotoActivity"></activity>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.letsgogolfing.provider"
@@ -48,7 +48,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <activity android:name=".EditItemActivity"
+        <activity android:name=".controllers.EditItemActivity"
             android:windowSoftInputMode="adjustPan" />
 
     </application>

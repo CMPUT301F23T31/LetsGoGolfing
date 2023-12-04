@@ -1,6 +1,7 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.models;
 import android.util.Log;
 
+import com.example.letsgogolfing.models.Item;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;

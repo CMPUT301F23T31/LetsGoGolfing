@@ -9,15 +9,15 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
-import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.example.letsgogolfing.MainActivity;
+import com.example.letsgogolfing.controllers.AddItemActivity;
+import com.example.letsgogolfing.controllers.LoginActivity;
+import com.example.letsgogolfing.controllers.ManageTagsActivity;
+import com.example.letsgogolfing.controllers.ViewProfileActivity;
 
 import org.junit.After;
 import org.junit.Before;
