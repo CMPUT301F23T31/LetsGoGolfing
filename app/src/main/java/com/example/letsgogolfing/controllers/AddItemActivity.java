@@ -494,6 +494,7 @@ public class AddItemActivity extends AppCompatActivity {
         newItem.setMake(((EditText) findViewById(R.id.makeField)).getText().toString());
         newItem.setModel(((EditText) findViewById(R.id.modelField)).getText().toString());
         newItem.setComment(((EditText) findViewById(R.id.commentField)).getText().toString());
+        newItem.setSerialNumber(((EditText) findViewById(R.id.serialField)).getText().toString());
 
         String currentUsername = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);
         newItem.setUsername(currentUsername); // Set the username before saving
