@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.letsgogolfing.utils.TagDialogHelper;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -163,7 +164,40 @@ public class AddItemActivity extends AppCompatActivity {
 
         // add tags button listener
         Button tagButton = findViewById(R.id.add_tags_button);
-        tagButton.setOnClickListener(v -> showTagSelectionDialog());
+        tagButton.setOnClickListener(v -> {
+            TagDialogHelper.showTagSelectionDialog(
+                    AddItemActivity.this,
+                    tagList, // This is your existing list of all tags
+                    selectedTags, // This is your existing list of currently selected tags
+                    new TagDialogHelper.OnTagsSelectedListener() {
+                        @Override
+                        public void onTagsSelected(List<String> newSelectedTags) {
+                            // Update the UI with the selected tags
+                            updateTagsUI(newSelectedTags);
+                            // Optionally, store the selected tags as needed
+                            selectedTags = newSelectedTags;
+                        }
+
+                        @Override
+                        public void onNewTagAdded(String newTag) {
+                            // Handle the addition of the new tag, e.g., update Firestore and tagList
+                            firestoreRepository.addTag(newTag, new FirestoreRepository.OnTagAddedListener() {
+                                @Override
+                                public void onTagAdded() {
+                                    tagList.add(newTag); // Add the new tag to the local list
+                                    // Optionally, refresh the tag selection dialog to include the new tag
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    // Handle error in adding tag
+                                }
+                            });
+                        }
+                    }
+            );
+        });
+
 
         // Fetch tags using FirestoreRepository
         firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
@@ -184,6 +218,25 @@ public class AddItemActivity extends AppCompatActivity {
         Button add_photo_button = findViewById(R.id.addPhotoBtn);
         add_photo_button.setOnClickListener(v -> showImageSourceDialog());
     }
+
+    private void updateTagsUI(List<String> selectedTags) {
+        LinearLayout tagsContainer = findViewById(R.id.tagsContainer);
+
+        if (tagsContainer != null) {
+            tagsContainer.removeAllViews(); // Clear all views/tags before adding new ones
+
+            for (String tag : selectedTags) {
+                TextView tagView = new TextView(this);
+                tagView.setText(tag);
+                tagView.setBackgroundResource(R.drawable.tag_background); // Ensure this drawable resource exists
+                // Set other properties and layout parameters for tagView as required
+                tagsContainer.addView(tagView); // Add the TextView to the container
+            }
+        } else {
+            Log.e(TAG, "tagsContainer is null");
+        }
+    }
+
 
     /**
      * Displays a dialog for selecting an image source.

@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.letsgogolfing.utils.TagDialogHelper;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -98,7 +99,34 @@ public class EditItemActivity extends AppCompatActivity {
             finish();
         });
 
-        addTagsButton.setOnClickListener(v -> showTagSelectionDialog());
+        addTagsButton.setOnClickListener(v -> {TagDialogHelper.showTagSelectionDialog(
+                EditItemActivity.this, tagList, selectedTags, new TagDialogHelper.OnTagsSelectedListener() {
+                @Override
+                public void onTagsSelected(List<String> newSelectedTags) {
+                    // Update the UI with the selected tags
+                    displayTags(newSelectedTags);
+                    // Update selectedTags list
+                    selectedTags = newSelectedTags;
+                }
+                @Override
+                public void onNewTagAdded(String newTag) {
+                    // Handle the addition of the new tag
+                    // Update Firestore and tagList
+                    db.addTag(newTag, new FirestoreRepository.OnTagAddedListener() {
+                        @Override
+                        public void onTagAdded() {
+                            tagList.add(newTag);
+                            // Optionally, refresh the dialog or handle UI updates
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            // Handle error in adding tag
+                        }
+                    });
+                }
+            }
+        );
+        });
 
         addPhotoButton.setOnClickListener(v -> showImageSourceDialog());
 
@@ -342,10 +370,10 @@ public class EditItemActivity extends AppCompatActivity {
      * Displays the tags associated with the item in the user interface.
      * Dynamically creates TextViews for each tag and adds them to the tags container layout.
      */
-    private void displayTags() {
+    private void displayTags(List<String> tags) {
         tagsContainerView.removeAllViews(); // Clear all views/tags before adding new ones
 
-        for (String tag : selectedTags) {
+        for (String tag : tags) {
             TextView tagView = new TextView(this);
             tagView.setText(tag);
             tagView.setBackgroundResource(R.drawable.tag_background); // Make sure this drawable exists
@@ -376,7 +404,7 @@ public class EditItemActivity extends AppCompatActivity {
                 tagList.clear();
                 tagList.addAll(tags);
                 selectedTags = new ArrayList<>(item.getTags()); // Use the tags from the item
-                displayTags();
+                displayTags(selectedTags);
             }
 
             @Override
@@ -387,37 +415,6 @@ public class EditItemActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Updates the item object with the new values from the EditText fields.
-     * Converts and validates user input before updating the item object.
-     */
-    private void showTagSelectionDialog() {
-        // Convert List to array for AlertDialog
-        String[] tagsArray = tagList.toArray(new String[0]);
-        boolean[] checkedTags = new boolean[tagList.size()];
-        for (int i = 0; i < tagList.size(); i++) {
-            checkedTags[i] = selectedTags.contains(tagList.get(i));
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMultiChoiceItems(tagsArray, checkedTags, (dialog, which, isChecked) -> {
-            // Add or remove the tag from the selected tags list based on whether the checkbox is checked
-            String selectedTag = tagList.get(which);
-            if (isChecked) {
-                selectedTags.add(selectedTag);
-            } else {
-                selectedTags.remove(selectedTag);
-            }
-        });
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            displayTags(); // Update the display with the selected tags
-            item.setTags(new ArrayList<>(selectedTags));
-        });
-        builder.setNegativeButton("Cancel", null);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
     /**
      * Updates the item object with the new values from the EditText fields.
