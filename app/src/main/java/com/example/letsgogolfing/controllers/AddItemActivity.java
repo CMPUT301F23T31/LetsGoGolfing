@@ -62,7 +62,7 @@ public class AddItemActivity extends AppCompatActivity {
     private AlertDialog loadingDialog;
     private ArrayList<String> tempUris = new ArrayList<>();
     private FirestoreRepository firestoreRepository;
-    private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
+    private List<String> tagList = new ArrayList<>();
     private List<String> selectedTags = new ArrayList<>();
     private Uri imageUri;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
@@ -546,20 +546,6 @@ public class AddItemActivity extends AppCompatActivity {
                 Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    /**
-     * Updates the tagList with the provided list of tags.
-     * <p>
-     * This method updates the tagList with the provided list of tags. This method is typically
-     * called from the {@link ManageTagsActivity} when the user adds or removes tags.
-     *
-     * @param newTags A List of Strings representing the updated list of tags.
-     */
-    public void updateTagList(List<String> newTags) {
-        tagList.clear();
-        tagList.addAll(newTags);
-        // If needed, update the UI or other elements that depend on the tagList
     }
 
     private void uploadImage(Uri imageUri) {

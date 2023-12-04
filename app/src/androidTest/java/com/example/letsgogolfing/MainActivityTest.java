@@ -16,7 +16,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.letsgogolfing.controllers.AddItemActivity;
 import com.example.letsgogolfing.controllers.LoginActivity;
-import com.example.letsgogolfing.controllers.ManageTagsActivity;
 import com.example.letsgogolfing.controllers.ViewProfileActivity;
 
 import org.junit.After;
@@ -119,9 +118,6 @@ public class MainActivityTest {
 
         // Click the manage tags button
         onView(withId(R.id.manage_tags_button)).perform(click());
-
-        // Add assertions or intended actions to validate the manage tags functionality
-        intended(hasComponent(ManageTagsActivity.class.getName()));
 
     }
 
