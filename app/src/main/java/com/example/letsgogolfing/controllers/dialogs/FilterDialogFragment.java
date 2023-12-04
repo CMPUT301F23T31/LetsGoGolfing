@@ -26,20 +26,19 @@ import java.util.Date;
 public class FilterDialogFragment extends DialogFragment {
     private static FilterType lastSelectedFilterType = null;
     private FilterType selectedFilterType;
-    private String selectedDate;
 
     /**
      * Interface for the callback to be invoked when a filter is selected.
      */
     public interface FilterDialogListener {
-        void onFilterSelected(FilterType filterType, String selectedDate);
+        void onFilterSelected(FilterType filterType);
     }
 
     /**
      * Enum representing the different types of filters that can be applied.
      */
     public enum FilterType {
-        BY_DESCRIPTOR, BY_TAGS, BY_MAKE, BY_DATE, CLEAR
+        BY_DESCRIPTOR, BY_TAGS, BY_MAKE, BY_DATE, BY_NAME, CLEAR
     }
 
     private FilterDialogListener listener;
@@ -57,10 +56,8 @@ public class FilterDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.filter_dialog, null);
 
         RadioGroup radioGroup = view.findViewById(R.id.radio_group);
-        final CalendarView calendarView = view.findViewById(R.id.calendarView);
 
-        calendarView.setVisibility(View.GONE);// Initially hide the calendar view
-
+        RadioButton radioButtonName = view.findViewById(R.id.radio_button_name);
         RadioButton radioButtonDescriptor = view.findViewById(R.id.radio_button_descriptor);
         RadioButton radioButtonTags = view.findViewById(R.id.radio_button_tags);
         RadioButton radioButtonMake = view.findViewById(R.id.radio_button_make);
@@ -75,14 +72,12 @@ public class FilterDialogFragment extends DialogFragment {
                 radioButtonMake.setChecked(true);
             } else if (lastSelectedFilterType == FilterType.BY_DATE) {
                 radioButtonDate.setChecked(true);
-                calendarView.setVisibility(View.VISIBLE); // Show calendar if date filter was last selected
+            } else if (lastSelectedFilterType == FilterType.BY_NAME) {
+                radioButtonName.setChecked(true);
             }
         }
 
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            // Reset calendar visibility at the beginning
-            calendarView.setVisibility(View.GONE);
-
             if (checkedId == R.id.radio_button_descriptor) {
                 selectedFilterType = FilterType.BY_DESCRIPTOR;
             } else if (checkedId == R.id.radio_button_tags) {
@@ -91,7 +86,8 @@ public class FilterDialogFragment extends DialogFragment {
                 selectedFilterType = FilterType.BY_MAKE;
             } else if (checkedId == R.id.radio_button_date) {
                 selectedFilterType = FilterType.BY_DATE;
-                calendarView.setVisibility(View.VISIBLE); // Show calendar for date filter
+            } else if (checkedId == R.id.radio_button_name) {
+                selectedFilterType = FilterType.BY_NAME;
             } else {
                 selectedFilterType = null;
             }
@@ -99,30 +95,18 @@ public class FilterDialogFragment extends DialogFragment {
             lastSelectedFilterType = selectedFilterType; // Update the last selected filter
         });
 
-        // Handle CalendarView date selection
-        calendarView.setOnDateChangeListener((view1, year, month, dayOfMonth) -> {
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(year, month, dayOfMonth);
-            selectedDate = dateFormat.format(new Date(calendar.getTimeInMillis()));
-        });
-
         builder.setView(view)
                 .setPositiveButton("Apply", (dialog, id) -> {
                     if (listener != null) {
-                        if (selectedFilterType == FilterType.BY_DATE && selectedDate != null) {
-                            // If the date filter type is selected and a date has been picked, call onDateFilterSelected
-                            listener.onFilterSelected(selectedFilterType, selectedDate);
-                        } else {
-                            // For other filter types, call the existing onFilterSelected
-                            listener.onFilterSelected(selectedFilterType, null);
-                        }
+                            listener.onFilterSelected(selectedFilterType);
+
                     }
                 })
                 .setNegativeButton("Cancel", (dialog, id) -> {
                     // User cancelled the dialog
                 })
                 .setNeutralButton("Clear Filter", (dialog, id) -> {
-                    listener.onFilterSelected(FilterType.CLEAR, null);
+                    listener.onFilterSelected(FilterType.CLEAR);
                 });
 
         return builder.create();

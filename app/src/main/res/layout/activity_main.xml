@@ -9,7 +9,7 @@
     <!-- Search bar -->
 
 
-    <EditText
+    <com.example.letsgogolfing.views.DatePickerEditText
         android:id="@+id/searchEditText"
         android:layout_width="249dp"
         android:layout_height="48dp"
@@ -57,8 +57,8 @@
 
     <GridView
         android:id="@+id/itemGrid"
-        android:layout_width="407dp"
-        android:layout_height="600dp"
+        android:layout_width="match_parent"
+        android:layout_height="554dp"
         android:layout_marginTop="30dp"
         android:columnWidth="90dp"
         android:horizontalSpacing="10dp"

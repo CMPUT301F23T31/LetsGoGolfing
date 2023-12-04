@@ -4,6 +4,7 @@ import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import android.widget.Filter;
 import android.widget.TextView;
 import com.example.letsgogolfing.controllers.dialogs.FilterDialogFragment.FilterType;
 import com.bumptech.glide.Glide;
+import com.example.letsgogolfing.utils.ItemComparator;
+
 import com.example.letsgogolfing.R;
 import com.example.letsgogolfing.models.Item;
 
@@ -28,7 +31,11 @@ import java.util.Collection;
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
-    public FilterType currentFilterType;
+    private FilterType currentFilterType = FilterType.BY_NAME;
+    private String currentSortOption = "name";
+    private boolean currentSortDirection = true;
+    private CharSequence currentFilterConstraint = "";
+
     private List<Item> originalItems;
     private List<Item> filteredItems;
     private LayoutInflater inflater;
@@ -67,20 +74,22 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 if (constraint == null || constraint.length() == 0) {
+                    currentFilterConstraint = constraint;
                     results.values = originalItems;
                     results.count = originalItems.size();
                 } else {
-                    String searchStr = constraint.toString().toLowerCase();
-                    List<Item> matchValues = new ArrayList<>();
+                    currentFilterConstraint = constraint;
+                    List<Item> filteredList = new ArrayList<>();
+                    String filterString = constraint.toString().toLowerCase();
 
                     for (Item item : originalItems) {
-                        if (item.matchesCriteria(searchStr, currentFilterType)) {
-                            matchValues.add(item);
+                        if (item.matchesCriteria(filterString, currentFilterType)) {
+                            filteredList.add(item);
                         }
                     }
 
-                    results.values = matchValues;
-                    results.count = matchValues.size();
+                    results.values = filteredList;
+                    results.count = filteredList.size();
                 }
                 return results;
             }
@@ -88,7 +97,12 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                filteredItems = (ArrayList<Item>) results.values;
+                try {
+                    filteredItems = new ArrayList<>((List<Item>) results.values);
+                } catch (Exception e) {
+                    Log.w("ItemAdapter", "Failed to apply results of filter to array", e);
+                }
+                sortItems();
                 notifyDataSetChanged();
             }
         };
@@ -110,7 +124,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         notifyDataSetChanged();
     }
 
-    public void setCurrentFilterType(FilterType filterType) {
+    public void setFilterType(FilterType filterType) {
         this.currentFilterType = filterType;
     }
 
@@ -263,6 +277,10 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     }
 
 
+    /**
+     * Clears all data from the adapter. This includes clearing both the original and filtered item lists.
+     * After clearing the data, it notifies any registered observers that the data set has changed.
+     */
     @Override
     public void clear() {
         originalItems.clear();
@@ -270,6 +288,13 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         super.notifyDataSetChanged();
     }
 
+    /**
+     * Adds all of the items in the specified collection to the adapter.
+     * This operation adds items to both the original and filtered item lists.
+     * After adding the items, it notifies any registered observers that the data set has changed.
+     *
+     * @param collection The collection of items to be added. If this is null, the operation is skipped.
+     */
     @Override
     public void addAll(Collection<? extends Item> collection) {
         if (collection != null) {
@@ -279,11 +304,50 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         super.notifyDataSetChanged();
     }
 
+    /**
+     * Clears the current filter applied to the adapter. This resets the filtered items list to the original items list.
+     * It also resets the current filter constraint and filter type to their default states.
+     * After clearing the filter, it applies the existing sorting criteria.
+     */
     public void clearFilter() {
-        filteredItems.clear();
-        filteredItems.addAll(originalItems);
+        filteredItems = new ArrayList<>(originalItems);
+        currentFilterConstraint = "";
+        currentFilterType = FilterType.BY_NAME;
+        sortItems();
+    }
+
+    /**
+     * Sorts the filtered items list using the current sorting criteria.
+     * The sorting is based on the current sort option and direction.
+     * After sorting the items, it notifies any registered observers that the data set has changed.
+     */
+    private void sortItems() {
+        ItemComparator comparator = new ItemComparator(currentSortOption, currentSortDirection);
+        filteredItems.sort(comparator);
         notifyDataSetChanged();
     }
 
+    /**
+     * Sets the sorting criteria for the adapter and applies the sort immediately.
+     * This updates the current sort option and direction, and then sorts the items using these criteria.
+     *
+     * @param sortOption     The sort option to use (e.g., 'name', 'date').
+     * @param sortDirection  The direction of the sort; true for ascending, false for descending.
+     */
+    public void setSortCriteria(String sortOption, boolean sortDirection) {
+        this.currentSortOption = sortOption;
+        this.currentSortDirection = sortDirection;
+        sortItems();
+    }
 
+    /**
+     * Reapplies the current filter and sorting criteria.
+     * This method first applies the current filter constraint and then applies the sorting.
+     * After reapplying the filter and sort, it notifies any registered observers that the data set has changed.
+     */
+    public void reapplyFilterAndSort() {
+        getFilter().filter(currentFilterConstraint);
+        sortItems();
+        notifyDataSetChanged();
+    }
 }
