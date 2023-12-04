@@ -4,81 +4,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#AED5B1">
+    android:background="#3a4d50">
 
     <!-- Search bar -->
 
 
     <EditText
         android:id="@+id/searchEditText"
-        android:layout_width="242dp"
-        android:layout_height="47dp"
+        android:layout_width="249dp"
+        android:layout_height="48dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
-        android:hint="Search"
+        android:hint="Search Inventory"
+        android:textSize="21dp"
+        android:fontFamily="sans-serif-medium"
+        android:textColorHint="@color/Ash_Gray"
         app:layout_constraintEnd_toEndOf="parent"
-
-        app:layout_constraintHorizontal_bias="0.378"
+        app:layout_constraintHorizontal_bias="0.358"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/filter_button"
-        android:layout_width="43dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/rounded_edittext"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_sort_by_size"
         app:layout_constraintBottom_toBottomOf="@id/searchEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/searchEditText"
-        app:layout_constraintTop_toTopOf="@+id/searchEditText" />
-
+        app:layout_constraintHorizontal_bias="0.985"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchEditText"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageButton
         android:id="@+id/sort_button"
-        android:layout_width="43dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/rounded_edittext"
         android:padding="4dp"
         android:src="@android:drawable/arrow_down_float"
         app:layout_constraintBottom_toBottomOf="@id/searchEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/searchEditText"
-        app:layout_constraintTop_toTopOf="@+id/searchEditText" />
+        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchEditText"
+        app:layout_constraintVertical_bias="0.0" />
 
     <GridView
         android:id="@+id/itemGrid"
-        android:layout_width="413dp"
-        android:layout_height="491dp"
+        android:layout_width="408dp"
+        android:layout_height="530dp"
         android:layout_marginTop="30dp"
         android:columnWidth="90dp"
         android:horizontalSpacing="10dp"
         android:numColumns="1"
         android:verticalSpacing="10dp"
-        app:layout_constraintBottom_toTopOf="@id/manage_tags_button"
+        app:layout_constraintBottom_toTopOf="@+id/totalValue"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.333"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchEditText"
+        app:layout_constraintVertical_bias="0.193"
         tools:listitem="@layout/grid_item" />
-
 
     <TextView
         android:id="@+id/totalValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="135dp"
+        android:layout_height="60dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/rounded_edittext"
         android:elevation="4dp"
-        android:padding="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/Ash_Gray"
+        android:gravity="center"
+        android:textSize="18dp"
         android:text="Total value: $69.42"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -86,91 +89,96 @@
 
     <ImageView
         android:id="@+id/scan_item_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="12dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:background="@drawable/rounded_button_selector"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_camera"
-        app:layout_constraintBottom_toBottomOf="@+id/totalValue"
-        app:layout_constraintEnd_toStartOf="@id/addItemButton"
-        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/addItemButton"
+        app:layout_constraintHorizontal_bias="0.97"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/itemGrid"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.558" />
 
     <ImageView
         android:id="@+id/addItemButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_button_selector"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/itemGrid"
-        app:layout_constraintVertical_bias="0.774" />
-
+        app:layout_constraintVertical_bias="0.558" />
 
     <ImageButton
         android:id="@+id/delete_button"
-        android:layout_width="48dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="60dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/garbage_icon"
         android:text="Delete"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/scan_item_button"
-        app:layout_constraintHorizontal_bias="0.594"
-        app:layout_constraintStart_toEndOf="@+id/totalValue" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.536"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/manage_tags_button"
+        android:layout_width="113dp"
+        android:layout_height="33dp"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="Add Tags"
+        android:textColor="#ccd2c6"
+        android:textSize="13sp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/itemGrid"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.025"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchEditText" />
 
     <Button
         android:id="@+id/select_text_cancel"
-        android:layout_width="85dp"
-        android:layout_height="28dp"
+        android:layout_width="113dp"
+        android:layout_height="33dp"
         android:background="@drawable/rounded_edittext"
-        android:fontFamily="sans-serif"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="6dp"
         android:text="Cancel"
-        android:textColor="#FFFFFF"
-        android:textSize="10sp"
-        android:visibility="invisible"
+        android:textColor="#ccd2c6"
+        android:textSize="13sp"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/itemGrid"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.975"
+        app:layout_constraintHorizontal_bias="0.984"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter_button"
-        app:layout_constraintVertical_bias="0.214" />
+        app:layout_constraintTop_toBottomOf="@+id/filter_button" />
 
     <ImageView
         android:id="@+id/profileButton"
         android:layout_width="48dp"
-        android:layout_height="42dp"
+        android:layout_height="48dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="4dp"
         android:background="@drawable/rounded_edittext"
         android:padding="8dp"
         android:src="@drawable/drawable_profile_icon"
         app:layout_constraintBottom_toBottomOf="@+id/searchEditText"
-        app:layout_constraintEnd_toStartOf="@+id/searchEditText"
+        app:layout_constraintEnd_toEndOf="@+id/filter_button"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/searchEditText" />
+        app:layout_constraintTop_toTopOf="@+id/searchEditText"
+        app:layout_constraintVertical_bias="1.0" />
 
 
-    <Button
-        android:id="@+id/manage_tags_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:text="Add Tags"
-        app:layout_constraintBottom_toTopOf="@+id/totalValue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/itemGrid" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

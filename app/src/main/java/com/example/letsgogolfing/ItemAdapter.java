@@ -177,9 +177,9 @@ public class ItemAdapter extends ArrayAdapter<Item>{
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
-            convertView.setBackgroundColor(Color.parseColor("#5E716A")); // color for selected items
+            convertView.setBackgroundColor(Color.parseColor("#2D4B41")); // color for selected items
         } else {
-            convertView.setBackgroundColor(Color.parseColor("#88CEB4")); // Original background color
+            convertView.setBackgroundColor(Color.parseColor("#5a786e")); // Original background color
         }
 
         return convertView;

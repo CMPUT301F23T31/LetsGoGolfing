@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#AED5B1"
+    android:background="@color/Outer_Space"
     android:padding="24dp">
 
     <TextView
@@ -13,6 +13,7 @@
         android:layout_height="43dp"
         android:background="@drawable/rounded_edittext"
         android:gravity="center"
+        android:textColor="@color/Ash_Gray"
         android:text="Edit Item"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"

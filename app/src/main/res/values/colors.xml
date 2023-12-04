@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="Ash_Gray">#ccd2c6</color>
+    <color name="Cambridge_Blue">#8ba88e</color>
+    <color name="Hookers_Green">#5a786e</color>
+    <color name="Outer_Space">#3a4d50</color>
+    <color name="Charcoal">#313e45</color>
 </resources>
