@@ -1,6 +1,8 @@
 package com.example.letsgogolfing;
 
 
+import static android.view.View.GONE;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     // itemsFetched used for UI test to check if items are fetched from FireStore;
     public static boolean itemsFetched;
     private TextView selectTextCancel; // Add this member variable for the TextView
+    private Button manageTagsButton;
     private static final String TAG = "MainActivity";
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
@@ -182,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
                     deleteButton.setVisibility(View.VISIBLE);
                     itemAdapter.toggleSelection(position);
                     selectTextCancel.setVisibility(View.VISIBLE);
+                    manageTagsButton.setVisibility(View.VISIBLE);
                 }
             } else {
                 // Document ID is null, handle this case
@@ -229,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             startActivity(intent);
         });
 
-        Button manageTagsButton = findViewById(R.id.manage_tags_button);
+        manageTagsButton = findViewById(R.id.manage_tags_button);
         manageTagsButton.setOnClickListener(v -> {
             if (isSelectMode) {
                 TagDialogHelper.showTagSelectionDialog(this, tagList, new ArrayList<>(), // Empty list for pre-selected tags
@@ -269,25 +273,26 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             }
         });
 
-
         ImageButton sortButton = findViewById(R.id.sort_button);
         sortButton.setOnClickListener(v -> {
                     sortDialog.show(getSupportFragmentManager(), "SortDialogFragment");
                 });
 
         selectTextCancel = findViewById(R.id.select_text_cancel);
-
-
         selectTextCancel.setOnClickListener(v -> {
                     clearSelection();
         });
-        deleteButton = findViewById(R.id.delete_button);
 
+
+        deleteButton = findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(v -> {
             deleteSelectedItems();
         });
 
-        deleteButton.setVisibility(View.GONE); // Hide delete button initially
+
+        manageTagsButton.setVisibility(GONE);
+        selectTextCancel.setVisibility(GONE);
+        deleteButton.setVisibility(GONE); // Hide delete button initially
 
         // Clicking the profile button
         ImageView profileButton = findViewById(R.id.profileButton);
@@ -575,8 +580,9 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private void clearSelection(){
         isSelectMode = !isSelectMode; // Toggle select mode
         itemAdapter.clearSelection(); // Inform the adapter
-        deleteButton.setVisibility(View.GONE);
-        selectTextCancel.setVisibility(View.GONE);
+        deleteButton.setVisibility(GONE);
+        selectTextCancel.setVisibility(GONE);
+        manageTagsButton.setVisibility(GONE);
     }
 
     /**
