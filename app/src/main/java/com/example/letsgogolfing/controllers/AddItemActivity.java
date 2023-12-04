@@ -74,6 +74,9 @@ public class AddItemActivity extends AppCompatActivity {
                     // Check if the result comes from the camera
                     if (imageUri != null) {
                         // The image is saved at imageUri
+                        totalUploadCount = 1;
+                        uploadCounter = 0; // Reset counter
+                        showLoadingDialog();
                         uploadImage(imageUri);
                     } else if (result.getData() != null && result.getData().getClipData() != null) {
                         // Multiple images selected from the gallery
