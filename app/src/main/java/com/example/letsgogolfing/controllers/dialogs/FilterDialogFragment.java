@@ -72,6 +72,8 @@ public class FilterDialogFragment extends DialogFragment {
                 radioButtonMake.setChecked(true);
             } else if (lastSelectedFilterType == FilterType.BY_DATE) {
                 radioButtonDate.setChecked(true);
+            } else if (lastSelectedFilterType == FilterType.BY_NAME) {
+                radioButtonName.setChecked(true);
             }
         }
 
@@ -84,6 +86,8 @@ public class FilterDialogFragment extends DialogFragment {
                 selectedFilterType = FilterType.BY_MAKE;
             } else if (checkedId == R.id.radio_button_date) {
                 selectedFilterType = FilterType.BY_DATE;
+            } else if (checkedId == R.id.radio_button_name) {
+                selectedFilterType = FilterType.BY_NAME;
             } else {
                 selectedFilterType = null;
             }
