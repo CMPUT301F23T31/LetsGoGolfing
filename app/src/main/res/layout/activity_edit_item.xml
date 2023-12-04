@@ -198,7 +198,7 @@
         android:id="@+id/add_photo_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="44dp"
         android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
@@ -206,7 +206,7 @@
         android:text="Add Photo"
         android:textColor="@color/Ash_Gray"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.993"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/serial_edit_text" />
 
@@ -263,7 +263,7 @@
         android:id="@+id/add_tags_button_view"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="44dp"
         android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
