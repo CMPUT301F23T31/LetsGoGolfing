@@ -21,7 +21,6 @@
         android:theme="@style/Theme.LetsGoGolfing"
         tools:targetApi="31">
         <!-- this is now the new launcher activity, login page will appear first - VT -->
-        <activity android:name=".controllers.ManageTagsActivity"/>
         <activity android:name=".controllers.LoginActivity"
             android:exported="true">
             <intent-filter>

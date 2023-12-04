@@ -82,6 +82,7 @@
         android:paddingTop="5dp"
         android:paddingEnd="5dp"
         android:text=" Description (200 Word Max)"
+        android:maxLength="93"
         android:textColor="@color/Charcoal"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
