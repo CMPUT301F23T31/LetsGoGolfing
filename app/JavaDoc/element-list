@@ -1,2 +1,6 @@
 com.example.letsgogolfing
+com.example.letsgogolfing.controllers
+com.example.letsgogolfing.controllers.dialogs
+com.example.letsgogolfing.models
 com.example.letsgogolfing.utils
+com.example.letsgogolfing.views

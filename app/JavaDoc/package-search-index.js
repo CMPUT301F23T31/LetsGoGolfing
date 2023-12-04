@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.letsgogolfing"},{"l":"com.example.letsgogolfing.utils"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.letsgogolfing"},{"l":"com.example.letsgogolfing.controllers"},{"l":"com.example.letsgogolfing.controllers.dialogs"},{"l":"com.example.letsgogolfing.models"},{"l":"com.example.letsgogolfing.utils"},{"l":"com.example.letsgogolfing.views"}];updateSearchResults();
