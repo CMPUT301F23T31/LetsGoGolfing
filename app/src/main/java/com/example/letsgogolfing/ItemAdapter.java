@@ -90,7 +90,6 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     @Override
     public Filter getFilter() {
         return new Filter() {
-
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
@@ -121,11 +120,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             }
         };
     }
-    public void setDateFilterRange(long startDate, long endDate) {
-        this.startDate = startDate;
-        this.endDate = endDate;
-        Log.d("Filter", "Date range set: Start = " + new Date(startDate) + ", End = " + new Date(endDate));
-    }
+
     // generate javadocs for toggleSelection
     /**
      * Toggles the selection of the item at the given position.
@@ -265,11 +260,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         }
     }
 
-    /**
-     * Add item.
-     *
-     * @param item The item to add.
-     */
+
     public ArrayList<Item> getSelectedItems(){
         ArrayList<Item> itemList = new ArrayList<>();
         for(Integer i : selectedItems)
@@ -278,11 +269,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     }
 
 
-    /**
-     * Add item.
-     *
-     * @param item The item to add.
-     */
+
     private static class ViewHolder {
         TextView nameTextView;
         TextView descriptionTextView;
@@ -292,16 +279,6 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         TextView dateTextView;
     }
 
-
-    /**
-     * Filter for the ItemAdapter.
-     */
-    public Filter getFilter() {
-        if (itemFilter == null) {
-            itemFilter = new ItemFilter(this, items);
-        }
-        return itemFilter;
-    }
 
     @Override
     public void clear() {
