@@ -10,6 +10,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import androidx.fragment.app.DialogFragment;
+import java.util.Calendar;
+
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -76,19 +78,18 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
     private GridView itemGrid;
     private ItemAdapter itemAdapter; // You need to create this Adapter class.
 
-    private FilterDialogFragment.FilterType selectedFilterType = FilterDialogFragment.FilterType.BY_DESCRIPTOR;
+    private FilterDialogFragment.FilterType selectedFilterType;
     private boolean isSelectMode = false;
     private ImageButton deleteButton;
     private ItemComparator comparator;
     private ImageView scanItemButton;
-    private ArrayList<String>tagList;
+    private ArrayList<String> tagList;
 
     private FirestoreRepository firestoreRepository;
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private ImageButton filterButton;
-
-    private FilterDialogFragment.FilterType filterType;
+    private String lastFilterCriteria;
     private DialogFragment sortDialog = new SortDialogFragment();
 
 
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             @Override
             public void afterTextChanged(Editable s) {
                 // As the user types or clears text in the EditText
-                itemAdapter.getFilter().filter(s.toString());
+                applyFilter(s.toString());
             }
         });
 
@@ -329,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         });
 
         ImageView filterButton = findViewById(R.id.filter_button);
-        filterButton.setOnClickListener(v -> showDialog());
+        filterButton.setOnClickListener(v -> showFilterDialog());
 
     }
 
@@ -345,10 +346,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
 
 
+
     /**
      * Displays the filter dialog fragment.
      */
-    public void showDialog() {
+    public void showFilterDialog() {
         FilterDialogFragment dialogFragment = new FilterDialogFragment();
         dialogFragment.setFilterDialogListener(this);
         dialogFragment.show(getSupportFragmentManager(), "FilterDialogFragment");
@@ -408,6 +410,12 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             public void onItemsFetched(List<Item> items) {
                 itemAdapter.updateItems(items);
                 sortArrayAdapter(comparator);
+
+                // Reapply the filter if there was a filter applied previously
+                if (lastFilterCriteria != null && !lastFilterCriteria.isEmpty()) {
+                    itemAdapter.getFilter().filter(lastFilterCriteria);
+                }
+
                 updateTotalValue(items);
                 itemsFetched = true;
             }
@@ -591,10 +599,33 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
      * @param filterType The selected filter type.
      */
     @Override
-    public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
-        this.selectedFilterType = filterType; // Save the selected filter type
+    public void onFilterSelected(FilterDialogFragment.FilterType filterType, String selectedDate) {
+        selectedFilterType = filterType; // Save the selected filter type
         // Apply the selected filter type
+        // Set the current filter type in the adapter
+        itemAdapter.setCurrentFilterType(filterType);
+
+        if (filterType == FilterDialogFragment.FilterType.CLEAR) {
+            itemAdapter.clearFilter();
+            selectedFilterType = null;
+            lastFilterCriteria = "";
+        } else if (filterType == FilterDialogFragment.FilterType.BY_DATE && selectedDate != null) {
+            applyFilter(selectedDate);
+        } else {
+            // Assuming you have a reference to your search EditText
+            EditText searchEditText = findViewById(R.id.searchEditText);
+            CharSequence currentSearchText = searchEditText.getText();
+
+            // Apply the filter with the current search text
+            applyFilter(currentSearchText.toString());
+        }
     }
+
+    public void applyFilter(String criteria) {
+        lastFilterCriteria = criteria;
+        itemAdapter.getFilter().filter(lastFilterCriteria);
+    }
+
 
 }
 

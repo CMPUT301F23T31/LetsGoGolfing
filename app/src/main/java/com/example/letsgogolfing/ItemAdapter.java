@@ -5,16 +5,16 @@ import static com.example.letsgogolfing.utils.Formatters.decimalFormat;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.Filter;
 import android.widget.TextView;
 import com.example.letsgogolfing.FilterDialogFragment.FilterType;
-
+import java.util.Date;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -29,14 +29,17 @@ import java.util.Collection;
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
-    FilterType currentFilterType = FilterType.BY_DESCRIPTOR;
-    private List<Item> items;
+    public FilterType currentFilterType;
+    private List<Item> originalItems;
+    private List<Item> filteredItems;
     private LayoutInflater inflater;
 
     private ItemFilter itemFilter;
     private boolean isSelectModeEnabled = false;
     private Set<Integer> selectedItems = new HashSet<>();
 
+    long startDate;
+    long endDate;
     public Set<Integer> getSelectedPositions() {
         return new HashSet<>(selectedItems);
     }
@@ -58,7 +61,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     public ItemAdapter(Context context, List<Item> items) {
         super(context, R.layout.grid_item, items);
         this.context = context;
-        this.items = items;
+        this.originalItems = new ArrayList<>(items);
+        this.filteredItems = new ArrayList<>(items);
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -79,6 +83,49 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return selectedItems.isEmpty();
     }
 
+    public void setFilterField(FilterType filterType) {
+        this.currentFilterType = filterType;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                if (constraint == null || constraint.length() == 0) {
+                    results.values = originalItems;
+                    results.count = originalItems.size();
+                } else {
+                    String searchStr = constraint.toString().toLowerCase();
+                    List<Item> matchValues = new ArrayList<>();
+
+                    for (Item item : originalItems) {
+                        if (item.matchesCriteria(searchStr, currentFilterType)) {
+                            matchValues.add(item);
+                        }
+                    }
+
+                    results.values = matchValues;
+                    results.count = matchValues.size();
+                }
+                return results;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredItems = (ArrayList<Item>) results.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+    public void setDateFilterRange(long startDate, long endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        Log.d("Filter", "Date range set: Start = " + new Date(startDate) + ", End = " + new Date(endDate));
+    }
     // generate javadocs for toggleSelection
     /**
      * Toggles the selection of the item at the given position.
@@ -109,7 +156,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      * @return The list of items.
      */
     public List<Item> getItems() {
-        return items;
+        return filteredItems;
     }
 
     /**
@@ -118,7 +165,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      */
     @Override
     public int getCount() {
-        return items.size();
+        return filteredItems.size();
     }
 
     /**
@@ -128,7 +175,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      */
     @Override
     public Item getItem(int position) {
-        return items.get(position);
+        return filteredItems.get(position);
     }
 
     /**
@@ -199,8 +246,10 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      * @param newItems The new list of items to update the adapter with.
      */
     public void updateItems(List<Item> newItems) {
-        this.items.clear();
-        this.items.addAll(newItems);
+        this.originalItems.clear();
+        this.filteredItems.clear();
+        this.originalItems.addAll(newItems);
+        this.filteredItems.addAll(newItems);
         notifyDataSetChanged();
     }
 
@@ -211,8 +260,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
      * @param position The position of the item to remove.
      */
     public void removeItem(int position) {
-        if (position >= 0 && position < items.size()) {
-            items.remove(position);
+        if (position >= 0 && position < filteredItems.size()) {
+            filteredItems.remove(position);
         }
     }
 
@@ -243,6 +292,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         TextView dateTextView;
     }
 
+
     /**
      * Filter for the ItemAdapter.
      */
@@ -253,21 +303,27 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         return itemFilter;
     }
 
-    /**
-     * Filter for the ItemAdapter.
-     */
     @Override
     public void clear() {
-        items.clear();
+        originalItems.clear();
+        filteredItems.clear();
         super.notifyDataSetChanged();
     }
 
-    /**
-     * Filter for the ItemAdapter.
-     */
     @Override
     public void addAll(Collection<? extends Item> collection) {
-        items.addAll(collection);
+        if (collection != null) {
+            originalItems.addAll(collection);
+            filteredItems.addAll(collection);
+        }
         super.notifyDataSetChanged();
     }
+
+    public void clearFilter() {
+        filteredItems.clear();
+        filteredItems.addAll(originalItems);
+        notifyDataSetChanged();
+    }
+
+
 }

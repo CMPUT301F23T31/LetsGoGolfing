@@ -25,7 +25,7 @@
         android:padding="20dp"> <!-- Match parent width and add padding -->
 
         <RadioButton
-            android:id="@+id/radio_button1"
+            android:id="@+id/radio_button_descriptor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textStyle="bold"
@@ -34,7 +34,7 @@
             android:padding="20dp"/>
 
         <RadioButton
-            android:id="@+id/radio_button2"
+            android:id="@+id/radio_button_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textStyle="bold"
@@ -43,7 +43,7 @@
             android:padding="20dp"/> <!-- Increase padding for better tap targets -->
 
         <RadioButton
-            android:id="@+id/radio_button3"
+            android:id="@+id/radio_button_make"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="By Item Make"
@@ -52,7 +52,7 @@
             android:padding="20dp"/>
 
         <RadioButton
-            android:id="@+id/radio_button4"
+            android:id="@+id/radio_button_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textStyle="bold"
