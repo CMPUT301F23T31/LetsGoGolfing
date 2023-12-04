@@ -1,8 +1,7 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -16,6 +15,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.view_details);
+        setContentView(R.layout.activity_view_details);
 
         // Retrieve the item from the intent
         username = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("username", null);

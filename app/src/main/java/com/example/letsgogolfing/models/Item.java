@@ -1,6 +1,8 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.models;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
+
+import com.example.letsgogolfing.controllers.dialogs.FilterDialogFragment;
 
 import java.text.ParseException;
 import java.util.ArrayList;

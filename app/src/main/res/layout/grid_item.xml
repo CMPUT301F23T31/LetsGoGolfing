@@ -36,8 +36,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.905"
         app:layout_constraintStart_toEndOf="@+id/itemImage"
-        app:layout_constraintTop_toBottomOf="@+id/itemDescription"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/itemDescription" />
 
     <TextView
         android:id="@+id/itemDate"
@@ -53,16 +52,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/itemDescription"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/itemDescription" />
 
     <TextView
         android:id="@+id/itemName"
-        android:layout_width="206dp"
-        android:layout_height="24dp"
+        android:layout_width="205dp"
+        android:layout_height="28dp"
         android:layout_marginBottom="11dp"
-        android:text="Name"
         android:fontFamily="sans-serif-medium"
+        android:text="Name"
         android:textColor="@color/Ash_Gray"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/itemDescription"
@@ -82,6 +80,7 @@
         android:paddingTop="5dp"
         android:paddingEnd="5dp"
         android:text=" Description (200 Word Max)"
+        android:maxLength="93"
         android:textColor="@color/Charcoal"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -89,7 +88,7 @@
         app:layout_constraintHorizontal_bias="0.542"
         app:layout_constraintStart_toEndOf="@+id/itemImage"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.58" />
+        app:layout_constraintVertical_bias="0.65" />
 
     <TextView
         android:id="@+id/itemTags"
@@ -108,16 +107,16 @@
 
     <TextView
         android:id="@+id/itemMake"
-        android:layout_width="149dp"
-        android:layout_height="14dp"
-        android:layout_marginBottom="7dp"
+        android:layout_width="153dp"
+        android:layout_height="19dp"
+        android:layout_marginBottom="4dp"
         android:fontFamily="sans-serif-medium"
         android:text="Samsung"
         android:textColor="@color/Ash_Gray"
-        android:textSize="10sp"
+        android:textSize="11sp"
         app:layout_constraintBottom_toTopOf="@+id/itemDescription"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.655"
+        app:layout_constraintHorizontal_bias="0.68"
         app:layout_constraintStart_toStartOf="parent" />
 
 

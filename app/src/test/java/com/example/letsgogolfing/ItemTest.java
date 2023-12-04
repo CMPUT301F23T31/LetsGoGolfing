@@ -1,5 +1,8 @@
 package com.example.letsgogolfing;
 import static org.junit.Assert.*;
+
+import com.example.letsgogolfing.models.Item;
+
 import org.junit.Before;
 import org.junit.Test;
 import java.util.Arrays;

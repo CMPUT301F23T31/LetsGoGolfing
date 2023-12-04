@@ -9,6 +9,8 @@ import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.*;
 
+import com.example.letsgogolfing.controllers.AddItemActivity;
+
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {28})
 public class AddItemActivityTest {

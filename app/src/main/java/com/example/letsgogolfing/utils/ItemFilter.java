@@ -1,10 +1,11 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.utils;
 
 import android.util.Log;
 import android.widget.Filter;
 
-import com.example.letsgogolfing.ItemAdapter;
-import com.example.letsgogolfing.Item;
+import com.example.letsgogolfing.models.Item;
+import com.example.letsgogolfing.views.ItemAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;

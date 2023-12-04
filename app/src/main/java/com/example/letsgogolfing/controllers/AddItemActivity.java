@@ -1,4 +1,4 @@
-package com.example.letsgogolfing;
+package com.example.letsgogolfing.controllers;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -24,7 +24,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.letsgogolfing.utils.TagDialogHelper;
+import com.example.letsgogolfing.R;
+import com.example.letsgogolfing.controllers.dialogs.TagDialogHelper;
+import com.example.letsgogolfing.models.FirestoreRepository;
+import com.example.letsgogolfing.models.Item;
 import com.google.firebase.Timestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -59,7 +62,7 @@ public class AddItemActivity extends AppCompatActivity {
     private AlertDialog loadingDialog;
     private ArrayList<String> tempUris = new ArrayList<>();
     private FirestoreRepository firestoreRepository;
-    private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
+    private List<String> tagList = new ArrayList<>();
     private List<String> selectedTags = new ArrayList<>();
     private Uri imageUri;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
@@ -110,7 +113,7 @@ public class AddItemActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_item_page);
+        setContentView(R.layout.activity_add_item);
 
         // Retrieve the current username from SharedPreferences
         SharedPreferences sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE);
@@ -543,20 +546,6 @@ public class AddItemActivity extends AppCompatActivity {
                 Toast.makeText(AddItemActivity.this, "Error adding item: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    /**
-     * Updates the tagList with the provided list of tags.
-     * <p>
-     * This method updates the tagList with the provided list of tags. This method is typically
-     * called from the {@link ManageTagsActivity} when the user adds or removes tags.
-     *
-     * @param newTags A List of Strings representing the updated list of tags.
-     */
-    public void updateTagList(List<String> newTags) {
-        tagList.clear();
-        tagList.addAll(newTags);
-        // If needed, update the UI or other elements that depend on the tagList
     }
 
     private void uploadImage(Uri imageUri) {

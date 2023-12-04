@@ -64,7 +64,7 @@
 
 
     <!-- Date and Model Fields in a row -->
-    <com.example.letsgogolfing.DatePickerEditText
+    <com.example.letsgogolfing.views.DatePickerEditText
         android:id="@+id/date_edit_text"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -173,13 +173,13 @@
         android:layout_height="50dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-condensed-medium"
         android:hint="Serial (Optional)"
         android:inputType="number"
-        android:textColorHint="@color/Ash_Gray"
-        android:textColor="@color/Ash_Gray"
-        android:fontFamily="sans-serif-condensed-medium"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:textColor="@color/Ash_Gray"
+        android:textColorHint="@color/Ash_Gray"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -198,7 +198,7 @@
         android:id="@+id/add_photo_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="80dp"
         android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
@@ -227,7 +227,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_tags_button_view"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.06" />
 
     <LinearLayout
         android:id="@+id/tags_linear_layout"
@@ -257,13 +257,13 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_photo_button"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.104" />
 
     <Button
         android:id="@+id/add_tags_button_view"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="80dp"
         android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
@@ -273,7 +273,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tags_linear_layout" />
+        app:layout_constraintTop_toBottomOf="@+id/serial_edit_text" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
