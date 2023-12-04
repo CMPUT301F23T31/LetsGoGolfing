@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    android:background="#AED5B1">
+    android:background="@color/Outer_Space">
 
 
     <!-- Name Field -->
@@ -15,6 +15,7 @@
         android:layout_height="60dp"
         android:background="@drawable/rounded_edittext"
         android:hint="Name"
+
         android:inputType="text"
         android:textSize="16sp"
         android:paddingStart="16dp"
