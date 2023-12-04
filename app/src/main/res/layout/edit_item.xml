@@ -220,10 +220,10 @@
         android:text="Add Tags"
         app:layout_constraintBottom_toTopOf="@+id/cancel_edit_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tags_linear_layout"
-        app:layout_constraintVertical_bias="0.82" />
+        app:layout_constraintVertical_bias="0.71" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

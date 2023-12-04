@@ -61,6 +61,13 @@ public class EditItemActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private static final String TAG = "EditItemActivity";
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private static final int MY_GALLERY_PERMISSION_CODE = 101;
+
+    private int uploadCounter = 0;
+    private int totalUploadCount = 0;
+    private AlertDialog loadingDialog;
+
+
 
     /**
      * Initializes the activity. This method sets up the user interface and initializes
@@ -113,6 +120,10 @@ public class EditItemActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Initializes the ActivityResultLauncher for the camera and gallery intents.
+     * This method is called in onCreate().
+     */
     private void initializeActivityResultLauncher() {
         cameraActivityResultLauncher =
                 registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -124,6 +135,9 @@ public class EditItemActivity extends AppCompatActivity {
                         } else if (result.getData() != null && result.getData().getClipData() != null) {
                             // Multiple images selected from the gallery
                             int count = result.getData().getClipData().getItemCount();
+                            totalUploadCount = count;
+                            uploadCounter = 0; // Reset counter
+                            showLoadingDialog();
                             for (int i = 0; i < count; i++) {
                                 Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
                                 uploadImage(imageUri);
@@ -133,6 +147,26 @@ public class EditItemActivity extends AppCompatActivity {
                 });
     }
 
+
+    private void showLoadingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(R.layout.loading_dialog);
+        builder.setCancelable(false); // Make dialog non-cancelable if desired
+        loadingDialog = builder.create();
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+    }
+
+
+    /**
+     * Displays a dialog for selecting the image source.
+     * This method is called when the user clicks the add photo button.
+     */
     private void showImageSourceDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         new AlertDialog.Builder(this)
@@ -147,7 +181,19 @@ public class EditItemActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Launches the gallery to select images.
+     * This method is called when the user selects the "Choose from Gallery" option in the image source dialog.
+     */
     private void launchGallery() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, MY_GALLERY_PERMISSION_CODE);
+        } else {
+            openGallery();
+        }
+    }
+
+    private void openGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
         galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -191,14 +237,32 @@ public class EditItemActivity extends AppCompatActivity {
         loadTags();
     }
 
+    /**
+     * Launches the camera to take a photo.
+     * This method is called when the user selects the "Take Photo" option in the image source dialog.
+     */
     private void launchCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageUri = createImageFile();
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         cameraActivityResultLauncher.launch(cameraIntent);
     }
 
-    // Implement the createImageFile method
+
+    /**
+     * Creates an image file in the external storage.
+     * This method is called when the user selects the "Take Photo" option in the image source dialog.
+     *
+     * @return The URI of the image file.
+     */
     private Uri createImageFile(){
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "Cliche" + timeStamp;
@@ -209,8 +273,12 @@ public class EditItemActivity extends AppCompatActivity {
         return imageUri;
     }
 
-    // Implement the uploadImage method
-    // After capturing the image, upload it
+    /**
+     * Uploads an image to Firebase Storage.
+     * This method is called when the user selects an image from the gallery or takes a photo with the camera.
+     *
+     * @param imageUri The URI of the image to upload.
+     */
     private void uploadImage(Uri imageUri) {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         String photoFileName = "photo_" + System.currentTimeMillis() + ".jpg";
@@ -229,13 +297,26 @@ public class EditItemActivity extends AppCompatActivity {
 
                 // Update the item in Firestore
                 updateItemInFirestore();
+
+                // Increment the upload counter and hide the loading dialog if all uploads are done
+                uploadCounter++;
+                if (uploadCounter == totalUploadCount) {
+                    hideLoadingDialog();
+                }
             });
         }).addOnFailureListener(exception -> {
             // Handle unsuccessful uploads
             Log.e("Firebase Upload", "Upload failed", exception);
             Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+
+            // Increment the upload counter and hide the loading dialog if all uploads are done
+            uploadCounter++;
+            if (uploadCounter == totalUploadCount) {
+                hideLoadingDialog();
+            }
         });
     }
+
 
     /**
      * This is a new thing i added to handle updating items with new images
@@ -246,7 +327,6 @@ public class EditItemActivity extends AppCompatActivity {
             @Override
             public void onItemUpdated() {
                 // Notify user of success
-                Toast.makeText(EditItemActivity.this, "Item updated with new image", Toast.LENGTH_SHORT).show();
                 // Refresh the UI here if necessary
             }
 
@@ -339,6 +419,10 @@ public class EditItemActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Updates the item object with the new values from the EditText fields.
+     * Converts and validates user input before updating the item object.
+     */
     private void updateItem() {
         try {
             // Convert the date string back to a Date object
@@ -365,6 +449,10 @@ public class EditItemActivity extends AppCompatActivity {
         item.setTags(selectedTags);
     }
 
+    /**
+     * Displays a dialog for selecting the image source.
+     * This method is called when the user clicks the add photo button.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

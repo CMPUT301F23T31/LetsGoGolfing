@@ -22,6 +22,11 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity for viewing photos associated with an item.
+ * This activity allows users to view photos associated with an item and delete photos from the item.
+ * It interacts with Firebase Storage to delete photos.
+ */
 public class ViewPhotoActivity extends AppCompatActivity {
     private ImageAdapter imageAdapter;
 
@@ -33,6 +38,14 @@ public class ViewPhotoActivity extends AppCompatActivity {
 
     private String username;
 
+    /**
+     * Initializes the activity. This method sets up the user interface and initializes
+     * the listeners for various UI components.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     *                           Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +93,10 @@ public class ViewPhotoActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Deletes an image from Firebase Storage.
+     * @param imageUriString The URI of the image to delete.
+     */
     private void deleteImageFromFirebase(String imageUriString) {
         StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUriString);
         photoRef.delete().addOnSuccessListener(aVoid -> {
@@ -91,6 +108,10 @@ public class ViewPhotoActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Removes an image URI from an item in Firestore.
+     * @param imageUriString The URI of the image to remove.
+     */
     private void removeImageUriFromItem(String imageUriString) {
         // Assuming you have the item ID
 
@@ -117,6 +138,9 @@ public class ViewPhotoActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Refreshes the data in the adapter.
+     */
     private void refreshData() {
         // Get the updated item from the database
         firestoreRepository.fetchItemById(itemId, new FirestoreRepository.OnItemFetchedListener() {
@@ -133,6 +157,11 @@ public class ViewPhotoActivity extends AppCompatActivity {
                 imageAdapter.notifyDataSetChanged();
             }
 
+            /**
+             * Called when an error occurs while fetching the item.
+             *
+             * @param e The exception that occurred.
+             */
             @Override
             public void onError(Exception e) {
                 // Handle any errors

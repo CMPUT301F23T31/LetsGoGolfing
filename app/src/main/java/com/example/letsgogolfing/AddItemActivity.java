@@ -61,6 +61,11 @@ public class AddItemActivity extends AppCompatActivity {
     private Item item;
     private static final String TAG = "EditItemActivity";
 
+    private int uploadCounter = 0;
+    private int totalUploadCount = 0;
+
+    private AlertDialog loadingDialog;
+
     private ArrayList<String> tempUris = new ArrayList<>();
 
     private FirestoreRepository firestoreRepository;
@@ -71,6 +76,7 @@ public class AddItemActivity extends AppCompatActivity {
 
     private Uri imageUri;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private static final int MY_GALLERY_PERMISSION_CODE = 101;
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -82,6 +88,9 @@ public class AddItemActivity extends AppCompatActivity {
                     } else if (result.getData() != null && result.getData().getClipData() != null) {
                         // Multiple images selected from the gallery
                         int count = result.getData().getClipData().getItemCount();
+                        totalUploadCount = count;
+                        uploadCounter = 0; // Reset counter
+                        showLoadingDialog();
                         for (int i = 0; i < count; i++) {
                             Uri imageUri = result.getData().getClipData().getItemAt(i).getUri();
                             uploadImage(imageUri);
@@ -90,6 +99,19 @@ public class AddItemActivity extends AppCompatActivity {
                 }
             });
 
+    private void showLoadingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(R.layout.loading_dialog);
+        builder.setCancelable(false); // Optional: make the dialog non-cancelable
+        loadingDialog = builder.create();
+        loadingDialog.show();
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+    }
 
     /**
      * Called when the activity is starting. Responsible for initializing the activity.
@@ -163,6 +185,9 @@ public class AddItemActivity extends AppCompatActivity {
         add_photo_button.setOnClickListener(v -> showImageSourceDialog());
     }
 
+    /**
+     * Displays a dialog for selecting an image source.
+     */
     private void showImageSourceDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         new AlertDialog.Builder(this)
@@ -177,7 +202,18 @@ public class AddItemActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Launches the camera to take a photo.
+     */
     private void launchGallery() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, MY_GALLERY_PERMISSION_CODE);
+        } else {
+            openGallery();
+        }
+    }
+
+    private void openGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setType("image/*");
         galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -186,13 +222,29 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Launches the camera to take a photo.
+     */
     private void launchCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageUri = createImageFile();
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         cameraActivityResultLauncher.launch(cameraIntent);
     }
 
+    /**
+     * Creates a file for storing the image.
+     *
+     * @return The Uri of the image file.
+     */
     private Uri createImageFile(){
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "Cliche" + timeStamp;
@@ -203,14 +255,26 @@ public class AddItemActivity extends AppCompatActivity {
         return imageUri;
     }
 
+    /**
+     * Checks if the camera permission is granted.
+     * <p>
+     * This method checks if the camera permission is granted. If it is, the {@link #launchCamera()}
+     * method is called. If not, the permission is requested from the user.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera();
+                openCamera();
             } else {
                 Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == MY_GALLERY_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openGallery();
+            } else {
+                Toast.makeText(this, "Gallery permission is required to access photos", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -278,6 +342,16 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if a given date string is valid.
+     * <p>
+     * This method checks if a given date string is valid. The date string must be in the format
+     * "yyyy-MM-dd", and the date must be a valid date (e.g., 2021-02-29 is not valid).
+     * </p>
+     *
+     * @param dateString The date string to be checked.
+     * @return True if the date string is valid, false otherwise.
+     */
     public boolean isValidDate(String dateString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         sdf.setLenient(false); // This will make sure SimpleDateFormat doesn't adjust dates on its own
@@ -460,19 +534,32 @@ public class AddItemActivity extends AppCompatActivity {
             StorageReference imagesRef = storageRef.child("images/" + photoFileName);
 
             UploadTask uploadTask = imagesRef.putBytes(imageData);
-            uploadTask.addOnFailureListener(exception -> {
-                Log.e("Firebase Upload", "Upload failed", exception);
-                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-            }).addOnSuccessListener(taskSnapshot -> {
-                // Get the download URL
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                // ... existing code ...
                 imagesRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                     tempUris.add(downloadUri.toString());
-                    Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show();
+                    uploadCounter++;
+                    if (uploadCounter == totalUploadCount) {
+                        hideLoadingDialog(); // Hide the dialog when all images are processed
+                    }
                 });
+            }).addOnFailureListener(exception -> {
+                Log.e("Firebase Upload", "Upload failed", exception);
+                Toast.makeText(this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+
+                uploadCounter++;
+                if (uploadCounter == totalUploadCount) {
+                    hideLoadingDialog(); // Hide the dialog when all images are processed
+                }
             });
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+            uploadCounter++;
+            if (uploadCounter == totalUploadCount) {
+                hideLoadingDialog(); // Hide the dialog when all images are processed
+            }
         }
     }
 

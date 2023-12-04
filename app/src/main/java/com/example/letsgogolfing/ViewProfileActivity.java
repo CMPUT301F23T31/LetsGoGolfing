@@ -59,6 +59,9 @@ public class ViewProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Logs the user out of the application.
+     */
     private void logoutUser() {
         clearUserData();
 
@@ -67,6 +70,10 @@ public class ViewProfileActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    /**
+     * Clears the user's data from SharedPreferences.
+     */
     private void clearUserData() {
         SharedPreferences preferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -92,6 +99,10 @@ public class ViewProfileActivity extends AppCompatActivity {
                 userName.setText(firestoreRepository.getCurrentUserId());
             }
 
+            /**
+             * onError method for the OnItemsFetchedListener.
+             * @param e The exception that occurred.
+             */
             @Override
             public void onError(Exception e) {
                 // Handle the error
@@ -99,6 +110,9 @@ public class ViewProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * A custom Filter for filtering items in an ItemAdapter.
+     */
     public static class ItemFilter extends Filter {
         private final ItemAdapter adapter;
         private final List<Item> originalList;
@@ -110,6 +124,11 @@ public class ViewProfileActivity extends AppCompatActivity {
             this.filteredList = new ArrayList<>();
         }
 
+        /**
+         * Filters the list of items based on the constraint.
+         * @param constraint The constraint to filter the list by.
+         * @return The filtered list of items.
+         */
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             filteredList.clear();
@@ -132,6 +151,11 @@ public class ViewProfileActivity extends AppCompatActivity {
             return results;
         }
 
+        /**
+         * Publishes the results of the filtering operation to the adapter.
+         * @param constraint The constraint used to filter the list.
+         * @param results The results of the filtering operation.
+         */
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             adapter.clear();
