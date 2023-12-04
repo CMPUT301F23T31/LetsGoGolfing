@@ -1,41 +1,53 @@
 package com.example.letsgogolfing;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
  * Activity for managing tags.
+ * This activity allows the user to add new tags and delete existing tags.
  */
 public class ManageTagsActivity extends AppCompatActivity {
     private ArrayAdapter<String> tagsAdapter;
     private List<String> tagsList = new ArrayList<>();
+    private FirestoreRepository firestoreRepository;
 
     /**
-     * onCreate method for the ManageTagsActivity.
-     * @param savedInstanceState The saved instance state.
+     * Called when the activity is starting. This is where most initialization should go:
+     * calling setContentView(int) to inflate the activity's UI, using findViewById(int)
+     * to programmatically interact with widgets in the UI, setting up listeners, etc.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in onSaveInstanceState(Bundle). Note: Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_tags);
 
+        // Retrieve the current username from SharedPreferences
+        SharedPreferences sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String currentUsername = sharedPref.getString("username", null);
+
+        // Initialize FirestoreRepository with the current username
+        firestoreRepository = new FirestoreRepository(currentUsername);
+
         ListView tagsListView = findViewById(R.id.tagsListView);
         tagsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tagsList);
         tagsListView.setAdapter(tagsAdapter);
+
+        fetchTags();
 
         EditText newTagEditText = findViewById(R.id.newTagEditText);
         Button addTagButton = findViewById(R.id.addTagButton);
@@ -44,28 +56,50 @@ public class ManageTagsActivity extends AppCompatActivity {
         addTagButton.setOnClickListener(v -> {
             String newTag = newTagEditText.getText().toString().trim();
             if (!newTag.isEmpty() && !tagsList.contains(newTag)) {
-                tagsList.add(newTag);
-                tagsAdapter.notifyDataSetChanged();
-                newTagEditText.setText("");
+                // Add the tag using FirestoreRepository
+                firestoreRepository.addTag(newTag, new FirestoreRepository.OnTagAddedListener() {
+                    @Override
+                    public void onTagAdded() {
+                        tagsList.add(newTag);
+                        tagsAdapter.notifyDataSetChanged();
+                        Toast.makeText(ManageTagsActivity.this, "Tag added", Toast.LENGTH_SHORT).show();
+                    }
 
-                // Save to Firestore
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                Map<String, Object> tagMap = new HashMap<>();
-                tagMap.put("name", newTag);
-                db.collection("tags").add(tagMap)
-                        .addOnSuccessListener(documentReference -> Toast.makeText(this, "Tag added to Firestore", Toast.LENGTH_SHORT).show())
-                        .addOnFailureListener(e -> Toast.makeText(this, "Error adding tag to Firestore", Toast.LENGTH_SHORT).show());
+                    @Override
+                    public void onError(Exception e) {
+                        Toast.makeText(ManageTagsActivity.this, "Error adding tag", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                newTagEditText.setText("");
             } else {
                 Toast.makeText(this, "Tag is empty or already exists.", Toast.LENGTH_SHORT).show();
             }
         });
 
+        doneButton.setOnClickListener(v -> finish());
+    }
 
-        doneButton.setOnClickListener(v -> {
-            // Save the tags list to persistent storage or pass back to MainActivity
-            // For this example, we're just finishing the activity
-            finish();
+    /**
+     * Fetches the list of tags from FirestoreRepository and updates the adapter.
+     */
+    private void fetchTags() {
+        firestoreRepository.fetchTags(new FirestoreRepository.OnTagsFetchedListener() {
+            @Override
+            public void onTagsFetched(List<String> tags) {
+                tagsList.clear();
+                tagsList.addAll(tags);
+                tagsAdapter.notifyDataSetChanged();
+            }
+
+            /**
+             * Called when an error occurs while fetching tags.
+             *
+             * @param e The exception that occurred.
+             */
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(ManageTagsActivity.this, "Error fetching tags", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }
-

@@ -2,14 +2,20 @@ package com.example.letsgogolfing;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Activity for viewing the user's profile.
@@ -19,6 +25,8 @@ public class ViewProfileActivity extends AppCompatActivity {
     private TextView totalItems;
     private TextView totalCost;
     private TextView userName;
+    private FirestoreRepository firestoreRepository;
+
 
     /**
      * onCreate method for the ViewProfileActivity.
@@ -32,36 +40,127 @@ public class ViewProfileActivity extends AppCompatActivity {
         totalItems = findViewById(R.id.totalItemCount);
         totalCost = findViewById(R.id.totalItemValue);
         userName = findViewById(R.id.nameLabel);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        String currentUsername = prefs.getString("username", null);
+
+        firestoreRepository = new FirestoreRepository(currentUsername);
         fetchProfileData();
+
         ImageView homeButton = findViewById(R.id.homeButton);
         homeButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ViewProfileActivity.this, MainActivity.class);
-            startActivity(intent);
+            finish();
+        });
+
+        Button logout_button = findViewById(R.id.logout_button);
+
+        logout_button.setOnClickListener(v -> {
+            logoutUser();
         });
     }
+
+    /**
+     * Logs the user out of the application.
+     */
+    private void logoutUser() {
+        clearUserData();
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
+     * Clears the user's data from SharedPreferences.
+     */
+    private void clearUserData() {
+        SharedPreferences preferences = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("username");
+        editor.apply();
+    }
+
 
     /**
      * Fetches the user's profile data from Firestore.
      */
     private void fetchProfileData() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("items").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                int totalItemCount = 0;
+        firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
+            @Override
+            public void onItemsFetched(List<Item> items) {
+                int totalItemCount = items.size();
                 double totalItemValue = 0;
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Item item = document.toObject(Item.class);
-                    totalItemCount++;
-                    totalItemValue += item.getEstimatedValue(); // Replace with your method to get item value
+                for (Item item : items) {
+                    totalItemValue += item.getEstimatedValue(); // Assuming getEstimatedValue() returns the item value
                 }
                 totalItems.setText(String.valueOf(totalItemCount));
                 totalCost.setText(String.format(getString(R.string.cost_formatting), totalItemValue));
-                SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE); // fetch username from session
-                String username = prefs.getString("username", "No name"); // "No name" is a default value.
-                userName.setText(username);
-            } else {
+                userName.setText(firestoreRepository.getCurrentUserId());
+            }
+
+            /**
+             * onError method for the OnItemsFetchedListener.
+             * @param e The exception that occurred.
+             */
+            @Override
+            public void onError(Exception e) {
                 // Handle the error
             }
         });
+    }
+
+    /**
+     * A custom Filter for filtering items in an ItemAdapter.
+     */
+    public static class ItemFilter extends Filter {
+        private final ItemAdapter adapter;
+        private final List<Item> originalList;
+        private final List<Item> filteredList;
+
+        public ItemFilter(ItemAdapter adapter, List<Item> originalList) {
+            this.adapter = adapter;
+            this.originalList = new ArrayList<>(originalList);
+            this.filteredList = new ArrayList<>();
+        }
+
+        /**
+         * Filters the list of items based on the constraint.
+         * @param constraint The constraint to filter the list by.
+         * @return The filtered list of items.
+         */
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            filteredList.clear();
+            final FilterResults results = new FilterResults();
+
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(originalList);
+            } else {
+                final String filterPattern = constraint.toString().toLowerCase().trim();
+
+                for (final Item item : originalList) {
+                    if (item.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                }
+            }
+
+            results.values = filteredList;
+            results.count = filteredList.size();
+            return results;
+        }
+
+        /**
+         * Publishes the results of the filtering operation to the adapter.
+         * @param constraint The constraint used to filter the list.
+         * @param results The results of the filtering operation.
+         */
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            adapter.clear();
+            adapter.addAll((ArrayList<Item>) results.values);
+            adapter.notifyDataSetChanged();
+        }
     }
 }

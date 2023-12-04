@@ -1,7 +1,10 @@
 package com.example.letsgogolfing;
 
+import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
-//import com.google.firebase.firestore.Exclude;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -17,13 +20,17 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     // from documentID from the FireStore database, if that sounds confusing we can discuss bout it later. - VT
     private String id;
 
+    private ArrayList<String> imageUris;
+
+    private String username;
+
     private String name;
     private String description;
     private Date dateOfPurchase; // im assuming its "of purchase"?
     private String make;
     private String model;
     private String serialNumber;
-    private double estimatedValue;
+    private Double estimatedValue;
     private String comment;
     private List<String> tags;
 
@@ -61,6 +68,14 @@ public class Item implements Comparable<Item>, java.io.Serializable {
         this.tags = tags;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     /**
      * Retrieves the unique identifier for this item.
      *
@@ -69,6 +84,15 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     public String getId() {
         return id;
     }
+
+    public ArrayList<String> getImageUris() {
+        return imageUris;
+    }
+
+    public void setImageUris(ArrayList<String> imageUris) {
+        this.imageUris = imageUris;
+    }
+
 
     /**
      * Sets the unique identifier for this item.
@@ -192,7 +216,7 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      *
      * @return The estimated value of the item.
      */
-    public double getEstimatedValue() {
+    public Double getEstimatedValue() {
         return estimatedValue;
     }
 
@@ -238,9 +262,20 @@ public class Item implements Comparable<Item>, java.io.Serializable {
      * @param tags The list of tags to set for the item.
      */
     public void setTags(List<String> tags) {
-        this.tags = tags;
+        if (tags != null && !tags.isEmpty()) {
+            Collections.sort(tags);
+            this.tags = tags;
+        }
+        else {
+            this.tags = new ArrayList<>();
+        }
     }
 
+    public void addTags(List<String>tags){
+       for (String tag : tags)
+           if (!this.tags.contains(tag))
+               this.tags.add(tag);
+    }
 
     /**
      * Generates a string representation of the Item for debugging and logging purposes.
@@ -273,6 +308,25 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     public int compareTo(Item item) {
         return this.getName().compareTo(item.getName());
     }
+    public boolean matchesCriteria(String query, FilterDialogFragment.FilterType filterField) {
+        final String finalQuery = query.toLowerCase();
+
+        if (filterField == FilterDialogFragment.FilterType.BY_DESCRIPTOR) {
+            return description.toLowerCase().contains(finalQuery);
+        } else if (filterField == FilterDialogFragment.FilterType.BY_TAGS) {
+            return tags.stream().anyMatch(tag -> tag.toLowerCase().contains(finalQuery));
+        } else if (filterField == FilterDialogFragment.FilterType.BY_MAKE) {
+            return make.toLowerCase().contains(finalQuery);
+        } else if (filterField == FilterDialogFragment.FilterType.BY_DATE) {
+            try {
+                Date queryDate = dateFormat.parse(finalQuery);
+                return dateOfPurchase.equals(queryDate);
+            } catch (ParseException e) {
+                return false;
+            }
+        } else return false;
+    }
+
 
 
 }

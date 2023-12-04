@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/Outer_Space"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/header_title"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:background="@drawable/rounded_edittext"
+        android:gravity="center"
+        android:textColor="@color/Ash_Gray"
+        android:text="Edit Item"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/name_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Name"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_title" />
+
+
+    <EditText
+        android:id="@+id/description_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Description (Max 100 Characters)"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        android:gravity="top"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_edit_text" />
+
+
+    <!-- Date and Model Fields in a row -->
+    <com.example.letsgogolfing.DatePickerEditText
+        android:id="@+id/date_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Date Added"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/model_edit_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/description_edit_text" />
+
+
+    <EditText
+        android:id="@+id/model_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Model"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/date_edit_text"
+        app:layout_constraintTop_toBottomOf="@+id/description_edit_text" />
+
+
+    <!-- Make and Value Fields in a row -->
+    <EditText
+        android:id="@+id/make_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Make"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:inputType="text"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/value_edit_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_edit_text" />
+
+
+    <EditText
+        android:id="@+id/value_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Value (Optional)"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:inputType="numberDecimal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/make_edit_text"
+        app:layout_constraintTop_toBottomOf="@+id/model_edit_text" />
+
+
+    <!-- Comment Field -->
+    <EditText
+        android:id="@+id/comment_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+
+        android:hint="Comment (Optional)"
+        android:paddingTop="12dp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:paddingStart="12dp"
+        android:paddingEnd="16dp"
+        android:gravity="top"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/make_edit_text" />
+
+
+    <!-- Serial Field -->
+    <EditText
+        android:id="@+id/serial_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_edittext"
+        android:hint="Serial (Optional)"
+        android:inputType="number"
+        android:textColorHint="@color/Ash_Gray"
+        android:textColor="@color/Ash_Gray"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/comment_edit_text"
+        app:layout_constraintVertical_bias="0.00999999" />
+
+
+    <!-- Tags Field -->
+
+    <!-- Add Photo Button -->
+
+    <!-- Confirm Button -->
+
+    <Button
+        android:id="@+id/add_photo_button"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="Add Photo"
+        android:textColor="@color/Ash_Gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/serial_edit_text" />
+
+    <Button
+
+        android:id="@+id/cancel_edit_button"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="Cancel"
+        android:textColor="@color/Ash_Gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_tags_button_view"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <LinearLayout
+        android:id="@+id/tags_linear_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/serial_edit_text">
+        <!-- Tags TextViews will be added here programmatically -->
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="Confirm"
+        android:textColor="@color/Ash_Gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_photo_button"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/add_tags_button_view"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/rounded_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="Add Tags"
+        android:textColor="@color/Ash_Gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tags_linear_layout" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

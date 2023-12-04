@@ -1,0 +1,10 @@
+<resources>
+    <string-array name="sort_options">
+        <item value="0">Date</item>
+        <item value="1">Description</item>
+        <item value="2">Make</item>
+        <item value="3">Estimated Value</item>
+        <item value="4">Name</item>
+        <item value="5">Tags</item>
+    </string-array>
+</resources>

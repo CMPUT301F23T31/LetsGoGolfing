@@ -1,23 +1,31 @@
 package com.example.letsgogolfing;
 
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
+import android.util.Log;
 
 @RunWith(AndroidJUnit4.class)
 public class ViewDetailsUITest {
@@ -26,25 +34,45 @@ public class ViewDetailsUITest {
     private static final String ITEM_ID_FOR_TEST = "testItemId";
 
     @Rule
-    public ActivityScenarioRule<ViewDetailsActivity> activityRule =
-            new ActivityScenarioRule<>(ViewDetailsActivity.class);
+    public ActivityScenarioRule<LoginActivity> activityRule = new ActivityScenarioRule<>(LoginActivity.class);
+
+    @Before
+    public void setUp() {
+
+        Intents.init();
+        // Perform the login action
+        onView(withId(R.id.usernameInput)).perform(typeText("beta"), closeSoftKeyboard());
+        onView(withId(R.id.loginButton)).perform(click());
+
+        // Wait for MainActivity to start
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @After
+    public void tearDown() {
+        Intents.release();
+    }
 
     @Test
     public void testEditItemDetails() {
-        // Set up the activity with a test item
-        Intent intent = new Intent();
-        Item testItem = new Item(); // Populate this with test data
-        testItem.setId(ITEM_ID_FOR_TEST);
-        intent.putExtra("ITEM", testItem);
-        activityRule.getScenario().onActivity(activity -> activity.setIntent(intent));
 
-        // Click the edit button
-        onView(withId(R.id.editInfoBtn)).perform(click());
+        // click the first item in the grid
+        onView(withId(R.id.itemGrid)).perform(click());
 
-        // Check if fields are enabled
-        onView(withId(R.id.nameField)).check(matches(isEnabled()));
-        onView(withId(R.id.descriptionField)).check(matches(isEnabled()));
-        onView(withId(R.id.add_tags_button_view)).check(matches(isDisplayed()));
+        // click the edit button
+        onView(withId(R.id.edit_item_button)).perform(click());
+
+        try{
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // Verify that the edit item activity is displayed
+        intended(hasComponent(EditItemActivity.class.getName()));
     }
 
     @Test

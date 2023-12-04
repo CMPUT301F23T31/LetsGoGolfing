@@ -86,5 +86,40 @@ public class ItemTest {
         Item sameNameItem = new Item("Laptop", "Old Laptop", new Date(), "BrandO", "ModelO", "SN09876", 300.00, "Old but functional", Arrays.asList("used", "electronics"));
         assertEquals(0, testItem.compareTo(sameNameItem));
     }
+    @Test
+    public void testViewListOfItems(){
+        testItem.setName("Desktop");
+        assertEquals("Desktop", testItem.getName());
+
+        testItem.setDescription("Office Desktop");
+        assertEquals("Office Desktop", testItem.getDescription());
+
+        Date newPurchaseDate = new Date(purchaseDate.getTime() + 100000);
+        testItem.setDateOfPurchase(newPurchaseDate);
+        assertEquals(newPurchaseDate, testItem.getDateOfPurchase());
+
+        testItem.setMake("BrandZ");
+        assertEquals("BrandZ", testItem.getMake());
+
+        testItem.setModel("ModelX");
+        assertEquals("ModelX", testItem.getModel());
+
+        testItem.setSerialNumber("54321");
+        assertEquals("54321", testItem.getSerialNumber());
+
+        testItem.setEstimatedValue(1000.00);
+        assertEquals(1000.00, testItem.getEstimatedValue(), 0.001);
+
+        testItem.setComment("Bought for office work");
+        assertEquals("Bought for office work", testItem.getComment());
+
+        List<String> newTags = Arrays.asList("computer", "hardware");
+        testItem.setTags(newTags);
+        assertEquals(newTags, testItem.getTags());
+
+        testItem.setId("xyz789");
+        assertEquals("xyz789", testItem.getId());
+
+    }
 }
 

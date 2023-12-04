@@ -3,12 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="8dp"
+    android:layout_height="175dp"
     android:background="@drawable/item_background_selector"
     android:elevation="4dp"
+    android:padding="8dp"
     android:radius="8dp">
-
 
 
     <ImageView
@@ -17,6 +16,7 @@
         android:layout_height="147dp"
         android:background="@drawable/rounded_image_background"
         android:src="@android:drawable/ic_menu_gallery"
+        android:contentDescription="Item Image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,40 +26,99 @@
         android:id="@+id/itemValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:fontFamily="sans-serif-condensed-medium"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-medium"
         android:paddingTop="4dp"
         android:text="Value: $9.41"
-        android:textSize="19dp"
+        android:textColor="@color/Ash_Gray"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.042"
+        app:layout_constraintHorizontal_bias="0.905"
         app:layout_constraintStart_toEndOf="@+id/itemImage"
-        app:layout_constraintTop_toBottomOf="@+id/itemDescription" />
-
+        app:layout_constraintTop_toBottomOf="@+id/itemDescription"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/itemDescription"
-        android:layout_width="236dp"
-        android:layout_height="82dp"
-        android:background="@drawable/rounded_edittext"
-        android:fontFamily="sans-serif"
-        android:paddingTop="2dp"
-        android:text=" Description (200 Word Max)"
+        android:id="@+id/itemDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingTop="4dp"
+        android:text="2023/06/02"
+        android:textColor="@color/Ash_Gray"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.24"
-        app:layout_constraintStart_toEndOf="@+id/itemImage"
-        tools:layout_editor_absoluteY="3dp" />
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/itemDescription"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/itemName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:text="TextView"
+        android:layout_width="206dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="11dp"
+        android:text="Name"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/Ash_Gray"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/itemDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.848"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.045" />
+
+    <TextView
+        android:id="@+id/itemDescription"
+        android:layout_width="225dp"
+        android:layout_height="75dp"
+        android:background="@drawable/drawable_edittext"
+        android:fontFamily="sans-serif-medium"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="5dp"
+        android:text=" Description (200 Word Max)"
+        android:textColor="@color/Charcoal"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.435"
-        app:layout_constraintStart_toEndOf="@+id/itemValue" />
+        app:layout_constraintHorizontal_bias="0.542"
+        app:layout_constraintStart_toEndOf="@+id/itemImage"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.58" />
+
+    <TextView
+        android:id="@+id/itemTags"
+        android:layout_width="221dp"
+        android:layout_height="24dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Name"
+        android:textColor="@color/Charcoal"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/itemDescription"
+        app:layout_constraintEnd_toEndOf="@+id/itemDescription"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/itemDescription"
+        app:layout_constraintTop_toTopOf="@+id/itemDescription"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/itemMake"
+        android:layout_width="149dp"
+        android:layout_height="14dp"
+        android:layout_marginBottom="7dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Samsung"
+        android:textColor="@color/Ash_Gray"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@+id/itemDescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.655"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
