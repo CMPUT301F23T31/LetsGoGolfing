@@ -198,7 +198,7 @@
         android:id="@+id/add_photo_button"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="92dp"
         android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
@@ -227,7 +227,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_tags_button_view"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.088" />
 
     <LinearLayout
         android:id="@+id/tags_linear_layout"
@@ -257,13 +257,13 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_photo_button"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.104" />
 
     <Button
         android:id="@+id/add_tags_button_view"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="80dp"
         android:background="@drawable/rounded_edittext"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
