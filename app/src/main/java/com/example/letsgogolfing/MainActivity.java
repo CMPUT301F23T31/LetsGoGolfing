@@ -45,6 +45,7 @@ import com.example.letsgogolfing.models.Item;
 import com.example.letsgogolfing.utils.BarcodeFetchInfo;
 import com.example.letsgogolfing.utils.ItemComparator;
 import com.example.letsgogolfing.controllers.dialogs.TagDialogHelper;
+import com.example.letsgogolfing.views.DatePickerEditText;
 import com.example.letsgogolfing.views.ItemAdapter;
 import com.google.firebase.BuildConfig;
 import com.google.mlkit.vision.barcode.Barcode;
@@ -94,8 +95,8 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private ImageButton filterButton;
-    private String lastFilterCriteria;
     private DialogFragment sortDialog = new SortDialogFragment();
+    private DatePickerEditText searchEditText;
 
 
 
@@ -104,8 +105,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
      */
     @Override
     public void onSortOptionSelected(String selectedOption, boolean sortDirection) {
-        comparator = new ItemComparator(selectedOption, sortDirection);
-        sortArrayAdapter(comparator);
+        itemAdapter.setSortCriteria(selectedOption, sortDirection);
     }
 
 
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
 
         fetchItemsAndRefreshAdapter();
 
-        itemAdapter.setCurrentFilterType(selectedFilterType);
+        itemAdapter.setFilterType(selectedFilterType);
 
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
@@ -211,7 +211,8 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         });
 
         // Inside onCreate method or appropriate initialization method
-        EditText searchEditText = findViewById(R.id.searchEditText);
+        searchEditText = findViewById(R.id.searchEditText);
+        searchEditText.enableDatePicker(false);
         searchEditText.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             @Override
             public void afterTextChanged(Editable s) {
                 // As the user types or clears text in the EditText
-                applyFilter(s.toString());
+                itemAdapter.getFilter().filter(s.toString());
             }
         });
 
@@ -411,13 +412,11 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         firestoreRepository.fetchItems(new FirestoreRepository.OnItemsFetchedListener() {
             @Override
             public void onItemsFetched(List<Item> items) {
-                itemAdapter.updateItems(items);
-                sortArrayAdapter(comparator);
+                itemAdapter.clear();
+                itemAdapter.addAll(items);
 
-                // Reapply the filter if there was a filter applied previously
-                if (lastFilterCriteria != null && !lastFilterCriteria.isEmpty()) {
-                    itemAdapter.getFilter().filter(lastFilterCriteria);
-                }
+                // Reapply filters and sorts
+                itemAdapter.reapplyFilterAndSort();
 
                 updateTotalValue(items);
                 itemsFetched = true;
@@ -602,31 +601,25 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
      * @param filterType The selected filter type.
      */
     @Override
-    public void onFilterSelected(FilterDialogFragment.FilterType filterType, String selectedDate) {
-        selectedFilterType = filterType; // Save the selected filter type
-        // Apply the selected filter type
+    public void onFilterSelected(FilterDialogFragment.FilterType filterType) {
         // Set the current filter type in the adapter
-        itemAdapter.setCurrentFilterType(filterType);
+        itemAdapter.setFilterType(filterType);
 
         if (filterType == FilterDialogFragment.FilterType.CLEAR) {
             itemAdapter.clearFilter();
-            selectedFilterType = null;
-            lastFilterCriteria = "";
-        } else if (filterType == FilterDialogFragment.FilterType.BY_DATE && selectedDate != null) {
-            applyFilter(selectedDate);
-        } else {
-            // Assuming you have a reference to your search EditText
-            EditText searchEditText = findViewById(R.id.searchEditText);
+            searchEditText.setText("");
+            searchEditText.enableDatePicker(false);
+        } else if (filterType == FilterDialogFragment.FilterType.BY_DATE) {
+            searchEditText.enableDatePicker(true);
             CharSequence currentSearchText = searchEditText.getText();
-
             // Apply the filter with the current search text
-            applyFilter(currentSearchText.toString());
+            itemAdapter.getFilter().filter(currentSearchText.toString());
+        } else {
+            searchEditText.enableDatePicker(false);
+            CharSequence currentSearchText = searchEditText.getText();
+            // Apply the filter with the current search text
+            itemAdapter.getFilter().filter(currentSearchText.toString());
         }
-    }
-
-    public void applyFilter(String criteria) {
-        lastFilterCriteria = criteria;
-        itemAdapter.getFilter().filter(lastFilterCriteria);
     }
 
 

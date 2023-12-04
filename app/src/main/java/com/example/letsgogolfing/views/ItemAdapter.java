@@ -13,7 +13,7 @@ import android.widget.Filter;
 import android.widget.TextView;
 import com.example.letsgogolfing.controllers.dialogs.FilterDialogFragment.FilterType;
 import com.bumptech.glide.Glide;
-import com.example.letsgogolfing.utils.ItemFilter;
+import com.example.letsgogolfing.utils.ItemComparator;
 import com.example.letsgogolfing.R;
 import com.example.letsgogolfing.models.Item;
 
@@ -29,7 +29,11 @@ import java.util.Collection;
 public class ItemAdapter extends ArrayAdapter<Item>{
 
     private Context context;
-    public FilterType currentFilterType;
+    private FilterType currentFilterType = FilterType.BY_NAME;
+    private String currentSortOption = "name";
+    private boolean currentSortDirection = true;
+    private CharSequence currentFilterConstraint = "";
+
     private List<Item> originalItems;
     private List<Item> filteredItems;
     private LayoutInflater inflater;
@@ -74,17 +78,18 @@ public class ItemAdapter extends ArrayAdapter<Item>{
                     results.values = originalItems;
                     results.count = originalItems.size();
                 } else {
-                    String searchStr = constraint.toString().toLowerCase();
-                    List<Item> matchValues = new ArrayList<>();
+                    currentFilterConstraint = constraint;
+                    List<Item> filteredList = new ArrayList<>();
+                    String filterString = constraint.toString().toLowerCase();
 
                     for (Item item : originalItems) {
-                        if (item.matchesCriteria(searchStr, currentFilterType)) {
-                            matchValues.add(item);
+                        if (item.matchesCriteria(filterString, currentFilterType)) {
+                            filteredList.add(item);
                         }
                     }
 
-                    results.values = matchValues;
-                    results.count = matchValues.size();
+                    results.values = filteredList;
+                    results.count = filteredList.size();
                 }
                 return results;
             }
@@ -92,7 +97,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                filteredItems = (ArrayList<Item>) results.values;
+                filteredItems = (List<Item>) results.values;
                 notifyDataSetChanged();
             }
         };
@@ -114,7 +119,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         notifyDataSetChanged();
     }
 
-    public void setCurrentFilterType(FilterType filterType) {
+    public void setFilterType(FilterType filterType) {
         this.currentFilterType = filterType;
     }
 
@@ -284,10 +289,31 @@ public class ItemAdapter extends ArrayAdapter<Item>{
     }
 
     public void clearFilter() {
-        filteredItems.clear();
-        filteredItems.addAll(originalItems);
+        filteredItems = new ArrayList<>(originalItems);
+        currentFilterConstraint = "";
+        currentFilterType = FilterType.BY_NAME;
+        sortItems();
+    }
+
+    private void sortItems() {
+        ItemComparator comparator = new ItemComparator(currentSortOption, currentSortDirection);
+        filteredItems.sort(comparator);
         notifyDataSetChanged();
     }
 
+    public void setSortCriteria(String sortOption, boolean sortDirection) {
+        this.currentSortOption = sortOption;
+        this.currentSortDirection = sortDirection;
+        sortItems();
+    }
+
+    public void reapplyFilterAndSort() {
+        // Reapply the filter
+        if (currentFilterConstraint != null && !currentFilterConstraint.equals("")) {
+            getFilter().filter(currentFilterConstraint);
+        }
+        sortItems();
+        notifyDataSetChanged();
+    }
 
 }

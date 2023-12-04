@@ -20,6 +20,7 @@ import java.util.Locale;
  */
 public class DatePickerEditText extends AppCompatEditText {
     private Context context;
+    private boolean isDatePickerEnabled = true;
 
     /**
      * Constructor for DatePickerEditText.
@@ -31,8 +32,20 @@ public class DatePickerEditText extends AppCompatEditText {
     public DatePickerEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-        setFocusableInTouchMode(false); // Disable keyboard
-        setFocusable(false); // Make view non-focusable
+        enableDatePicker(true);
+    }
+
+    public void enableDatePicker(boolean enable) {
+        isDatePickerEnabled = enable;
+        if (isDatePickerEnabled) {
+            this.setFocusableInTouchMode(false); // Disable keyboard
+            this.setFocusable(false); // Make view non-focusable
+            this.setOnClickListener(v -> showDatePickerDialog());
+        } else {
+            this.setFocusable(true);
+            this.setFocusableInTouchMode(true);
+            this.setOnClickListener(null);
+        }
     }
 
     /**
@@ -45,31 +58,29 @@ public class DatePickerEditText extends AppCompatEditText {
      * @param event The MotionEvent that triggered the touch event.
      * @return Returns the result of the superclass's onTouchEvent method.
      */
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            Calendar calendar = Calendar.getInstance();
 
-            // Check if there's already a date in the EditText
-            String existingDate = getText().toString();
-            if (!existingDate.isEmpty()) {
-                try {
-                    calendar.setTime(dateFormat.parse(existingDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    // If parsing fails, calendar remains set to the current date
-                }
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+
+        // Check if there's already a date in the EditText
+        String existingDate = getText().toString();
+        if (!existingDate.isEmpty()) {
+            try {
+                calendar.setTime(dateFormat.parse(existingDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                // If parsing fails, calendar remains set to the current date
             }
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(context,
-                    (view, year, month, dayOfMonth) -> {
-                        Calendar selectedDate = Calendar.getInstance();
-                        selectedDate.set(year, month, dayOfMonth);
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                        setText(dateFormat.format(selectedDate.getTime()));
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.show();
         }
-        return super.onTouchEvent(event);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(context,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.set(year, month, dayOfMonth);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    setText(dateFormat.format(selectedDate.getTime()));
+                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+
     }
 }
