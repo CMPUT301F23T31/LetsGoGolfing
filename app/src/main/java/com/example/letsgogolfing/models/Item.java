@@ -312,21 +312,26 @@ public class Item implements Comparable<Item>, java.io.Serializable {
     }
     public boolean matchesCriteria(String query, FilterDialogFragment.FilterType filterField) {
         final String finalQuery = query.toLowerCase();
+        switch (filterField) {
+            case BY_NAME:
+                return name.toLowerCase().contains(finalQuery);
+            case BY_DATE:
+                try {
+                    Date queryDate = dateFormat.parse(finalQuery);
+                    return dateOfPurchase.equals(queryDate);
+                } catch (ParseException e) {
+                    return false;
+                }
+            case BY_DESCRIPTOR:
+                return description.toLowerCase().contains(finalQuery);
+            case BY_MAKE:
+                return make.toLowerCase().contains(finalQuery);
+            case BY_TAGS:
+                return tags.stream().anyMatch(tag -> tag.toLowerCase().contains(finalQuery));
+            default:
+                return true;
+        }
 
-        if (filterField == FilterDialogFragment.FilterType.BY_DESCRIPTOR) {
-            return description.toLowerCase().contains(finalQuery);
-        } else if (filterField == FilterDialogFragment.FilterType.BY_TAGS) {
-            return tags.stream().anyMatch(tag -> tag.toLowerCase().contains(finalQuery));
-        } else if (filterField == FilterDialogFragment.FilterType.BY_MAKE) {
-            return make.toLowerCase().contains(finalQuery);
-        } else if (filterField == FilterDialogFragment.FilterType.BY_DATE) {
-            try {
-                Date queryDate = dateFormat.parse(finalQuery);
-                return dateOfPurchase.equals(queryDate);
-            } catch (ParseException e) {
-                return false;
-            }
-        } else return false;
     }
 
 

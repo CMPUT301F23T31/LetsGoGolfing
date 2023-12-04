@@ -9,7 +9,7 @@
     <!-- Search bar -->
 
 
-    <EditText
+    <com.example.letsgogolfing.views.DatePickerEditText
         android:id="@+id/searchEditText"
         android:layout_width="249dp"
         android:layout_height="48dp"
