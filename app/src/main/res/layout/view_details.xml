@@ -222,6 +222,7 @@
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:text="View Photo"
+        android:textColor="@color/Ash_Gray"
         android:background="@drawable/rounded_edittext"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -232,6 +233,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:text="Edit Item"
+        android:textColor="@color/Ash_Gray"
         android:background="@drawable/rounded_edittext"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -263,20 +265,6 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/add_tags_button_view"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/rounded_edittext"
-        android:layout_marginBottom="16dp"
-        android:text="Add Tags"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/view_photo_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tags_linear_layout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -157,6 +157,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             holder.nameTextView = convertView.findViewById(R.id.itemName);
             holder.descriptionTextView = convertView.findViewById(R.id.itemDescription);
             holder.valueTextView = convertView.findViewById(R.id.itemValue);
+            holder.makeTextView = convertView.findViewById(R.id.itemMake);
             holder.imageView = convertView.findViewById(R.id.itemImage);
             convertView.setTag(holder);
         } else {
@@ -166,7 +167,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-
+        holder.makeTextView.setText(item.getMake());
         holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
 
         // Set other properties to the holder's views as needed
@@ -236,7 +237,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         TextView descriptionTextView;
         TextView valueTextView;
         ImageView imageView;
-        // Add more views as needed
+        TextView makeTextView;
     }
 
     /**
