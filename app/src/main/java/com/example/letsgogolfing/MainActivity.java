@@ -167,9 +167,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         itemGrid.setAdapter(itemAdapter);
 
         fetchItemsAndRefreshAdapter();
-
-        itemAdapter.setFilterType(selectedFilterType);
-
         itemGrid.setOnItemLongClickListener((parent, view, position, id) -> {
             Item item = itemAdapter.getItem(position);
             if (item != null && item.getId() != null) {
