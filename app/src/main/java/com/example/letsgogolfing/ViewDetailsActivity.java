@@ -2,6 +2,7 @@ package com.example.letsgogolfing;
 
 import static com.example.letsgogolfing.utils.Formatters.dateFormat;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -127,7 +128,7 @@ public class ViewDetailsActivity extends AppCompatActivity {
         serial.setText(item.getSerialNumber());
         comment.setText(item.getComment());
         date.setText(dateFormat.format(item.getDateOfPurchase()));
-        value.setText(Double.toString(item.getEstimatedValue()));
+        value.setText(String.format("$%.2f", item.getEstimatedValue()));
 
         // Set content of Tag Container
         loadTags();

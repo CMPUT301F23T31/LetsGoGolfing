@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">LetsGoGolfing</string>
 
-    <string name="item_value">Total:\n $%s</string>
+    <string name="total_value">Total:\n $%.2f</string>
+    <string name="item_price">$%.2f</string>
 
     <string name="captured_image">Captured Image</string>
 
