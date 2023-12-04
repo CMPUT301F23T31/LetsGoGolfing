@@ -202,6 +202,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
             holder.valueTextView = convertView.findViewById(R.id.itemValue);
             holder.makeTextView = convertView.findViewById(R.id.itemMake);
             holder.dateTextView = convertView.findViewById(R.id.itemDate);
+            holder.tagsTextView = convertView.findViewById(R.id.itemTags); // Initialize the tags TextView
             holder.imageView = convertView.findViewById(R.id.itemImage);
             convertView.setTag(holder);
         } else {
@@ -211,11 +212,18 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-        holder.makeTextView.setText(item.getMake());
         holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
+        holder.makeTextView.setText(item.getMake());
         holder.dateTextView.setText(dateFormat.format(item.getDateOfPurchase()));
-        // Set other properties to the holder's views as needed
 
+        // Format and set the tags
+        StringBuilder tagsStringBuilder = new StringBuilder();
+        for(String tag : item.getTags()) {
+            tagsStringBuilder.append("#").append(tag).append(" ");
+        }
+        holder.tagsTextView.setText(tagsStringBuilder.toString().trim());
+
+        // Set the image using Glide
         if (item.getImageUris() != null && !item.getImageUris().isEmpty()) {
             Glide.with(context)
                     .load(item.getImageUris().get(0)) // Load the first image URI
@@ -226,13 +234,14 @@ public class ItemAdapter extends ArrayAdapter<Item>{
 
         // Change background color if selected
         if (selectedItems.contains(position)) {
-            convertView.setBackgroundColor(Color.parseColor("#2D4B41")); // color for selected items
+            convertView.setBackgroundColor(Color.parseColor("#2D4B41")); // Color for selected items
         } else {
             convertView.setBackgroundColor(Color.parseColor("#5a786e")); // Original background color
         }
 
         return convertView;
     }
+
 
 
     /**
@@ -274,6 +283,7 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         TextView nameTextView;
         TextView descriptionTextView;
         TextView valueTextView;
+        TextView tagsTextView;
         ImageView imageView;
         TextView makeTextView;
         TextView dateTextView;
