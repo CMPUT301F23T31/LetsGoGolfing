@@ -156,8 +156,6 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
             // Initialize FirestoreRepository with the current username
             firestoreRepository = new FirestoreRepository(currentUsername);
         }
-
-        GetTags getTags = new GetTags(this, firestoreRepository);
         itemGrid = findViewById(R.id.itemGrid);
         itemAdapter = new ItemAdapter(this, new ArrayList<>());
 
@@ -368,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements SortDialogFragmen
         }
 
         TextView totalValueTextView = findViewById(R.id.totalValue);
-        totalValueTextView.setText(this.getApplicationContext().getString(R.string.item_value , decimalFormat.format(totalValue)));
+        totalValueTextView.setText(this.getApplicationContext().getString(R.string.total_value, totalValue));
     }
 
     private boolean isRunningEspressoTest() {

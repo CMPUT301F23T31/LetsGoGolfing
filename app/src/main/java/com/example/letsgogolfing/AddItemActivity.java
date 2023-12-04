@@ -17,9 +17,7 @@ import android.net.Uri;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,8 +26,6 @@ import android.widget.Toast;
 
 import com.example.letsgogolfing.utils.TagDialogHelper;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -40,7 +36,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -58,23 +53,14 @@ import android.Manifest;
  * select tags from the available list, and the information is then saved to Firestore.
  */
 public class AddItemActivity extends AppCompatActivity {
-
-    private Item item;
     private static final String TAG = "EditItemActivity";
-
     private int uploadCounter = 0;
     private int totalUploadCount = 0;
-
     private AlertDialog loadingDialog;
-
     private ArrayList<String> tempUris = new ArrayList<>();
-
     private FirestoreRepository firestoreRepository;
-
-
     private List<String> tagList = new ArrayList<>(); // This should be populated from the ManageTagsActivity
     private List<String> selectedTags = new ArrayList<>();
-
     private Uri imageUri;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private static final int MY_GALLERY_PERMISSION_CODE = 101;

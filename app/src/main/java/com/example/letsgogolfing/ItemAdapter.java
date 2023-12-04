@@ -66,27 +66,6 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-
-    // generate javadocs for setSelectModeEnabled
-
-    /**
-     * Sets whether or not the adapter should be in select mode.
-     *
-     * @param enabled True if the adapter should be in select mode, false otherwise.
-     */
-    public void setSelectModeEnabled(boolean enabled) {
-        isSelectModeEnabled = enabled;
-        selectedItems.clear(); // Clear selections when toggling mode
-        notifyDataSetChanged();
-    }
-    public boolean isSelectionEmpty(){
-        return selectedItems.isEmpty();
-    }
-
-    public void setFilterField(FilterType filterType) {
-        this.currentFilterType = filterType;
-    }
-
     @Override
     public Filter getFilter() {
         return new Filter() {
@@ -212,8 +191,8 @@ public class ItemAdapter extends ArrayAdapter<Item>{
         Item item = getItem(position);
         holder.nameTextView.setText(item.getName());
         holder.descriptionTextView.setText(item.getDescription());
-        holder.valueTextView.setText(context.getString(R.string.item_value, decimalFormat.format(item.getEstimatedValue())));
         holder.makeTextView.setText(item.getMake());
+        holder.valueTextView.setText(context.getString(R.string.item_price, (item.getEstimatedValue())));
         holder.dateTextView.setText(dateFormat.format(item.getDateOfPurchase()));
 
         // Format and set the tags
