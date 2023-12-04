@@ -268,7 +268,7 @@
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:padding="6dp"
-        android:text="Add Tags"
+        android:text="Edit Tags"
         android:textColor="@color/Ash_Gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

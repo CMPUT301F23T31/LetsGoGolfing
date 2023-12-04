@@ -3,8 +3,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
-    android:gravity="center_horizontal"
-    android:background="@drawable/rounded_image_background">
+    android:gravity="center_horizontal">
 
     <TextView
         android:layout_width="match_parent"
