@@ -1,4 +1,4 @@
-# Household Inventory Manager
+# Cliche - Household Inventory Manager
 
 ## Overview
 
@@ -61,4 +61,4 @@ Thanks to all contributors and CMPUT 301 for guiding this project.
 
 ---
 
-© [Year] Household Inventory Manager Team
+© [2023] Cliche Team
